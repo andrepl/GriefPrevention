@@ -9,6 +9,8 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.MaterialCollection;
 import me.ryanhamshire.GriefPrevention.MaterialInfo;
 
+import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
+import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -94,7 +96,7 @@ public class WorldConfig {
     private int configMessageCooldownStuck = 0;       // stuck cooldown. 0= no cooldown.
     private int configClaimCleanupMaximumSize;        // maximum size of claims to cleanup. larger claims are not cleaned up.
     private int configClaimCleanupMaxInvestmentScore; // maximum investmentscore. claims with a higher score will not be cleaned up. if set to 0, claim cleanup will not have it's score calculated.
-    private int configClaimsBlocksAccruedPerHour;					// how many additional blocks players get each hour of play (can be zero)
+    private float configClaimsBlocksAccruedPerHour;					// how many additional blocks players get each hour of play (can be zero)
     private int siegeTamedAnimalDistance;
     private int configClaimsMaxDepth;								// limit on how deep claims can go
     private int configClaimsExpirationDays;						// how many days of inactivity before a player loses his claims
@@ -190,7 +192,7 @@ public class WorldConfig {
     public boolean getClaimsLockTrapDoors() { return configClaimsLockTrapDoors; }
 	public boolean getEnderPearlsRequireAccessTrust() { return configClaimsEnderPearlsRequireAccessTrust; }
     public boolean getClaimsLockFenceGates() { return configClaimsLockFenceGates; }
-	public int getClaimBlocksAccruedPerHour() { return configClaimsBlocksAccruedPerHour; }
+	public float getClaimBlocksAccruedPerHour() { return configClaimsBlocksAccruedPerHour; }
 	public int getSiegeTamedAnimalDistance() { return siegeTamedAnimalDistance; }
 	public int getClaimsMaxDepth() { return configClaimsMaxDepth; }
 	public int getClaimsExpirationDays() { return configClaimsExpirationDays; }
@@ -771,8 +773,22 @@ public class WorldConfig {
         outConfig.set("GriefPrevention.Claims.WarnWhenBuildingOutsideClaims", this.configClaimsWarnOnBuildOutside);
         outConfig.set("GriefPrevention.Claims.AllowUnclaimingLand", this.configClaimsAllowUnclaim);
         outConfig.set("GriefPrevention.Claims.TrashBlocks",trashBlocks);
+        // Task startup.
+        // if we have a blockaccrued value and the ClaimTask for delivering claim blocks is null,
+        // create and schedule it to run.
+        if (configClaimsBlocksAccruedPerHour > 0 && GriefPrevention.instance.claimTask == null) {
+            GriefPrevention.instance.claimTask = new DeliverClaimBlocksTask();
+            GriefPrevention.instance.getServer().getScheduler().scheduleSyncRepeatingTask(GriefPrevention.instance,
+                         GriefPrevention.instance.claimTask, 60L*20*2, 60L*20*5);
+        }
 
+        //similar logic for ClaimCleanup: if claim cleanup is enabled and there isn't a cleanup task, start it.
+        if (this.getClaimCleanupEnabled() && GriefPrevention.instance.cleanupTask==null) {
+            CleanupUnusedClaimsTask task2 = new CleanupUnusedClaimsTask();
+            GriefPrevention.instance.getServer().getScheduler().scheduleSyncRepeatingTask(GriefPrevention.instance, task2, 20L * 60 * 2, 20L * 60 * 5);
+        }
 	}
+
 	public WorldConfig(String worldname) {
 		this(worldname,new YamlConfiguration(),ConfigData.createTargetConfiguration(worldname) );
 	}

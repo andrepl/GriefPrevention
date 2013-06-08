@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.ryanhamshire.GriefPrevention.Configuration.ClaimBehaviourData;
 import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
 import me.ryanhamshire.GriefPrevention.tasks.PlayerKickBanTask;
@@ -877,6 +878,22 @@ class PlayerEventHandler implements Listener {
         Block block = bucketEvent.getBlockClicked().getRelative(bucketEvent.getBlockFace());
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(block.getWorld());
         int minLavaDistance = 10;
+
+        ClaimBehaviourData.ClaimAllowanceConstants bucketBehaviour = null;
+
+        if (bucketEvent.getBucket() == Material.LAVA_BUCKET) {
+            bucketBehaviour = wc.getLavaBucketBehaviour().Allowed(block.getLocation(), player);
+        } else if (bucketEvent.getBucket() == Material.WATER_BUCKET) {
+            bucketBehaviour = wc.getWaterBucketBehaviour().Allowed(block.getLocation(), player);
+        }
+        switch(bucketBehaviour) {
+        case Allow_Forced:
+            return;
+        case Deny_Forced:
+            bucketEvent.setCancelled(true);
+            return;
+        default:
+        }
 
         // make sure the player is allowed to build at the location
         String noBuildReason = GriefPrevention.instance.allowBuild(player, block.getLocation());

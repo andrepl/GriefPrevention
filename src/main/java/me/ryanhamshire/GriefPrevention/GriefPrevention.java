@@ -140,6 +140,9 @@ public class GriefPrevention extends JavaPlugin {
 
     private static boolean eventsRegistered = false;
 
+    public DeliverClaimBlocksTask claimTask = null;
+    public CleanupUnusedClaimsTask cleanupTask = null;
+
     // initializes well...   everything
     public void onEnable() {
         AddLogEntry("Grief Prevention enabled.");
@@ -157,6 +160,7 @@ public class GriefPrevention extends JavaPlugin {
         // load player groups.
         this.config_player_groups = new PlayerGroups(config, "GriefPrevention.Groups");
         this.config_player_groups.Save(outConfig, "GriefPrevention.Groups");
+
         // optional database settings
         String databaseUrl = config.getString("GriefPrevention.Database.URL", "");
         String databaseUserName = config.getString("GriefPrevention.Database.UserName", "");
@@ -211,20 +215,6 @@ public class GriefPrevention extends JavaPlugin {
                 GriefPrevention.AddLogEntry(e.getMessage());
             }
         }
-        boolean claimblockaccrual = false;
-        for (WorldConfig wconfig : this.Configuration.getWorldConfigs().values()) {
-            if (wconfig.getClaimBlocksAccruedPerHour() > 0) {
-                claimblockaccrual = true;
-                break;
-            }
-        }
-        // unless claim block accrual is disabled, start the recurring per 5 minute event to give claim blocks to online players
-        // 20L ~ 1 second
-        if (claimblockaccrual) {
-            DeliverClaimBlocksTask task = new DeliverClaimBlocksTask();
-            this.getServer().getScheduler().scheduleSyncRepeatingTask(this, task, 20L * 60 * 5, 20L * 60 * 5);
-        }
-
         // start the recurring cleanup event for entities in creative worlds, if enabled.
 
         // start recurring cleanup scan for unused claims belonging to inactive players
@@ -232,21 +222,11 @@ public class GriefPrevention extends JavaPlugin {
         // look through all world configurations.
         boolean claimcleanupOn = false;
         boolean entitycleanupEnabled = false;
-        for (WorldConfig wconfig : Configuration.getWorldConfigs().values()) {
-            if (wconfig.getClaimCleanupEnabled())
-                claimcleanupOn = true;
-            if (wconfig.getEntityCleanupEnabled())
-                entitycleanupEnabled = true;
-        }
+
 
         if (entitycleanupEnabled) {
             EntityCleanupTask task = new EntityCleanupTask(0);
             this.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L);
-        }
-
-        if (claimcleanupOn) {
-            CleanupUnusedClaimsTask task2 = new CleanupUnusedClaimsTask();
-            this.getServer().getScheduler().scheduleSyncRepeatingTask(this, task2, 20L * 60 * 2, 20L * 60 * 5);
         }
 
         // register for events
