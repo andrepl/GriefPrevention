@@ -156,7 +156,7 @@ class EntityEventHandler implements Listener {
         else if (isWither)
             usebehaviour = wc.getWitherExplosionBehaviour();
         else if (isTNT)
-            usebehaviour = wc.getTNTExplosionBehaviour();
+            usebehaviour = wc.getTntExplosionBehaviour();
         else
             usebehaviour = wc.getOtherExplosionBehaviour();
         Claim claimpos = null;
@@ -487,11 +487,11 @@ class EntityEventHandler implements Listener {
             }
 
             // FEATURE: prevent players from engaging in PvP combat inside land claims (when it's disabled)
-            if (wc.getPvPNoCombatinPlayerClaims() || wc.getNoPvPCombatinAdminClaims()) {
+            if (wc.getPvPNoCombatInPlayerClaims() || wc.getNoPvPCombatInAdminClaims()) {
                 Claim attackerClaim = this.dataStore.getClaimAt(attacker.getLocation(), false, attackerData.lastClaim);
                 if (attackerClaim != null &&
-                        (attackerClaim.isAdminClaim() && wc.getNoPvPCombatinAdminClaims() ||
-                                !attackerClaim.isAdminClaim() && wc.getPvPNoCombatinPlayerClaims())) {
+                        (attackerClaim.isAdminClaim() && wc.getNoPvPCombatInAdminClaims() ||
+                                !attackerClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
                     attackerData.lastClaim = attackerClaim;
                     event.setCancelled(true);
                     GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.CantFightWhileImmune);
@@ -500,8 +500,8 @@ class EntityEventHandler implements Listener {
 
                 Claim defenderClaim = this.dataStore.getClaimAt(defender.getLocation(), false, defenderData.lastClaim);
                 if (defenderClaim != null &&
-                        (defenderClaim.isAdminClaim() && wc.getNoPvPCombatinAdminClaims() ||
-                                !defenderClaim.isAdminClaim() && wc.getPvPNoCombatinPlayerClaims())) {
+                        (defenderClaim.isAdminClaim() && wc.getNoPvPCombatInAdminClaims() ||
+                                !defenderClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
                     defenderData.lastClaim = defenderClaim;
                     event.setCancelled(true);
                     GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.PlayerInPvPSafeZone);

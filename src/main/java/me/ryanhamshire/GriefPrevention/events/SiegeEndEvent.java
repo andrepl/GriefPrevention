@@ -13,6 +13,7 @@ public class SiegeEndEvent extends Event {
 
     // Custom Event Requirements
     private static final HandlerList handlers = new HandlerList();
+    SiegeData SiegeInfo;
 
     public HandlerList getHandlers() {
         return handlers;
@@ -22,7 +23,6 @@ public class SiegeEndEvent extends Event {
         return handlers;
     }
 
-    SiegeData SiegeInfo;
 
     public SiegeData getSiegeData() {
         return SiegeInfo;
@@ -31,6 +31,4 @@ public class SiegeEndEvent extends Event {
     public SiegeEndEvent(SiegeData sd) {
         SiegeInfo = sd;
     }
-
-
 }

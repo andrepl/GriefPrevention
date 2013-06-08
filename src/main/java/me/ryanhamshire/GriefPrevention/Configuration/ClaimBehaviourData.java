@@ -5,11 +5,11 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.TextMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
-//this enum is used for some of the configuration options.
+// this enum is used for some of the configuration options.
 import org.bukkit.entity.Player;
 
-//holds data pertaining to an option and where it works. 
-//used primarily for information on explosions.
+// holds data pertaining to an option and where it works. 
+// used primarily for information on explosions.
 public class ClaimBehaviourData {
 	public enum ClaimAllowanceConstants {
 		Allow_Forced,
@@ -21,7 +21,8 @@ public class ClaimBehaviourData {
 		public boolean Denied(){ return this==Deny || this==Deny_Forced;}
 	}
 
-	public enum ClaimBehaviourMode{
+
+    public enum ClaimBehaviourMode{
 		None,
 		ForceAllow,
 		RequireOwner,
@@ -30,9 +31,7 @@ public class ClaimBehaviourData {
 		RequireContainer;
 
 		public static ClaimBehaviourMode parseMode(String name){
-			//System.out.println("Looking for " + name);
 			for(ClaimBehaviourMode cb:ClaimBehaviourMode.values()){
-				//System.out.println(cb.name());
 				if(cb.name().equalsIgnoreCase(name))
 					return cb;
 			}
@@ -40,31 +39,35 @@ public class ClaimBehaviourData {
 		}
 	}
 
-	private PlacementRules Wilderness;
-	private PlacementRules Claims;
-	private ClaimBehaviourMode ClaimBehaviour = ClaimBehaviourMode.None;
+
+    private String behaviourName;
+    private PlacementRules wilderness;
+	private PlacementRules claims;
+	private ClaimBehaviourMode claimBehaviour = ClaimBehaviourMode.None;
 	
-	public ClaimBehaviourMode getClaimBehaviour(){ return ClaimBehaviour;}
+	public ClaimBehaviourMode getClaimBehaviour(){
+        return claimBehaviour;
+    }
 	
 	public ClaimAllowanceConstants Allowed(Location position,Player RelevantPlayer){
 		String result=null;
 		Claim testclaim = GriefPrevention.instance.dataStore.getClaimAt(position, true, null);
-		if(ClaimBehaviour!=ClaimBehaviourMode.None && testclaim!=null){
-			//if forcibly allowed, allow.
-			if(ClaimBehaviour == ClaimBehaviourMode.ForceAllow){
+		if(claimBehaviour !=ClaimBehaviourMode.None && testclaim!=null){
+			// if forcibly allowed, allow.
+			if(claimBehaviour == ClaimBehaviourMode.ForceAllow){
 				return ClaimAllowanceConstants.Allow;
 			}
-			else if(ClaimBehaviour == ClaimBehaviourMode.RequireOwner){
-				//RequireOwner means it only applies if the player passed is the owner.
-				//if the passed player is null, then we assume the operation has no relevant player, so allow it in this case.
+			else if(claimBehaviour == ClaimBehaviourMode.RequireOwner){
+				// RequireOwner means it only applies if the player passed is the owner.
+				// if the passed player is null, then we assume the operation has no relevant player, so allow it in this case.
 				if(RelevantPlayer!=null){
 					if(!testclaim.getOwnerName().equalsIgnoreCase(RelevantPlayer.getName())){
-						//they aren't the owner, so fail the test.
+						// they aren't the owner, so fail the test.
 						return ClaimAllowanceConstants.Deny;
 					}
 				}
 			}
-			else if(ClaimBehaviour == ClaimBehaviourMode.RequireAccess){
+			else if(claimBehaviour == ClaimBehaviourMode.RequireAccess){
 				if(RelevantPlayer!=null){
 					if(null!=(result =testclaim.allowAccess(RelevantPlayer))){
 						GriefPrevention.sendMessage(RelevantPlayer, TextMode.Err, result);
@@ -72,7 +75,7 @@ public class ClaimBehaviourData {
 					}
 				}
 			}
-			else if(ClaimBehaviour == ClaimBehaviourMode.RequireContainer){
+			else if(claimBehaviour == ClaimBehaviourMode.RequireContainer){
 				if(RelevantPlayer!=null){
 					if(null!=(result = testclaim.allowContainers(RelevantPlayer))){
 						GriefPrevention.sendMessage(RelevantPlayer, TextMode.Err, result);
@@ -80,7 +83,7 @@ public class ClaimBehaviourData {
 					}
 				}
 			}
-			else if(ClaimBehaviour == ClaimBehaviourMode.RequireManager){
+			else if(claimBehaviour == ClaimBehaviourMode.RequireManager){
 				if(RelevantPlayer!=null){
 					if(!testclaim.isManager(RelevantPlayer.getName())){
 						return ClaimAllowanceConstants.Deny;
@@ -89,59 +92,51 @@ public class ClaimBehaviourData {
 			}
 		}
 
-		//retrieve the appropriate Sea Level for this world.
-		/*int sealevel = GriefPrevention.instance.getWorldCfg(position.getWorld()).seaLevelOverride();
-		int yposition = position.getBlockY();
-		boolean abovesealevel = yposition > sealevel;*/
 		if(testclaim==null){
-			//we aren't inside a claim.
-			//System.out.println(BehaviourName + "Wilderness test...");
-			return Wilderness.Allow(position)?ClaimAllowanceConstants.Allow:ClaimAllowanceConstants.Deny;
+			// we aren't inside a claim.
+			return wilderness.allow(position)?ClaimAllowanceConstants.Allow:ClaimAllowanceConstants.Deny;
 		} else {
-			//we are inside a claim.
-			//System.out.println(BehaviourName + "Claim test...");
-			return Claims.Allow(position)?ClaimAllowanceConstants.Allow:ClaimAllowanceConstants.Deny;
+			// we are inside a claim.
+			return claims.allow(position)?ClaimAllowanceConstants.Allow:ClaimAllowanceConstants.Deny;
 		}
 	}
 
 	public PlacementRules getWildernessRules() {
-        return Wilderness;
+        return wilderness;
     }
 
 	public PlacementRules getClaimsRules(){
-        return Claims;
+        return claims;
     }
 
-	private String BehaviourName;
-    public String getBehaviourName() {
-        return BehaviourName;
+	public String getBehaviourName() {
+        return behaviourName;
     }
 
     @Override
 	public String toString(){
-		return BehaviourName + " in the wilderness " + getWildernessRules().toString() + " and in claims " + getClaimsRules().toString();
+		return behaviourName + " in the wilderness " + getWildernessRules().toString() + " and in claims " + getClaimsRules().toString();
 	}
 	
-	public ClaimBehaviourData(String pName,FileConfiguration Source,FileConfiguration outConfig,String NodePath,ClaimBehaviourData Defaults){
-		BehaviourName = pName;
-		//we want to read NodePath.BelowSeaLevelWilderness and whatnot.
-		//bases Defaults off another ClaimBehaviourData instance.
-		Wilderness = new PlacementRules(Source,outConfig,NodePath + ".Wilderness",Defaults.getWildernessRules());
-		Claims = new PlacementRules (Source,outConfig,NodePath + ".Claims",Defaults.getClaimsRules());
+	public ClaimBehaviourData(String pName, FileConfiguration source, FileConfiguration outConfig, String nodePath, ClaimBehaviourData defaults){
+		behaviourName = pName;
+		// we want to read NodePath.BelowSeaLevelWilderness and whatnot.
+		// bases Defaults off another ClaimBehaviourData instance.
+		wilderness = new PlacementRules(source,outConfig,nodePath + ".Wilderness",defaults.getWildernessRules());
+		claims = new PlacementRules (source,outConfig,nodePath + ".Claims",defaults.getClaimsRules());
 		
 		
-		String claimbehave = Source.getString(NodePath + ".Claims.Behaviour","None");
-		//System.out.println(NodePath + ".Claims.Behaviour:" + claimbehave);
-		ClaimBehaviour = ClaimBehaviourMode.parseMode(claimbehave);
+		String claimbehave = source.getString(nodePath + ".Claims.Behaviour","None");
+		claimBehaviour = ClaimBehaviourMode.parseMode(claimbehave);
 		
-		outConfig.set(NodePath + ".Claims.Behaviour",ClaimBehaviour.name());
+		outConfig.set(nodePath + ".Claims.Behaviour", claimBehaviour.name());
 	}
 
 	public ClaimBehaviourData(String pName,PlacementRules pWilderness,PlacementRules pClaims, ClaimBehaviourMode cb) {
-		Wilderness = pWilderness;
-		Claims = pClaims;
-		ClaimBehaviour = cb;
-		BehaviourName=pName;
+		wilderness = pWilderness;
+		claims = pClaims;
+		claimBehaviour = cb;
+		behaviourName =pName;
 	}
 
 	public static ClaimBehaviourData getOutsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.Both,PlacementRules.Neither,ClaimBehaviourMode.None); }

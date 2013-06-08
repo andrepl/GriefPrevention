@@ -12,8 +12,8 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @author BC_Programming
  */
 public class PlacementRules {
-// above and below placement rules.
 
+// above and below placement rules.
     public enum BasicPermissionConstants {
         Deny,
         Allow;
@@ -30,11 +30,11 @@ public class PlacementRules {
             return value ? Allow : Deny;
         }
 
-        public static BasicPermissionConstants fromString(String Source) {
-            if (Source.equalsIgnoreCase(Boolean.TRUE.toString())) return Allow;
-            if (Source.equalsIgnoreCase(Boolean.FALSE.toString())) return Deny;
+        public static BasicPermissionConstants fromString(String source) {
+            if (source.equalsIgnoreCase(Boolean.TRUE.toString())) return Allow;
+            if (source.equalsIgnoreCase(Boolean.FALSE.toString())) return Deny;
             for (BasicPermissionConstants iterate : values()) {
-                if (iterate.name().equalsIgnoreCase(Source.trim())) {
+                if (iterate.name().equalsIgnoreCase(source.trim())) {
                     return iterate;
                 }
             }
@@ -76,48 +76,47 @@ public class PlacementRules {
         return "Nowhere";
     }
 
-    public PlacementRules(boolean Above, boolean Below) {
-        AboveSeaLevel = BasicPermissionConstants.fromBoolean(Above);
-        BelowSeaLevel = BasicPermissionConstants.fromBoolean(Below);
+    public PlacementRules(boolean above, boolean below) {
+        AboveSeaLevel = BasicPermissionConstants.fromBoolean(above);
+        BelowSeaLevel = BasicPermissionConstants.fromBoolean(below);
     }
 
-    public PlacementRules(BasicPermissionConstants Above, BasicPermissionConstants Below) {
-        AboveSeaLevel = Above;
-        BelowSeaLevel = Below;
+    public PlacementRules(BasicPermissionConstants above, BasicPermissionConstants below) {
+        AboveSeaLevel = above;
+        BelowSeaLevel = below;
     }
 
     /**
      * constructs a new PlacementRules based on the settings in the given configuration file at the given Node, using specific defaults and
      * a target Configuration to save the elements too.
      *
-     * @param Source   Source Configuration.
-     * @param Target   Target Configuration to save to.
-     * @param NodePath Path to the Configuration Node to read from.
-     * @param Defaults instance containing Default settings to default to.
+     * @param source   Source Configuration.
+     * @param target   Target Configuration to save to.
+     * @param nodePath Path to the Configuration Node to read from.
+     * @param defaults instance containing Default settings to default to.
      */
-    public PlacementRules(FileConfiguration Source, FileConfiguration Target, String NodePath, PlacementRules Defaults) {
+    public PlacementRules(FileConfiguration source, FileConfiguration target, String nodePath, PlacementRules defaults) {
 
-        String sAboveSeaLevel = Source.getString(NodePath + ".AboveSeaLevel", Defaults.AboveSeaLevel.name());
-        String sBelowSeaLevel = Source.getString(NodePath + ".BelowSeaLevel", Defaults.BelowSeaLevel.name());
+        String sAboveSeaLevel = source.getString(nodePath + ".AboveSeaLevel", defaults.AboveSeaLevel.name());
+        String sBelowSeaLevel = source.getString(nodePath + ".BelowSeaLevel", defaults.BelowSeaLevel.name());
         AboveSeaLevel = BasicPermissionConstants.fromString(sAboveSeaLevel);
         BelowSeaLevel = BasicPermissionConstants.fromString(sBelowSeaLevel);
-        if (AboveSeaLevel == null) AboveSeaLevel = Defaults.AboveSeaLevel;
-        if (BelowSeaLevel == null) BelowSeaLevel = Defaults.BelowSeaLevel;
-        Target.set(NodePath + ".AboveSeaLevel", AboveSeaLevel.name());
-        Target.set(NodePath + ".BelowSeaLevel", BelowSeaLevel.name());
+        if (AboveSeaLevel == null) AboveSeaLevel = defaults.AboveSeaLevel;
+        if (BelowSeaLevel == null) BelowSeaLevel = defaults.BelowSeaLevel;
+        target.set(nodePath + ".AboveSeaLevel", AboveSeaLevel.name());
+        target.set(nodePath + ".BelowSeaLevel", BelowSeaLevel.name());
     }
 
     /**
      * determines if this Placementrule allows for the given location.
      *
-     * @param Target
+     * @param target
      * @return
      */
-    public boolean Allow(Location Target) {
-        int SeaLevelofWorld = GriefPrevention.instance.getSeaLevel(Target.getWorld());
-        boolean result = (AboveSeaLevel.allowed() && (Target.getBlockY() >= SeaLevelofWorld)) ||
-                (BelowSeaLevel.allowed() && (Target.getBlockY() < SeaLevelofWorld));
-        // System.out.println("Block:" + Target.getBlockY() + " SeaLevel:" + SeaLevelofWorld + " Allow:" + result);
+    public boolean allow(Location target) {
+        int seaLevelofWorld = GriefPrevention.instance.getSeaLevel(target.getWorld());
+        boolean result = (AboveSeaLevel.allowed() && (target.getBlockY() >= seaLevelofWorld)) ||
+                (BelowSeaLevel.allowed() && (target.getBlockY() < seaLevelofWorld));
         return result;
     }
 }

@@ -14,6 +14,8 @@ public class SiegeStartEvent extends Event implements Cancellable {
 
     // Custom Event Requirements
     private static final HandlerList handlers = new HandlerList();
+    SiegeData SiegeInfo;
+    boolean canceled = false;
 
     public HandlerList getHandlers() {
         return handlers;
@@ -22,8 +24,6 @@ public class SiegeStartEvent extends Event implements Cancellable {
     public static HandlerList getHandlerList() {
         return handlers;
     }
-
-    SiegeData SiegeInfo;
 
     /**
      * returns the Information of the upcoming Siege.
@@ -38,9 +38,6 @@ public class SiegeStartEvent extends Event implements Cancellable {
         SiegeInfo = sd;
     }
 
-
-    boolean canceled = false;
-
     @Override
     public boolean isCancelled() {
         return canceled;
@@ -50,5 +47,4 @@ public class SiegeStartEvent extends Event implements Cancellable {
     public void setCancelled(boolean iscancelled) {
         canceled = iscancelled;
     }
-
 }

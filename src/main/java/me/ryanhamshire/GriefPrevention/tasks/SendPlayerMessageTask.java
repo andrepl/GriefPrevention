@@ -37,7 +37,6 @@ public class SendPlayerMessageTask implements Runnable {
 
     @Override
     public void run() {
-
         GriefPrevention.sendMessage(this.player, this.color, this.message);
     }
 }

@@ -74,7 +74,6 @@ class RestoreNatureExecutionTask implements Runnable {
                             cachedClaim = claim;
                             break;
                         }
-
                         currentBlock.setTypeId(blockUpdate.typeId);
                         currentBlock.setData(blockUpdate.data);
                     }

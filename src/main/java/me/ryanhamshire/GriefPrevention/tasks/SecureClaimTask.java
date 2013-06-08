@@ -18,7 +18,6 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
-
 import me.ryanhamshire.GriefPrevention.*;
 import org.bukkit.entity.Player;
 
@@ -29,7 +28,6 @@ public class SecureClaimTask implements Runnable {
     public SecureClaimTask(SiegeData siegeData) {
         this.siegeData = siegeData;
     }
-
 
     @Override
     public void run() {

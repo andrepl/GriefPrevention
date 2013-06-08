@@ -22,6 +22,4 @@ public class RestoreChunksExecutionTask implements Runnable {
             iterate.getWorld().regenerateChunk(iterate.getX(), iterate.getZ());
         }
     }
-
-
 }

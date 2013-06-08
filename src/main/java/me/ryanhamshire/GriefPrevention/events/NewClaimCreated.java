@@ -48,5 +48,4 @@ public class NewClaimCreated extends Event implements Cancellable {
     public void setCancelled(boolean iscancelled) {
         canceled = iscancelled;
     }
-
 }

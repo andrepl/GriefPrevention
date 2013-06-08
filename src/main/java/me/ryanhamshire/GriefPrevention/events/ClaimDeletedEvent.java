@@ -62,6 +62,4 @@ public class ClaimDeletedEvent extends Event implements Cancellable {
     public void setCancelled(boolean iscancelled) {
         canceled = iscancelled;
     }
-
-
 }

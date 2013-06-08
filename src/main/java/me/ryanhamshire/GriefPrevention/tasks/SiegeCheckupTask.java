@@ -91,7 +91,6 @@ public class SiegeCheckupTask implements Runnable {
                 return true;
             }
         }
-
         return false;
     }
 

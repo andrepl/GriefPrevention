@@ -244,7 +244,6 @@ public class RestoreNatureProcessingTask implements Runnable {
                     if (adjacentBlockCount < 3) {
                         this.snapshots[x][thisy][z].typeId = Material.AIR.getId();
                     }
-
                     thisy--;
                 }
             }
@@ -323,22 +322,21 @@ public class RestoreNatureProcessingTask implements Runnable {
     }
 
     private void removeWallsAndTowers() {
-        int[] excludedBlocksArray = new int[]
-                {
-                        Material.CACTUS.getId(),
-                        Material.LONG_GRASS.getId(),
-                        Material.RED_MUSHROOM.getId(),
-                        Material.BROWN_MUSHROOM.getId(),
-                        Material.DEAD_BUSH.getId(),
-                        Material.SAPLING.getId(),
-                        Material.YELLOW_FLOWER.getId(),
-                        Material.RED_ROSE.getId(),
-                        Material.SUGAR_CANE_BLOCK.getId(),
-                        Material.VINE.getId(),
-                        Material.PUMPKIN.getId(),
-                        Material.WATER_LILY.getId(),
-                        Material.LEAVES.getId()
-                };
+        int[] excludedBlocksArray = new int[] {
+                Material.CACTUS.getId(),
+                Material.LONG_GRASS.getId(),
+                Material.RED_MUSHROOM.getId(),
+                Material.BROWN_MUSHROOM.getId(),
+                Material.DEAD_BUSH.getId(),
+                Material.SAPLING.getId(),
+                Material.YELLOW_FLOWER.getId(),
+                Material.RED_ROSE.getId(),
+                Material.SUGAR_CANE_BLOCK.getId(),
+                Material.VINE.getId(),
+                Material.PUMPKIN.getId(),
+                Material.WATER_LILY.getId(),
+                Material.LEAVES.getId()
+        };
 
         ArrayList<Integer> excludedBlocks = new ArrayList<Integer>();
         for (int i = 0; i < excludedBlocksArray.length; i++) excludedBlocks.add(excludedBlocksArray[i]);

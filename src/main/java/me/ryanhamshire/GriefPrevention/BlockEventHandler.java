@@ -68,16 +68,14 @@ public class BlockEventHandler implements Listener {
     // constructor
     public BlockEventHandler(DataStore dataStore) {
         this.dataStore = dataStore;
-
-
     }
 
     // when a block is damaged...
     @EventHandler(ignoreCancelled = true)
     public void onBlockDamaged(BlockDamageEvent event) {
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getBlock().getLocation().getWorld());
-        // if placing items in protected chests isn't enabled, none of this code needs to run
 
+        // if placing items in protected chests isn't enabled, none of this code needs to run
         if (!wc.getAddItemsToClaimedChests()) return;
 
         Block block = event.getBlock();
@@ -87,7 +85,6 @@ public class BlockEventHandler implements Listener {
         if (player == null) return;
 
         // FEATURE: players may add items to a chest they don't have permission for by hitting it
-
         // if it's a chest
         if (block.getType() == Material.CHEST) {
             // only care about non-creative mode players, since those would outright break the box in one hit
@@ -133,7 +130,6 @@ public class BlockEventHandler implements Listener {
                 if (availableSlot < 0) {
                     // tell the player and stop here
                     GriefPrevention.sendMessage(player, TextMode.Err, Messages.ChestFull);
-
                     return;
                 }
 
@@ -377,7 +373,7 @@ public class BlockEventHandler implements Listener {
         // warn players when they place TNT above sea level, since it doesn't destroy blocks there
 
         // warn players if Explosions are not allowed at the position they place it.
-        boolean TNTAllowed = wc.getTNTExplosionBehaviour().Allowed(block.getLocation(), null).Allowed();
+        boolean TNTAllowed = wc.getTntExplosionBehaviour().Allowed(block.getLocation(), null).Allowed();
 
         if (!TNTAllowed && block.getType() == Material.TNT &&
                 block.getWorld().getEnvironment() != Environment.NETHER &&
@@ -515,7 +511,6 @@ public class BlockEventHandler implements Listener {
             if (underBlock.getType() != Material.NETHERRACK) {
                 spreadEvent.getSource().setType(Material.AIR);
             }
-
             return;
         }
 

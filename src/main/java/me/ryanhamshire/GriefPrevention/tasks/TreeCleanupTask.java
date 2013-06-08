@@ -33,6 +33,7 @@ import java.util.ArrayList;
 // this main thread task revisits the location of a partially chopped tree from several minutes ago
 // if any part of the tree is still there and nothing else has been built in its place, remove the remaining parts
 public class TreeCleanupTask implements Runnable {
+
     private Block originalChoppedBlock;          // first block chopped in the tree
     private Block originalRootBlock;             // where the root of the tree used to be
     private byte originalRootBlockData;             // data value of that root block (TYPE of log)

@@ -35,8 +35,6 @@ public class DeliverClaimBlocksTask implements Runnable {
 
         //ensure players get at least 1 block (if accrual is totally disabled, this task won't even be scheduled)
         //BC: refactored, now it calculates the blocks that have been accrued on a per-Player basis.
-
-
         //for each online player
         for (int i = 0; i < players.length; i++) {
             Player player = players[i];

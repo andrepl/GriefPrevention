@@ -55,7 +55,6 @@ public class ClaimResizeEvent extends Event implements Cancellable {
         return claim;
     }
 
-
     /**
      * retrieves the Player performing this resize.
      *
@@ -76,5 +75,4 @@ public class ClaimResizeEvent extends Event implements Cancellable {
     public void setCancelled(boolean iscancelled) {
         canceled = iscancelled;
     }
-
 }

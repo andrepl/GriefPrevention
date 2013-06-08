@@ -39,24 +39,17 @@ public class PlayerKickBanTask implements Runnable {
     }
 
     private void runCommands(String cmds, String... replacements) {
-
         String[] commandsrun = cmds.split(";");
-
-
         for (String cmd : commandsrun) {
             int i = 0;
             for (String replacement : replacements) {
                 String substitution = "{" + i + "}";
                 cmd.replace(substitution, replacement);
                 i++;
-
             }
             if (cmd.startsWith("/")) cmd = cmd.substring(2);
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-
         }
-
-
     }
 
     @Override
@@ -65,10 +58,8 @@ public class PlayerKickBanTask implements Runnable {
         String kickcommands = wc.getSpamKickCommand();
         String bancommands = wc.getSpamBanCommand();
 
-
         if (this.banReason != null) {
             // ban
-            // GriefPrevention.instance.getServer().getOfflinePlayer(this.player.getName()).setBanned(true);
             runCommands(bancommands, this.player.getName());
         } else if (this.player.isOnline()) {
             runCommands(kickcommands, this.player.getName());
