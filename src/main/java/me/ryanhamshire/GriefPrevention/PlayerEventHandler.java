@@ -91,9 +91,7 @@ class PlayerEventHandler implements Listener {
             event.setCancelled(true);
             return;
         }
-
         String message = event.getMessage();
-
         event.setCancelled(this.handlePlayerChat(player, message, event));
     }
 
@@ -307,7 +305,6 @@ class PlayerEventHandler implements Listener {
         // in any case, record the timestamp of this message and also its content for next time
         playerData.lastMessageTimestamp = new Date();
         playerData.lastMessage = message;
-
         return false;
     }
 
@@ -682,7 +679,6 @@ class PlayerEventHandler implements Listener {
         }
 
         // FEATURE: prevent teleport abuse to win sieges
-
         // these rules only apply to non-ender-pearl teleportation
         if (event.getCause() == TeleportCause.ENDER_PEARL) return;
 
@@ -908,9 +904,7 @@ class PlayerEventHandler implements Listener {
                 return;
             }
         }
-
         if (claim != null) {
-
             minLavaDistance = 3;
         }
         // otherwise no wilderness dumping (unless underground) in worlds where claims are enabled
@@ -1007,11 +1001,7 @@ class PlayerEventHandler implements Listener {
         if (event.getClickedBlock() != null && event.getClickedBlock().getRelative(event.getBlockFace()).getType() == Material.FIRE) {
             Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.lastClaim);
             if (claim != null) {
-
-
                 playerData.lastClaim = claim;
-
-
                 String noBuildReason = claim.allowBuild(player);
                 if (noBuildReason != null) {
                     event.setCancelled(true);
@@ -1102,7 +1092,6 @@ class PlayerEventHandler implements Listener {
                 }
             }
         }
-
         // otherwise apply rules for buttons and switches
         else if (event.getClickedBlock() != null && wc.getClaimsPreventButtonsSwitches() && (clickedBlockType == null || clickedBlockType == Material.STONE_BUTTON || clickedBlockType == Material.WOOD_BUTTON || clickedBlockType == Material.LEVER || wc.getModsAccessTrustIds().Contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null)))) {
             Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.lastClaim);
@@ -1133,16 +1122,12 @@ class PlayerEventHandler implements Listener {
             if (claim != null) {
                 String noBuildReason = claim.allowBuild(player);
                 if (noBuildReason != null) {
-
                     event.setCancelled(true);
                     GriefPrevention.sendMessage(player, TextMode.Err, noBuildReason);
                     return;
                 }
             }
-        }
-
-        // otherwise handle right click (shovel, stick, bonemeal)
-        else {
+        } else { // otherwise handle right click (shovel, stick, bonemeal)
             // ignore all actions except right-click on a block or in the air
             Action action = event.getAction();
             if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) return;
@@ -1166,11 +1151,9 @@ class PlayerEventHandler implements Listener {
                     }
                 }
                 return;
-            }
-
-            // if it's a spawn egg, minecart, or boat, and this is a creative world, apply special rules
-            else if ((materialInHand == Material.MONSTER_EGG || materialInHand == Material.MINECART || materialInHand == Material.POWERED_MINECART || materialInHand == Material.STORAGE_MINECART
+            } else if ((materialInHand == Material.MONSTER_EGG || materialInHand == Material.MINECART || materialInHand == Material.POWERED_MINECART || materialInHand == Material.STORAGE_MINECART
                     || materialInHand == Material.HOPPER_MINECART || materialInHand == Material.EXPLOSIVE_MINECART || materialInHand == Material.BOAT) && GriefPrevention.instance.creativeRulesApply(clickedBlock.getLocation())) {
+                // if it's a spawn egg, minecart, or boat, and this is a creative world, apply special rules
                 // player needs build permission at this location
                 String noBuildReason = GriefPrevention.instance.allowBuild(player, clickedBlock.getLocation());
                 if (noBuildReason != null) {
@@ -1357,10 +1340,8 @@ class PlayerEventHandler implements Listener {
                                 // if the top level, always use the default filler picked above
                                 if (y == maxHeight) {
                                     block.setType(defaultFiller);
-                                }
-
-                                // otherwise look to neighbors for an appropriate fill block
-                                else {
+                                } else {
+                                    // otherwise look to neighbors for an appropriate fill block
                                     Block eastBlock = block.getRelative(BlockFace.EAST);
                                     Block westBlock = block.getRelative(BlockFace.WEST);
                                     Block northBlock = block.getRelative(BlockFace.NORTH);
@@ -1547,10 +1528,7 @@ class PlayerEventHandler implements Listener {
                         playerData.lastShovelLocation = clickedBlock.getLocation();
                         // TODO: Raise ClaimResizeBegin Event here
                         GriefPrevention.sendMessage(player, TextMode.Instr, Messages.ResizeStart);
-                    }
-
-                    // if he didn't click on a corner and is in subdivision mode, he's creating a new subdivision
-                    else if (playerData.shovelMode == ShovelMode.Subdivide) {
+                    } else if (playerData.shovelMode == ShovelMode.Subdivide) { // if he didn't click on a corner and is in subdivision mode, he's creating a new subdivision
                         // if it's the first click, he's trying to start a new subdivision
                         if (playerData.lastShovelLocation == null) {
                             // if the clicked claim was a subdivision, tell him he can't start a new subdivision here
@@ -1565,10 +1543,7 @@ class PlayerEventHandler implements Listener {
                                 playerData.lastShovelLocation = clickedBlock.getLocation();
                                 playerData.claimSubdividing = claim;
                             }
-                        }
-
-                        // otherwise, he's trying to finish creating a subdivision by setting the other boundary corner
-                        else {
+                        } else { // otherwise, he's trying to finish creating a subdivision by setting the other boundary corner
                             // if last shovel location was in a different world, assume the player is starting the create-claim workflow over
                             if (!playerData.lastShovelLocation.getWorld().equals(clickedBlock.getWorld())) {
                                 playerData.lastShovelLocation = null;
@@ -1598,10 +1573,7 @@ class PlayerEventHandler implements Listener {
                                 // It was canceled by a plugin, just return, as the plugin should put out a 
                                 // custom error message.
                                 return;
-                            }
-
-                            // otherwise, advise him on the /trust command and show him his new subdivision
-                            else {
+                            } else { // otherwise, advise him on the /trust command and show him his new subdivision
                                 GriefPrevention.sendMessage(player, TextMode.Success, Messages.SubdivisionSuccess);
                                 Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
                                 Visualization.Apply(player, visualization);
@@ -1609,29 +1581,23 @@ class PlayerEventHandler implements Listener {
                                 playerData.claimSubdividing = null;
                             }
                         }
-                    }
-
-                    // otherwise tell him he can't create a claim here, and show him the existing claim
-                    // also advise him to consider /abandonclaim or resizing the existing claim
-                    else {
+                    } else {
+                        // otherwise tell him he can't create a claim here, and show him the existing claim
+                        // also advise him to consider /abandonclaim or resizing the existing claim
                         GriefPrevention.sendMessage(player, TextMode.Err, Messages.CreateClaimFailOverlap);
                         Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
                         Visualization.Apply(player, visualization);
                     }
-                }
+                } else { // otherwise tell the player he can't claim here because it's someone else's claim, and show him the claim
 
-                // otherwise tell the player he can't claim here because it's someone else's claim, and show him the claim
-                else {
                     GriefPrevention.sendMessage(player, TextMode.Err, Messages.CreateClaimFailOverlapOtherPlayer, claim.getOwnerName());
                     Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ErrorClaim, player.getLocation());
                     Visualization.Apply(player, visualization);
                 }
-
                 return;
             }
 
             // otherwise, the player isn't in an existing claim!
-
             // if he hasn't already start a claim with a previous shovel action
             Location lastShovelLocation = playerData.lastShovelLocation;
             if (lastShovelLocation == null) {
@@ -1639,19 +1605,13 @@ class PlayerEventHandler implements Listener {
                 if (!GriefPrevention.instance.claimsEnabledForWorld(player.getWorld()) && playerData.shovelMode != ShovelMode.Admin) {
                     GriefPrevention.sendMessage(player, TextMode.Err, Messages.ClaimsDisabledWorld);
                     return;
-                } else if (wc.getClaimsPerPlayerLimit() > 0 &&
-                        !(player.hasPermission("griefprevention.ignoreclaimslimit"))) {
-
+                } else if (wc.getClaimsPerPlayerLimit() > 0 && !(player.hasPermission("griefprevention.ignoreclaimslimit"))) {
                     // get the number of claims the player has in this world.
                     if (wc.getClaimsPerPlayerLimit() >= playerData.getWorldClaims(clickedBlock.getWorld()).size()) {
-
-
                         GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerClaimLimit, String.valueOf(wc.getClaimsPerPlayerLimit()));
                         return;
                     }
                 }
-
-
                 // remember it, and start him on the new claim
                 playerData.lastShovelLocation = clickedBlock.getLocation();
                 GriefPrevention.sendMessage(player, TextMode.Instr, Messages.ClaimStart);
@@ -1659,10 +1619,7 @@ class PlayerEventHandler implements Listener {
                 // show him where he's working
                 Visualization visualization = Visualization.FromClaim(new Claim(clickedBlock.getLocation(), clickedBlock.getLocation(), "", new String[]{}, new String[]{}, new String[]{}, new String[]{}, null, false), clickedBlock.getY(), VisualizationType.RestoreNature, player.getLocation());
                 Visualization.Apply(player, visualization);
-            }
-
-            // otherwise, he's trying to finish creating a claim by setting the other boundary corner
-            else {
+            } else { // otherwise, he's trying to finish creating a claim by setting the other boundary corner
                 // if last shovel location was in a different world, assume the player is starting the create-claim workflow over
                 if (!lastShovelLocation.getWorld().equals(clickedBlock.getWorld())) {
                     playerData.lastShovelLocation = null;
@@ -1711,13 +1668,8 @@ class PlayerEventHandler implements Listener {
 
                         if ((Claim.Contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getLesserBoundaryCorner(), true) &&
                                 (Claim.Contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getGreaterBoundaryCorner(), true)))) {
-                            // Claim tempclaim = new Claim();
-                            // tempclaim.lesserBoundaryCorner=lastShovelLocation;
-                            // tempclaim.greaterBoundaryCorner=clickedBlock.getLocation();
-
                             // it contains it
                             // resize the other claim
-
                             result.claim.setLocation(lastShovelLocation, clickedBlock.getLocation());
 
                             // msg, and show visualization.
@@ -1725,24 +1677,17 @@ class PlayerEventHandler implements Listener {
                             Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
                             Visualization.Apply(player, visualization);
                             return;
-
                         }
-
-
                     }
                     GriefPrevention.sendMessage(player, TextMode.Err, Messages.CreateClaimFailOverlapShort);
 
                     Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ErrorClaim, player.getLocation());
                     Visualization.Apply(player, visualization);
-
                     return;
                 } else if (result.succeeded == CreateClaimResult.Result.Canceled) {
                     // A plugin canceled the event.
                     return;
-                }
-
-                // otherwise, advise him on the /trust command and show him his new claim
-                else {
+                } else { // otherwise, advise him on the /trust command and show him his new claim
                     GriefPrevention.sendMessage(player, TextMode.Success, Messages.CreateClaimSuccess);
                     Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
                     Visualization.Apply(player, visualization);

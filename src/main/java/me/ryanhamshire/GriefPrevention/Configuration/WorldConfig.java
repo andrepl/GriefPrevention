@@ -18,7 +18,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * represents the configuration settings of a single world.
- * 
+ *
  * @author BC_Programming
  *
  */
@@ -27,7 +27,7 @@ public class WorldConfig {
 	// Explosion and similar effect information.
 	// we've moved this to another class for brevity as well as to make it easier to deal with and more flexible.
 	// you know- all the standard reasons for moving things into a class. I'll shut up now and get to writing the applicable code.
-	
+
 	private ClaimBehaviourData trashBlockPlacementBehaviour;
     private ClaimBehaviourData creeperExplosionBehaviour; 	// data for Creeper Explosions. This indicates where they can occur.
     private ClaimBehaviourData tntExplosionBehaviour;       // data for TNT Explosions. this indicates where they can occur. Applies for both TNT and TNT minecarts.
@@ -60,7 +60,7 @@ public class WorldConfig {
     private boolean configClaimsLockFenceGates;					// whether fence gates should be locked by default (require /accesstrust)
     private boolean configClaimsEnderPearlsRequireAccessTrust;		// whether teleporting into a claim with a pearl requires access trust
     private boolean configClaimsCreationRequiresPermission;		// whether creating claims with the shovel requires a permission
-    private boolean configClaimsAllowUnclaim;			// whether players may unclaim land (resize or abandon) 
+    private boolean configClaimsAllowUnclaim;			// whether players may unclaim land (resize or abandon)
     private boolean configClaimsAutoRestoreUnclaimed; 	// whether unclaimed land in creative worlds is automatically /restorenature-d
     private boolean configClaimsApplyTrashBlockRules;				// whether players can build in survival worlds outside their claimed areas
     private boolean configSpamEnabled;								// whether or not to monitor for spam
@@ -139,7 +139,7 @@ public class WorldConfig {
 
 
     public ClaimBehaviourData getTrashBlockPlacementBehaviour() { return trashBlockPlacementBehaviour; }
-	public ClaimBehaviourData getCreeperExplosionBehaviour() { return creeperExplosionBehaviour; }
+    public ClaimBehaviourData getCreeperExplosionBehaviour() { return creeperExplosionBehaviour; }
 	public ClaimBehaviourData getTntExplosionBehaviour() { return tntExplosionBehaviour; }
 	public ClaimBehaviourData getWitherExplosionBehaviour() { return witherExplosionBehaviour; }
 	public ClaimBehaviourData getWitherEatBehaviour() { return witherEatBehaviour; }
@@ -156,13 +156,13 @@ public class WorldConfig {
 	public ClaimBehaviourData getSheepDyeingRules() { return sheepDyeing; }
 	public ClaimBehaviourData getBonemealGrassRules() { return bonemealGrass; }
 	public ClaimBehaviourData getPlayerTrampleRules() { return playerTrampleRules; }
-	
+
 	/**
 	 * Returns whether Seige is Enabled for this world.
 	 * @return
 	 */
 	public boolean getSeigeEnabled() { return claimsSeigeEnabled; }
-    
+
 	/**
 	 * returns whether Claims are enabled. Most configuration Options, while still present and readable, become redundant when this is false.
 	 * @return
@@ -170,7 +170,7 @@ public class WorldConfig {
 	public boolean getClaimsEnabled() { return claimsEnabled; }
 
 	/**
-	 * returns the List of Trash block materials for this world. These are Materials that can be 
+	 * returns the List of Trash block materials for this world. These are Materials that can be
 	 * -placed in survival
 	 * @return
 	 */
@@ -207,7 +207,7 @@ public class WorldConfig {
 	public int getSpamBanThreshold() { return configSpamBanThreshold; }
 	public int getSpamMuteThreshold() { return configSpamMuteThreshold; }
 	public boolean getCreativeRules() { return configClaimsCreativeRules; }
-    public boolean getAutoRestoreUnclaimed() { return configClaimsAutoRestoreUnclaimed; }	
+    public boolean getAutoRestoreUnclaimed() { return configClaimsAutoRestoreUnclaimed; }
 	public boolean getAllowUnclaim() { return configClaimsAllowUnclaim; }
     public boolean getApplyTrashBlockRules() { return configClaimsApplyTrashBlockRules; }
 	public int getChestClaimExpirationDays() { return configClaimsChestClaimExpirationDays; }
@@ -269,10 +269,10 @@ public class WorldConfig {
     public int getClaimsPerPlayerLimit() { return configClaimsPerPlayerClaimLimit; }
     public boolean getSiegeBlockRevert() { return SiegeBlockRevert; }
 	public String getWorldName() { return WorldName; }
-	
+
 	// constructor accepts a Name and a FileConfiguration.
 	public WorldConfig(String pName,FileConfiguration config,FileConfiguration outConfig) {
-		
+
 		// determine defaults based on the world itself (isCreative, isPvP)
 		boolean isCreative=false,isPvP=false;
 		WorldName = pName;
@@ -281,72 +281,72 @@ public class WorldConfig {
 			isCreative = Bukkit.getServer().getDefaultGameMode()==GameMode.CREATIVE;
 			isPvP = getworld.getPVP();
 		}
-		
-		
+
+
 		GriefPrevention.instance.getLogger().log(Level.INFO,"Reading Configuration for World:" + pName);
 		this.configSeaLevelOverride = config.getInt("GriefPrevention.SeaLevelOverride",-1);
-		
+
 		outConfig.set("GriefPrevention.SeaLevelOverride", configSeaLevelOverride);
 		// read in the data for TNT explosions and Golem/Wither placements.
-		
+
 		this.creeperExplosionBehaviour = new ClaimBehaviourData("Creeper Explosions",config,outConfig,"GriefPrevention.CreeperExplosions",
 				ClaimBehaviourData.getOutsideClaims("Creeper Explosions"));
-		
+
 		this.witherExplosionBehaviour = new ClaimBehaviourData("Wither Explosions",config,outConfig,"GriefPrevention.WitherExplosions",
 				ClaimBehaviourData.getOutsideClaims("Wither Explosions"));
-		
+
 		this.witherEatBehaviour = new ClaimBehaviourData("Wither Eating",config,outConfig,"GriefPrevention.WitherEating",
 				ClaimBehaviourData.getOutsideClaims("Wither Eating"));
 
 		this.tntExplosionBehaviour = new ClaimBehaviourData("TNT Explosions",config,outConfig,"GriefPrevention.TNTExplosions",
 				ClaimBehaviourData.getOutsideClaims("TNTExplosions"));
-		
+
 		this.otherExplosionBehaviour = new ClaimBehaviourData("Other Explosions",config,outConfig,"GriefPrevention.OtherExplosions",
 				ClaimBehaviourData.getOutsideClaims("Other Explosions"));
-		
+
 		this.waterBucketBehaviour = new ClaimBehaviourData("Water Placement",config,outConfig,"GriefPrevention.WaterBuckets",
 		        ClaimBehaviourData.getAboveSeaLevel("Water Placement"));
-		
+
 		this.lavaBucketBehaviour = new ClaimBehaviourData("Lava Placement",config,outConfig,"GriefPrevention.LavaBuckets",
 				ClaimBehaviourData.getAboveSeaLevel("Lava Placement"));
-		
+
 		// golem spawn rules.
 		this.ironGolemSpawnBehaviour = new ClaimBehaviourData("Iron Golem Spawning",config,outConfig,"GriefPrevention.BuildIronGolem",
 				ClaimBehaviourData.getInsideClaims("Iron Golem Spawning"));
-		
+
 		this.snowGolemSpawnBehaviour = new ClaimBehaviourData("Snow Golem Spawning",config,outConfig,"GriefPrevention.BuildSnowGolem",
 				ClaimBehaviourData.getInsideClaims("Snow Golem Spawning"));
-		
-		
+
+
 		this.witherSpawnBehaviour = new ClaimBehaviourData("Wither Spawning",config,outConfig,"GriefPrevention.BuildWither",
 				ClaimBehaviourData.getInsideClaims("Wither Spawning"));
-		
+
 		trashBlockPlacementBehaviour = new ClaimBehaviourData("Trash Block Placement",config,outConfig,"GriefPrevention.TrashBlockPlacementRules",
 				ClaimBehaviourData.getOutsideClaims("Trash Block Placement"));
-		
+
 		villagerTrades = new ClaimBehaviourData("Villager Trading",config,outConfig,"GriefPrevention.Claims.VillagerTrading",
 				ClaimBehaviourData.getInsideClaims("Villager Trading"));
-	
+
 		this.environmentalVehicleDamage = new ClaimBehaviourData("Environmental Vehicle Damage",config,outConfig,"GriefPrevention.Claims.EnvironmentalVehicleDamage",
 				ClaimBehaviourData.getOutsideClaims("Environmental Vehicle Damage"));
-		
-		
+
+
 		this.zombieDoorBreaking = new ClaimBehaviourData("Zombie Door Breaking",config,outConfig,"GriefPrevention.ZombieDoorBreaking",
 				ClaimBehaviourData.getNone("Zombie Door Breaking"));
-		
+
 		sheepShearingRules = new ClaimBehaviourData("Sheep Shearing",config,outConfig,"GriefPrevention.SheepShearing",
 				ClaimBehaviourData.getInsideClaims("Sheep Shearing"));
-		
+
 		sheepDyeing = new ClaimBehaviourData("Sheep Dyeing",config,outConfig,"GriefPrevention.SheepDyeing",
 				ClaimBehaviourData.getInsideClaims("Sheep Dyeing"));
-		
+
 		this.bonemealGrass = new ClaimBehaviourData("Bonemeal",config,outConfig,"GriefPrevention.BonemealGrass",
 				ClaimBehaviourData.getInsideClaims("Bonemeal"));
-		
+
 		this.playerTrampleRules = new ClaimBehaviourData("Crop Trampling",config,outConfig,"GriefPrevention.PlayerCropTrample",
 				ClaimBehaviourData.getInsideClaims("Crop Trampling"));
-		
-		
+
+
 		this.SiegeBlockRevert = config.getBoolean("GriefPrevention.Siege.BlockRevert",false);
 		outConfig.set("GriefPrevention.Siege.BlockRevert", SiegeBlockRevert);
 		// read trash blocks.
@@ -358,7 +358,7 @@ public class WorldConfig {
 		}
 		List<String> trashBlocks= config.getStringList("GriefPrevention.Claims.TrashBlocks");
 		if(trashBlocks == null || trashBlocks.size() == 0) {
-		// go with the default, which we already set.	
+		// go with the default, which we already set.
 			trashBlocks = new ArrayList<String>();
 			for(String iterate:new String[] {"COBBLESTONE", "TORCH", "DIRT", "SAPLING", "GRAVEL", "SAND", "TNT", "WORKBENCH"}) {
 				trashBlocks.add(iterate);
@@ -410,7 +410,7 @@ public class WorldConfig {
 
 		this.claimsSeigeEnabled = config.getBoolean("GriefPrevention.Siege.Enabled",true);
 		outConfig.set("GriefPrevention.Siege.Enabled", claimsSeigeEnabled);
-		
+
 		this.siegeTamedAnimalDistance = config.getInt("GriefPrevention.Claims.SiegeTamedAnimalDistance",20);
 		outConfig.set("GriefPrevention.Claims.SiegeTamedAnimalDistance", siegeTamedAnimalDistance);
 
@@ -438,7 +438,7 @@ public class WorldConfig {
 
         this.configMessageCooldownStuck = config.getInt("GriefPrevention.Expiration.MessageCooldown.Stuck",0);
 		outConfig.set("GriefPrevention.Expiration.MessageCooldown.Stuck", configMessageCooldownStuck);
-		
+
 		this.configClaimsWildernessBlocksDelay = config.getInt("GriefPrevention.Claims.WildernessWarningBlockCount",15); // number of blocks,0 will disable the wilderness warning.
         outConfig.set("GriefPrevention.Claims.WildernessWarningBlockCount", this.configClaimsWildernessBlocksDelay);
 
@@ -513,15 +513,15 @@ public class WorldConfig {
 
 		this.configClaimsChestClaimExpirationDays = config.getInt("GriefPrevention.Claims.Expiration.ChestClaimDays", 7);
 		outConfig.set("GriefPrevention.Claims.Expiration.ChestClaimDays", this.configClaimsChestClaimExpirationDays);
-		
+
 		this.configClaimsUnusedClaimExpirationDays = config.getInt("GriefPrevention.Claims.Expiration.UnusedClaimDays", 14);
-		outConfig.set("GriefPrevention.Claims.Expiration.UnusedClaimDays", this.configClaimsUnusedClaimExpirationDays);		
-		
+		outConfig.set("GriefPrevention.Claims.Expiration.UnusedClaimDays", this.configClaimsUnusedClaimExpirationDays);
+
 		this.configClaimsExpirationDays = config.getInt("GriefPrevention.Claims.Expiration.AllClaimDays", 0);
 		outConfig.set("GriefPrevention.Claims.Expiration.AllClaimDays", this.configClaimsExpirationDays);
-		
+
 		this.configClaimsAutoNatureRestoration = config.getBoolean("GriefPrevention.Claims.Expiration.AutomaticNatureRestoration", false);
-		outConfig.set("GriefPrevention.Claims.Expiration.AutomaticNatureRestoration", this.configClaimsAutoNatureRestoration);		
+		outConfig.set("GriefPrevention.Claims.Expiration.AutomaticNatureRestoration", this.configClaimsAutoNatureRestoration);
 
 		this.configSpamEnabled = config.getBoolean("GriefPrevention.Spam.Enabled", true);
         outConfig.set("GriefPrevention.Spam.Enabled", this.configSpamEnabled);
@@ -553,7 +553,7 @@ public class WorldConfig {
 
 		this.configSpamBanCommand = config.getString("GriefPrevention.Spam.BanCommand","ban {0};kick {0}");
 		outConfig.set("GriefPrevention.Spam.BanCommand", configSpamBanCommand);
-		
+
 		this.configPVPProtectFreshSpawns = config.getBoolean("GriefPrevention.PvP.ProtectFreshSpawns", true);
         outConfig.set("GriefPrevention.PvP.ProtectFreshSpawns", this.configPVPProtectFreshSpawns);
 
@@ -657,32 +657,32 @@ public class WorldConfig {
 			containerTrustStrings.add(new MaterialInfo(24305, "Power Teleport Pipe").toString());
 			containerTrustStrings.add(new MaterialInfo(4311, "Diamond Sorting Pipe").toString());
 			containerTrustStrings.add(new MaterialInfo(216, "Turtle").toString());
-			
+
 		}
-		
+
 		// parse the strings from the config file
 		GriefPrevention.instance.parseMaterialListFromConfig(containerTrustStrings, this.configModsContainerTrustIds);
         outConfig.set("GriefPrevention.Mods.BlockIdsRequiringContainerTrust", this.configModsContainerTrustIds);
 
         this.configModsExplodableIds = new MaterialCollection();
 		List<String> explodableStrings = config.getStringList("GriefPrevention.Mods.BlockIdsExplodable");
-		
+
 		// default values for explodable mod blocks
 		if(explodableStrings == null || explodableStrings.size() == 0)
 		{
-			explodableStrings.add(new MaterialInfo(161, "BuildCraft Engines").toString());			
+			explodableStrings.add(new MaterialInfo(161, "BuildCraft Engines").toString());
 			explodableStrings.add(new MaterialInfo(246, (byte)5 ,"Nuclear Reactor").toString());
 		}
-		
+
 		// parse the strings from the config file
 		GriefPrevention.instance.parseMaterialListFromConfig(explodableStrings, this.configModsExplodableIds);
-		
+
 		// default for claim investigation tool
 		String investigationToolMaterialName = Material.STICK.name();
-		
+
 		// get investigation tool from config
 		investigationToolMaterialName = config.getString("GriefPrevention.Claims.InvestigationTool", investigationToolMaterialName);
-		
+
 		// validate investigation tool
 		this.configClaimsInvestigationTool = Material.getMaterial(investigationToolMaterialName);
 		if(this.configClaimsInvestigationTool == null)
@@ -690,13 +690,13 @@ public class WorldConfig {
 			GriefPrevention.AddLogEntry("ERROR: Material " + investigationToolMaterialName + " not found.  Defaulting to the stick.  Please update your config.yml.");
 			this.configClaimsInvestigationTool = Material.STICK;
 		}
-		
+
 		// default for claim creation/modification tool
 		String modificationToolMaterialName = Material.GOLD_SPADE.name();
-		
+
 		// get modification tool from config
 		modificationToolMaterialName = config.getString("GriefPrevention.Claims.ModificationTool", modificationToolMaterialName);
-		
+
 		// validate modification tool
 		this.configClaimsModificationTool = Material.getMaterial(modificationToolMaterialName);
 		if(this.configClaimsModificationTool == null)
@@ -704,12 +704,12 @@ public class WorldConfig {
 			GriefPrevention.AddLogEntry("ERROR: Material " + modificationToolMaterialName + " not found.  Defaulting to the golden shovel.  Please update your config.yml.");
 			this.configClaimsModificationTool = Material.GOLD_SPADE;
 		}
-		
+
 		// default for siege worlds list
 		ArrayList<String> defaultSiegeWorldNames = new ArrayList<String>();
 		this.configSiegeEnabled = config.getBoolean("GriefPrevention.Siege.Enabled",isPvP);
 		// get siege world names from the config file
-				
+
 		// default siege blocks
 		this.configSiegeBlocks = new ArrayList<Material>();
 		this.configSiegeBlocks.add(Material.DIRT);
@@ -723,23 +723,23 @@ public class WorldConfig {
 		this.configSiegeBlocks.add(Material.WOOD);
 		this.configSiegeBlocks.add(Material.WOOL);
 		this.configSiegeBlocks.add(Material.SNOW);
-		
+
 		// build a default config entry
 		ArrayList<String> defaultBreakableBlocksList = new ArrayList<String>();
 		for(int i = 0; i < this.configSiegeBlocks.size(); i++)
 		{
 			defaultBreakableBlocksList.add(this.configSiegeBlocks.get(i).name());
 		}
-		
+
 		// try to load the list from the config file
 		List<String> breakableBlocksList = config.getStringList("GriefPrevention.Siege.BreakableBlocks");
-		
+
 		// if it fails, use default list instead
 		if(breakableBlocksList == null || breakableBlocksList.size() == 0)
 		{
 			breakableBlocksList = defaultBreakableBlocksList;
 		}
-		
+
 		// parse the list of siege-breakable blocks
 		this.configSiegeBlocks = new ArrayList<Material>();
 		for(int i = 0; i < breakableBlocksList.size(); i++)
@@ -755,7 +755,7 @@ public class WorldConfig {
 				this.configSiegeBlocks.add(material);
 			}
 		}
-		
+
 		this.configPVPNoCombatInPlayerLandClaims = config.getBoolean("GriefPrevention.PvP.ProtectPlayersInLandClaims.PlayerOwnedClaims", !this.configSiegeEnabled);
         outConfig.set("GriefPrevention.PvP.ProtectPlayersInLandClaims.PlayerOwnedClaims", this.configPVPNoCombatInPlayerLandClaims);
 

@@ -281,32 +281,23 @@ public class BlockEventHandler implements Listener {
 
             // reset the counter for warning the player when he places outside his claims
             playerData.unclaimedBlockPlacementsUntilWarning = 1;
-        }
-
-        // FEATURE: automatically create a claim when a player who has no claims places a chest
-
-        // otherwise if there's no claim, the player is placing a chest, and new player automatic claims are enabled
-        else if (block.getType() == Material.CHEST &&
+        } else if (block.getType() == Material.CHEST &&                     // otherwise if there's no claim, the player is placing a chest, and new player automatic claims are enabled
                 wc.getAutomaticClaimsForNewPlayerRadius() > -1 &&
                 GriefPrevention.instance.claimsEnabledForWorld(block.getWorld())) {
+            // FEATURE: automatically create a claim when a player who has no claims places a chest
             // if the chest is too deep underground, don't create the claim and explain why
             if (wc.getClaimsPreventTheft() && block.getY() < wc.getClaimsMaxDepth()) {
                 GriefPrevention.sendMessage(player, TextMode.Warn, Messages.TooDeepToClaim);
                 return;
             }
-
             int radius = wc.getAutomaticClaimsForNewPlayerRadius();
-
             // if the player doesn't have any claims yet, automatically create a claim centered at the chest
             if (playerData.claims.size() == 0) {
                 // radius == 0 means protect ONLY the chest
                 if (wc.getAutomaticClaimsForNewPlayerRadius() == 0) {
                     this.dataStore.createClaim(block.getWorld(), block.getX(), block.getX(), block.getY(), block.getY(), block.getZ(), block.getZ(), player.getName(), null, null, false, player);
                     GriefPrevention.sendMessage(player, TextMode.Success, Messages.ChestClaimConfirmation);
-                }
-
-                // otherwise, create a claim in the area around the chest
-                else {
+                } else { // otherwise, create a claim in the area around the chest
                     // as long as the automatic claim overlaps another existing claim, shrink it
                     // note that since the player had permission to place the chest, at the very least, the automatic claim will include the chest
                     while (radius >= 0 && (this.dataStore.createClaim(block.getWorld(),
@@ -320,7 +311,6 @@ public class BlockEventHandler implements Listener {
 
                     // notify and explain to player
                     GriefPrevention.sendMessage(player, TextMode.Success, Messages.AutomaticClaimNotification);
-
                     // show the player the protected area
                     Claim newClaim = this.dataStore.getClaimAt(block.getLocation(), false, null);
                     Visualization visualization = Visualization.FromClaim(newClaim, block.getY(), VisualizationType.Claim, player.getLocation());
@@ -337,16 +327,13 @@ public class BlockEventHandler implements Listener {
             }
 
             // check to see if this chest is in a claim, and warn when it isn't
-
             if (GriefPrevention.instance.getWorldCfg(player.getWorld()).getClaimsPreventTheft() && this.dataStore.getClaimAt(block.getLocation(), false, playerData.lastClaim) == null) {
                 GriefPrevention.sendMessage(player, TextMode.Warn, Messages.UnprotectedChestWarning);
             }
-        }
-
-        // FEATURE: limit wilderness tree planting to grass, or dirt with more blocks beneath it
-        else if (block.getType() == Material.SAPLING &&
+        } else if (block.getType() == Material.SAPLING &&
                 GriefPrevention.instance.getWorldCfg(player.getWorld()).getBlockSkyTrees() &&
                 GriefPrevention.instance.claimsEnabledForWorld(player.getWorld())) {
+            // FEATURE: limit wilderness tree planting to grass, or dirt with more blocks beneath it
             Block earthBlock = placeEvent.getBlockAgainst();
             if (earthBlock.getType() != Material.GRASS) {
                 if (earthBlock.getRelative(BlockFace.DOWN).getType() == Material.AIR ||
@@ -354,11 +341,8 @@ public class BlockEventHandler implements Listener {
                     placeEvent.setCancelled(true);
                 }
             }
-        }
-
-
-        // FEATURE: warn players when they're placing non-trash blocks outside of their claimed areas
-        else if (wc.claims_warnOnBuildOutside() && !wc.getTrashBlocks().contains(block.getType()) && wc.getClaimsEnabled() && playerData.claims.size() > 0) {
+        } else if (wc.claims_warnOnBuildOutside() && !wc.getTrashBlocks().contains(block.getType()) && wc.getClaimsEnabled() && playerData.claims.size() > 0) {
+            // FEATURE: warn players when they're placing non-trash blocks outside of their claimed areas
             if (--playerData.unclaimedBlockPlacementsUntilWarning <= 0 && wc.getClaimsWildernessBlocksDelay() != 0) {
                 GriefPrevention.sendMessage(player, TextMode.Warn, Messages.BuildingOutsideClaims);
                 playerData.unclaimedBlockPlacementsUntilWarning = wc.getClaimsWildernessBlocksDelay();
