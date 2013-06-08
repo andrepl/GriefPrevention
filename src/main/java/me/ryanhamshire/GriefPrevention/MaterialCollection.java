@@ -26,16 +26,16 @@ public class MaterialCollection {
 
     void Add(MaterialInfo material) {
         int i;
-        for (i = 0; i < this.materials.size() && this.materials.get(i).typeID <= material.typeID; i++) ;
+        for (i = 0; i < this.materials.size() && this.materials.get(i).getTypeID() <= material.getTypeID(); i++) ;
         this.materials.add(i, material);
     }
 
     boolean Contains(MaterialInfo material) {
         for (int i = 0; i < this.materials.size(); i++) {
             MaterialInfo thisMaterial = this.materials.get(i);
-            if (material.typeID == thisMaterial.typeID && (thisMaterial.allDataValues || material.data == thisMaterial.data)) {
+            if (material.getTypeID() == thisMaterial.getTypeID() && (thisMaterial.allDataValues || material.data == thisMaterial.data)) {
                 return true;
-            } else if (thisMaterial.typeID > material.typeID) {
+            } else if (thisMaterial.getTypeID() > material.getTypeID()) {
                 return false;
             }
         }

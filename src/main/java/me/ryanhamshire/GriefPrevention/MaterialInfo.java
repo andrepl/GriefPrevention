@@ -21,14 +21,14 @@ package me.ryanhamshire.GriefPrevention;
 //represents a material or collection of materials
 public class MaterialInfo
 {
-	int typeID;
+	private int typeID;
 	byte data;
 	boolean allDataValues;
 	String description;
 	
 	public MaterialInfo(int typeID, byte data, String description)
 	{
-		this.typeID = typeID;
+		this.setTypeID(typeID);
 		this.data = data;
 		this.allDataValues = false;
 		this.description = description;
@@ -36,7 +36,7 @@ public class MaterialInfo
 	
 	public MaterialInfo(int typeID, String description)
 	{
-		this.typeID = typeID;
+		this.setTypeID(typeID);
 		this.data = 0;
 		this.allDataValues = true;
 		this.description = description;
@@ -44,7 +44,7 @@ public class MaterialInfo
 	
 	private MaterialInfo(int typeID, byte data, boolean allDataValues, String description)
 	{
-		this.typeID = typeID;
+		this.setTypeID(typeID);
 		this.data = data;
 		this.allDataValues = allDataValues;
 		this.description = description;
@@ -53,7 +53,7 @@ public class MaterialInfo
 	@Override
 	public String toString()
 	{
-		String returnValue = String.valueOf(this.typeID) + ":" + (this.allDataValues?"*":String.valueOf(this.data));
+		String returnValue = String.valueOf(this.getTypeID()) + ":" + (this.allDataValues?"*":String.valueOf(this.data));
 		if(this.description != null) returnValue += ":" + this.description;
 		
 		return returnValue;
@@ -90,4 +90,12 @@ public class MaterialInfo
 			return null;
 		}
 	}
+
+    public int getTypeID() {
+        return typeID;
+    }
+
+    public void setTypeID(int typeID) {
+        this.typeID = typeID;
+    }
 }

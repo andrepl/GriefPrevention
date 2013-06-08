@@ -305,7 +305,7 @@ class EntityEventHandler implements Listener {
                     if (ownerdata != null) {
                         if (ownerdata.siegeData != null) {
                             // if the owner is the Defender...
-                            if (ownerdata.siegeData.defender == tamed.getOwner()) {
+                            if (ownerdata.siegeData.getDefender() == tamed.getOwner()) {
                                 // inform them of the loss to their great cause.
                                 if (tamed.getOwner() instanceof Player) {
                                     String tamedname = "";
@@ -567,7 +567,7 @@ class EntityEventHandler implements Listener {
 
                                 SiegeData sd = mobclaim.siegeData;
                                 // get the defending player.
-                                Player defender = sd.defender;
+                                Player defender = sd.getDefender();
                                 // if the player attacking this entity is within 15 blocks, don't cancel.
                                 if (attacker.getLocation().distance(defender.getLocation()) < wc.getSiegeTamedAnimalDistance()) {
                                     event.setCancelled(false);

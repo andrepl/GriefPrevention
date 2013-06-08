@@ -104,7 +104,7 @@ public abstract class DataStore
 	 * @param playerName
 	 * @return
 	 */
-	synchronized int getGroupBonusBlocks(String playerName)
+	public synchronized int getGroupBonusBlocks(String playerName)
 	{
 		int bonusBlocks = 0;
 		Set<String> keys = permissionToBonusBlocksMap.keySet();
@@ -704,7 +704,7 @@ public abstract class DataStore
 	 * @param attacker The attacker
 	 * @param defender The defending player
 	 * @param defenderClaim The claim being attacked
-	 * @see #onCooldown()
+	 * @see #onCooldown(Player, Player, Claim)
 	 */
 	synchronized public boolean startSiege(Player attacker, Player defender, Claim defenderClaim)
 	{
@@ -725,7 +725,7 @@ public abstract class DataStore
 		//why isn't this a "repeating" task?
 		//because depending on the status of the siege at the time the task runs, there may or may not be a reason to run the task again
 		SiegeCheckupTask task = new SiegeCheckupTask(siegeData);
-		siegeData.checkupTaskID = GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 30);
+		siegeData.setCheckupTaskID(GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 30));
 		return true;
 	}
 	
@@ -744,61 +744,61 @@ public abstract class DataStore
 		//determine winner and loser
 		if(winnerName == null && loserName != null)
 		{
-			if(siegeData.attacker.getName().equals(loserName))
+			if(siegeData.getAttacker().getName().equals(loserName))
 			{
-				winnerName = siegeData.defender.getName();
+				winnerName = siegeData.getDefender().getName();
 			}
 			else
 			{
-				winnerName = siegeData.attacker.getName();
+				winnerName = siegeData.getAttacker().getName();
 			}
 		}
 		else if(winnerName != null && loserName == null)
 		{
-			if(siegeData.attacker.getName().equals(winnerName))
+			if(siegeData.getAttacker().getName().equals(winnerName))
 			{
-				loserName = siegeData.defender.getName();
+				loserName = siegeData.getDefender().getName();
 			}
 			else
 			{
-				loserName = siegeData.attacker.getName();
+				loserName = siegeData.getAttacker().getName();
 			}
 		}
 		
 		//if the attacker won, plan to open the doors for looting
-		if(siegeData.attacker.getName().equals(winnerName))
+		if(siegeData.getAttacker().getName().equals(winnerName))
 		{
 			grantAccess = true;
 		}
 		
-		PlayerData attackerData = this.getPlayerData(siegeData.attacker.getName());
+		PlayerData attackerData = this.getPlayerData(siegeData.getAttacker().getName());
 		attackerData.siegeData = null;
 		
-		PlayerData defenderData = this.getPlayerData(siegeData.defender.getName());	
+		PlayerData defenderData = this.getPlayerData(siegeData.getDefender().getName());
 		defenderData.siegeData = null;
 
 		//start a cooldown for this attacker/defender pair
 		Long now = Calendar.getInstance().getTimeInMillis();
 		Long cooldownEnd = now + 1000 * 60 * 60;  //one hour from now
-		this.siegeCooldownRemaining.put(siegeData.attacker.getName() + "_" + siegeData.defender.getName(), cooldownEnd);
+		this.siegeCooldownRemaining.put(siegeData.getAttacker().getName() + "_" + siegeData.getDefender().getName(), cooldownEnd);
 		
 		//if there are blocks queued up to revert, do so.
 		int revertedCount=0;
-		if(!siegeData.SiegedBlocks.isEmpty()){
+		if(!siegeData.getSiegedBlocks().isEmpty()){
 			
 			
-			while(!siegeData.SiegedBlocks.isEmpty()){
-				siegeData.SiegedBlocks.poll().reset();
+			while(!siegeData.getSiegedBlocks().isEmpty()){
+				siegeData.getSiegedBlocks().poll().reset();
 			}
 			GriefPrevention.AddLogEntry("reverted " + revertedCount + " Sieged Blocks.");
 			
 		}
 		//start cooldowns for every attacker/involved claim pair
-		for(int i = 0; i < siegeData.claims.size(); i++)
+		for(int i = 0; i < siegeData.getClaims().size(); i++)
 		{
-			Claim claim = siegeData.claims.get(i);
+			Claim claim = siegeData.getClaims().get(i);
 			claim.siegeData = null;
-			this.siegeCooldownRemaining.put(siegeData.attacker.getName() + "_" + claim.ownerName, cooldownEnd);
+			this.siegeCooldownRemaining.put(siegeData.getAttacker().getName() + "_" + claim.ownerName, cooldownEnd);
 			
 			//if doors should be opened for looting, do that now
 			if(grantAccess)
@@ -809,7 +809,7 @@ public abstract class DataStore
 		}
 
 		//cancel the siege checkup task
-		GriefPrevention.instance.getServer().getScheduler().cancelTask(siegeData.checkupTaskID);
+		GriefPrevention.instance.getServer().getScheduler().cancelTask(siegeData.getCheckupTaskID());
 		
 		//notify everyone who won and lost
 		if(winnerName != null && loserName != null)
@@ -829,7 +829,7 @@ public abstract class DataStore
 				//schedule a task to secure the claims in about 5 minutes
 				//set siegeData's LootedChests to 0, and also register it for events temporarily so it can
 				//handle Inventory Open events.
-				siegeData.LootedContainers = 0;
+				siegeData.setLootedContainers(0);
 				SecureClaimTask task = new SecureClaimTask(siegeData);
 				GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 60 * 5);
 			}
@@ -924,7 +924,7 @@ public abstract class DataStore
 		if(playerData.siegeData == null) return;
 		
 		//claim isn't already under the same siege
-		if(playerData.siegeData.claims.contains(claim)) return;
+		if(playerData.siegeData.getClaims().contains(claim)) return;
 		
 		//admin claims can't be sieged
 		if(claim.isAdminClaim()) return;
@@ -933,7 +933,7 @@ public abstract class DataStore
 		if(claim.allowAccess(player) != null) return;
 		
 		//otherwise extend the siege
-		playerData.siegeData.claims.add(claim);
+		playerData.siegeData.getClaims().add(claim);
 		claim.siegeData = playerData.siegeData;
 	}		
 	
@@ -1117,7 +1117,7 @@ public abstract class DataStore
 		this.addDefault(defaults, Messages.BasicClaimsMode, "Returned to basic claim creation mode.", null);
 		this.addDefault(defaults, Messages.SubdivisionMode, "Subdivision mode.  Use your shovel to create subdivisions in your existing claims.  Use /basicclaims to exit.", null);
 		this.addDefault(defaults, Messages.SubdivisionDemo, "Land Claim Help:  http://tinyurl.com/7urdtue", null);
-		this.addDefault(defaults, Messages.DeleteClaimMissing, "There's no claim here.", null);
+		this.addDefault(defaults, Messages.ClaimMissing, "There's no claim here.", null);
 		this.addDefault(defaults, Messages.DeletionSubdivisionWarning, "This claim includes subdivisions.  If you're sure you want to delete it, use /DeleteClaim again.", null);
 		this.addDefault(defaults, Messages.DeleteLockedClaimWarning, "This claim is locked.  If you're sure you want to delete it, use /DeleteClaim again.", null);
 		this.addDefault(defaults, Messages.DeleteSuccess, "Claim deleted.", null);
@@ -1271,7 +1271,16 @@ public abstract class DataStore
 		this.addDefault(defaults, Messages.NoAdminClaimsPermission, "You need Administrator Claims Permission to do that.", null);
 		this.addDefault(defaults, Messages.GiveSuccessSender,"Claim Owner changed from {0} to {1} Successfully.","0:Sender;1:Recipient");
 		this.addDefault(defaults, Messages.GiveSuccessTarget, "{0} has transferred a Claim to you.", "0:Sender");
-		//load the config file
+        this.addDefault(defaults, Messages.CommandRequiresPlayer, "This command must be run by a player.", null);
+        this.addDefault(defaults, Messages.UnknownMaterial, "Unknown Material: {0}", "0:Material");
+        this.addDefault(defaults, Messages.PluginReloaded, "GriefPrevention has been reloaded.", null);
+        this.addDefault(defaults, Messages.NotANumber, "Expecting a number, not {0}", "0:A non-number");
+        this.addDefault(defaults, Messages.TransferBlocksLessThanOne, "You cannot transfer less than 1 block.", null);
+        this.addDefault(defaults, Messages.TransferBlocksError, "There was a problem attempting to transfer claimblocks, Check the server log for errors.", null);
+        this.addDefault(defaults, Messages.BooleanParseError, "Expected 'true' or 'false', not {0}", "0:not a bool");
+        this.addDefault(defaults, Messages.UnknownCommand, "Unknown subcommand {0}", "0:subcommand");
+
+        //load the config file
 		FileConfiguration config = YamlConfiguration.loadConfiguration(new File(messagesFilePath));
 		
 		//for each message ID

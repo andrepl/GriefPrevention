@@ -18,7 +18,6 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
-
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -37,8 +36,8 @@ public class SiegeCheckupTask implements Runnable {
     @Override
     public void run() {
         DataStore dataStore = GriefPrevention.instance.dataStore;
-        Player defender = this.siegeData.defender;
-        Player attacker = this.siegeData.attacker;
+        Player defender = this.siegeData.getDefender();
+        Player attacker = this.siegeData.getAttacker();
 
         // where is the defender?
         Claim defenderClaim = dataStore.getClaimAt(defender.getLocation(), false, null);
@@ -47,7 +46,7 @@ public class SiegeCheckupTask implements Runnable {
         if (defenderClaim != null) {
             String noAccessReason = defenderClaim.allowAccess(defender);
             if (defenderClaim.canSiege(defender) && noAccessReason == null) {
-                this.siegeData.claims.add(defenderClaim);
+                this.siegeData.getClaims().add(defenderClaim);
                 defenderClaim.siegeData = this.siegeData;
             }
         }
@@ -85,8 +84,8 @@ public class SiegeCheckupTask implements Runnable {
 
     // a player has to be within 25 blocks of the edge of a besieged claim to be considered still in the fight
     private boolean playerRemains(Player player) {
-        for (int i = 0; i < this.siegeData.claims.size(); i++) {
-            Claim claim = this.siegeData.claims.get(i);
+        for (int i = 0; i < this.siegeData.getClaims().size(); i++) {
+            Claim claim = this.siegeData.getClaims().get(i);
             if (claim.isNear(player.getLocation(), 25)) {
                 return true;
             }
@@ -96,6 +95,6 @@ public class SiegeCheckupTask implements Runnable {
 
     // schedules another checkup later
     private void scheduleAnotherCheck() {
-        this.siegeData.checkupTaskID = GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, this, 20L * 30);
+        this.siegeData.setCheckupTaskID(GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, this, 20L * 30));
     }
 }

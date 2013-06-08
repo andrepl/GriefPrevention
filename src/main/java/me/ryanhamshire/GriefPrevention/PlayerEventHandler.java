@@ -1291,10 +1291,10 @@ class PlayerEventHandler implements Listener {
                 Block centerBlock = clickedBlock;
 
                 int maxHeight = centerBlock.getY();
-                int minx = centerBlock.getX() - playerData.fillRadius;
-                int maxx = centerBlock.getX() + playerData.fillRadius;
-                int minz = centerBlock.getZ() - playerData.fillRadius;
-                int maxz = centerBlock.getZ() + playerData.fillRadius;
+                int minx = centerBlock.getX() - playerData.getFillRadius();
+                int maxx = centerBlock.getX() + playerData.getFillRadius();
+                int minz = centerBlock.getZ() - playerData.getFillRadius();
+                int maxz = centerBlock.getZ() + playerData.getFillRadius();
                 int minHeight = maxHeight - 10;
                 if (minHeight < 0) minHeight = 0;
 
@@ -1303,7 +1303,7 @@ class PlayerEventHandler implements Listener {
                     for (int z = minz; z <= maxz; z++) {
                         // circular brush
                         Location location = new Location(centerBlock.getWorld(), x, centerBlock.getY(), z);
-                        if (location.distance(centerBlock.getLocation()) > playerData.fillRadius) continue;
+                        if (location.distance(centerBlock.getLocation()) > playerData.getFillRadius()) continue;
 
                         // default fill block is initially the first from the allowed fill blocks list above
                         Material defaultFiller = allowedFillBlocks.get(0);

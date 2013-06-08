@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import me.ryanhamshire.GriefPrevention.Configuration.ClaimMetaHandler;
 import me.ryanhamshire.GriefPrevention.Configuration.ConfigData;
 import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.commands.CommandHandler;
 import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
 import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
 import me.ryanhamshire.GriefPrevention.tasks.EntityCleanupTask;
@@ -76,9 +77,9 @@ public class GriefPrevention extends JavaPlugin {
     // reference to the economy plugin, if economy integration is enabled
     public static Economy economy = null;
 
-    double config_economy_claimBlocksPurchaseCost;            // cost to purchase a claim block.  set to zero to disable purchase.
+    public double config_economy_claimBlocksPurchaseCost;            // cost to purchase a claim block.  set to zero to disable purchase.
 
-    double config_economy_claimBlocksSellValue;               // return on a sold claim block.  set to zero to disable sale.
+    public double config_economy_claimBlocksSellValue;               // return on a sold claim block.  set to zero to disable sale.
 
     // how far away to search from a tree trunk for its branch blocks
     public static final int TREE_RADIUS = 5;
@@ -116,6 +117,11 @@ public class GriefPrevention extends JavaPlugin {
      */
     public WorldConfig getWorldCfg(String worldname) {
         return Configuration.getWorldConfig(worldname);
+    }
+
+
+    public CommandHandler getCommandHandler() {
+        return commandHandler;
     }
 
     private ClaimMetaHandler MetaHandler = null;
@@ -300,18 +306,18 @@ public class GriefPrevention extends JavaPlugin {
         }
     }
 
-    void handleClaimClean(Claim c, MaterialInfo source, MaterialInfo target, Player player) {
+    public void handleClaimClean(Claim c, MaterialInfo source, MaterialInfo target, Player player) {
         Location lesser = c.getLesserBoundaryCorner();
         Location upper = c.getGreaterBoundaryCorner();
-        System.out.println("handleClaimClean:" + source.typeID + " to " + target.typeID);
+        System.out.println("handleClaimClean:" + source.getTypeID() + " to " + target.getTypeID());
 
         for (int x = lesser.getBlockX(); x <= upper.getBlockX(); x++) {
             for (int y = 0; y <= 255; y++) {
                 for (int z = lesser.getBlockZ(); z <= upper.getBlockZ(); z++) {
                     Location createloc = new Location(lesser.getWorld(), x, y, z);
                     Block acquired = lesser.getWorld().getBlockAt(createloc);
-                    if (acquired.getTypeId() == source.typeID && acquired.getData() == source.data) {
-                        acquired.setTypeIdAndData(target.typeID, target.data, true);
+                    if (acquired.getTypeId() == source.getTypeID() && acquired.getData() == source.data) {
+                        acquired.setTypeIdAndData(target.getTypeID(), target.data, true);
                     }
                 }
             }
@@ -331,7 +337,7 @@ public class GriefPrevention extends JavaPlugin {
      * @param target Player name.
      * @return number of claim blocks transferred.
      */
-    synchronized int transferClaimBlocks(String source, String target, int DesiredAmount) {
+    public synchronized int transferClaimBlocks(String source, String target, int DesiredAmount) {
         // TODO Auto-generated method stub
 
         // transfer claim blocks from source to target, return number of claim blocks transferred.
@@ -357,100 +363,6 @@ public class GriefPrevention extends JavaPlugin {
         return location.getWorld().getName() + "(" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ")";
     }
 
-    boolean abandonClaimHandler(Player player, boolean deleteTopLevelClaim) {
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-
-        WorldConfig wc = getWorldCfg(player.getWorld());
-
-        // which claim is being abandoned?
-        Claim claim = this.dataStore.getClaimAt(player.getLocation(), true /*ignore height*/, null);
-        if (claim == null) {
-            GriefPrevention.sendMessage(player, TextMode.Instr, Messages.AbandonClaimMissing);
-            return true;
-        }
-        int claimarea = claim.getArea();
-        // retrieve (1-abandonclaimration)*totalarea to get amount to subtract from the accrued claim blocks
-        // after we delete the claim.
-        int costoverhead = (int) Math.floor((double) claimarea * (1 - wc.getClaimsAbandonReturnRatio()));
-        System.out.println("costoverhead:" + costoverhead);
-
-
-        // verify ownership
-        if (claim.allowEdit(player) != null) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.NotYourClaim);
-        }
-
-        // don't allow abandon of claims if not configured to allow.
-        else if (!wc.getAllowUnclaim()) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.NoCreativeUnClaim);
-        }
-
-        // warn if has children and we're not explicitly deleting a top level claim
-        else if (claim.children.size() > 0 && !deleteTopLevelClaim) {
-            GriefPrevention.sendMessage(player, TextMode.Instr, Messages.DeleteTopLevelClaim);
-            return true;
-        }
-
-        // if the claim is locked, let's warn the player and give them a chance to back out
-        else if (!playerData.warnedAboutMajorDeletion && claim.neverdelete) {
-            GriefPrevention.sendMessage(player, TextMode.Warn, Messages.ConfirmAbandonLockedClaim);
-            playerData.warnedAboutMajorDeletion = true;
-        }
-        // if auto-restoration is enabled,
-        else if (!playerData.warnedAboutMajorDeletion && wc.getClaimsAbandonNatureRestoration()) {
-            GriefPrevention.sendMessage(player, TextMode.Warn, Messages.AbandonClaimRestoreWarning);
-            playerData.warnedAboutMajorDeletion = true;
-        } else if (!playerData.warnedAboutMajorDeletion && costoverhead != claimarea) {
-            playerData.warnedAboutMajorDeletion = true;
-            GriefPrevention.sendMessage(player, TextMode.Warn, Messages.AbandonCostWarning, String.valueOf(costoverhead));
-        }
-        // if the claim has lots of surface water or some surface lava, warn the player it will be cleaned up
-        else if (!playerData.warnedAboutMajorDeletion && claim.hasSurfaceFluids() && claim.parent == null) {
-            GriefPrevention.sendMessage(player, TextMode.Warn, Messages.ConfirmFluidRemoval);
-            playerData.warnedAboutMajorDeletion = true;
-        } else {
-            // delete it
-            // Only do water/lava cleanup when it's a top level claim.
-            if (claim.parent == null) {
-                claim.removeSurfaceFluids(null);
-            }
-            // retrieve area of this claim...
-
-
-            if (!this.dataStore.deleteClaim(claim, player)) {
-                // cancelled!
-                // assume the event called will show an appropriate message...
-                return false;
-            }
-
-            // if in a creative mode world, restore the claim area
-            // CHANGE: option is now determined by configuration options.
-            // if we are in a creative world and the creative Abandon Nature restore option is enabled,
-            // or if we are in a survival world and the creative Abandon Nature restore option is enabled,
-            // then perform the restoration.
-            if ((wc.getClaimsAbandonNatureRestoration())) {
-
-                GriefPrevention.AddLogEntry(player.getName() + " abandoned a claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
-                GriefPrevention.sendMessage(player, TextMode.Warn, Messages.UnclaimCleanupWarning);
-                GriefPrevention.instance.restoreClaim(claim, 20L * 60 * 2);
-            }
-            // remove the interest cost, and message the player.
-            if (costoverhead > 0) {
-                playerData.accruedClaimBlocks -= costoverhead;
-                //
-                GriefPrevention.sendMessage(player, TextMode.Warn, Messages.AbandonCost, 0, String.valueOf(costoverhead));
-            }
-            int remainingBlocks = playerData.getRemainingClaimBlocks();
-            // tell the player how many claim blocks he has left
-            GriefPrevention.sendMessage(player, TextMode.Success, Messages.AbandonSuccess, 0, String.valueOf(remainingBlocks));
-
-            // revert any current visualization
-            Visualization.Revert(player);
-
-            playerData.warnedAboutMajorDeletion = false;
-        }
-        return true;
-    }
 
 
     // helper method to resolve a player by name
@@ -740,12 +652,12 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     // sends a color-coded message to a player
-    public static void sendMessage(Player player, ChatColor color, Messages messageID, String... args) {
+    public static void sendMessage(CommandSender player, ChatColor color, Messages messageID, String... args) {
         sendMessage(player, color, messageID, 0, args);
     }
 
     // sends a color-coded message to a player
-    static void sendMessage(Player player, ChatColor color, Messages messageID, long delayInTicks, String... args) {
+    public static void sendMessage(CommandSender player, ChatColor color, Messages messageID, long delayInTicks, String... args) {
 
         String message = GriefPrevention.instance.dataStore.getMessage(messageID, args);
         if (message == null || message.equals("")) return;
@@ -761,7 +673,7 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     // sends a color-coded message to a player
-    public static void sendMessage(Player player, ChatColor color, String message) {
+    public static void sendMessage(CommandSender player, ChatColor color, String message) {
         if (player == null) {
             GriefPrevention.AddLogEntry(removeColors(message));
         } else {
@@ -769,7 +681,7 @@ public class GriefPrevention extends JavaPlugin {
         }
     }
 
-    static void sendMessage(Player player, ChatColor color, String message, long delayInTicks) {
+    static void sendMessage(CommandSender player, ChatColor color, String message, long delayInTicks) {
         SendPlayerMessageTask task = new SendPlayerMessageTask(player, color, message);
         if (delayInTicks > 0) {
             GriefPrevention.instance.getServer().getScheduler().runTaskLater(GriefPrevention.instance, task, delayInTicks);

@@ -62,7 +62,7 @@ public class PlayerData {
     public ShovelMode shovelMode = ShovelMode.Basic;
 
     // radius for restore nature fill mode
-    int fillRadius = 0;
+    private int fillRadius = 0;
 
     // last place the player used the shovel, useful in creating and resizing claims, 
     // because the player must use the shovel twice in those instances
@@ -169,5 +169,13 @@ public class PlayerData {
         // add any blocks this player might have based on group membership (permissions)
         remainingBlocks += GriefPrevention.instance.dataStore.getGroupBonusBlocks(this.playerName);
         return remainingBlocks;
+    }
+
+    public int getFillRadius() {
+        return fillRadius;
+    }
+
+    public void setFillRadius(int fillRadius) {
+        this.fillRadius = fillRadius;
     }
 }

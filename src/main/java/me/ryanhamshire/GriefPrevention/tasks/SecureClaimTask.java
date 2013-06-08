@@ -32,9 +32,9 @@ public class SecureClaimTask implements Runnable {
     @Override
     public void run() {
         // for each claim involved in this siege
-        for (int i = 0; i < this.siegeData.claims.size(); i++) {
+        for (int i = 0; i < this.siegeData.getClaims().size(); i++) {
             // lock the doors
-            Claim claim = this.siegeData.claims.get(i);
+            Claim claim = this.siegeData.getClaims().get(i);
             claim.doorsOpen = false;
 
             // eject bad guys

@@ -52,7 +52,6 @@ public enum Messages {
     BasicClaimsMode,
     SubdivisionMode,
     SubdivisionDemo,
-    DeleteClaimMissing,
     DeletionSubdivisionWarning,
     DeleteSuccess, CantDeleteAdminClaim,
     DeleteAllSuccessExcludingLocked,
@@ -205,5 +204,15 @@ public enum Messages {
     NoGiveClaimsPermission,
     NoAdminClaimsPermission,
     GiveSuccessSender,
-    GiveSuccessTarget
+    CommandRequiresPlayer,
+    ClaimMissing,
+    UnknownMaterial,
+    GiveSuccessTarget,
+    NotANumber,
+    PluginReloaded,
+    TransferBlocksLessThanOne,
+    TransferBlocksError,
+    TransferBlocksSuccess,
+    BooleanParseError,
+    UnknownCommand;
 }

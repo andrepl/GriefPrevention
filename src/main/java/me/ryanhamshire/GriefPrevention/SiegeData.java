@@ -28,17 +28,67 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 // information about an ongoing siege
 public class SiegeData {
-	public Player defender;
-	public Player attacker;
-	public ArrayList<Claim> claims;
-	public int checkupTaskID;
+
+    private Player defender;
+	private Player attacker;
+	private ArrayList<Claim> claims;
+	private int checkupTaskID;
 	// number of containers that have been looted.
-	public int LootedContainers;
-	public Queue<BrokenBlockInfo> SiegedBlocks = new LinkedBlockingQueue<BrokenBlockInfo>();
+	private int lootedContainers;
+	private Queue<BrokenBlockInfo> siegedBlocks = new LinkedBlockingQueue<BrokenBlockInfo>();
+
 	public SiegeData(Player attacker, Player defender, Claim claim) {
 		this.defender = defender;
 		this.attacker = attacker;
 		this.claims = new ArrayList<Claim>();
 		this.claims.add(claim);
 	}
+
+    public Player getDefender() {
+        return defender;
+    }
+
+    public void setDefender(Player defender) {
+        this.defender = defender;
+    }
+
+    public Player getAttacker() {
+        return attacker;
+    }
+
+    public void setAttacker(Player attacker) {
+        this.attacker = attacker;
+    }
+
+    public ArrayList<Claim> getClaims() {
+        return claims;
+    }
+
+    public void setClaims(ArrayList<Claim> claims) {
+        this.claims = claims;
+    }
+
+    public int getCheckupTaskID() {
+        return checkupTaskID;
+    }
+
+    public void setCheckupTaskID(int checkupTaskID) {
+        this.checkupTaskID = checkupTaskID;
+    }
+
+    public int getLootedContainers() {
+        return lootedContainers;
+    }
+
+    public void setLootedContainers(int lootedContainers) {
+        this.lootedContainers = lootedContainers;
+    }
+
+    public Queue<BrokenBlockInfo> getSiegedBlocks() {
+        return siegedBlocks;
+    }
+
+    public void setSiegedBlocks(Queue<BrokenBlockInfo> siegedBlocks) {
+        this.siegedBlocks = siegedBlocks;
+    }
 }

@@ -258,7 +258,7 @@ public class Claim {
 
     // determines whether or not a claim has surface fluids (lots of water blocks, or any lava blocks)
     // used to warn players when they abandon their claims about automatic fluid cleanup
-    boolean hasSurfaceFluids() {
+    public boolean hasSurfaceFluids() {
         Location lesser = this.getLesserBoundaryCorner();
         Location greater = this.getGreaterBoundaryCorner();
 
@@ -475,7 +475,7 @@ public class Claim {
 
         // no building while under siege
         if (this.siegeData != null) {
-            return GriefPrevention.instance.dataStore.getMessage(Messages.NoBuildUnderSiege, this.siegeData.attacker.getName());
+            return GriefPrevention.instance.dataStore.getMessage(Messages.NoBuildUnderSiege, this.siegeData.getAttacker().getName());
         }
 
         // no building while in pvp combat
@@ -602,7 +602,7 @@ public class Claim {
                 return GriefPrevention.instance.dataStore.getMessage(Messages.NoOwnerBuildUnderSiege);
             } else {
                 if (wc.getSiegeBlockRevert()) {
-                    siegeData.SiegedBlocks.add(new BrokenBlockInfo(BlocktoCheck.getLocation()));
+                    siegeData.getSiegedBlocks().add(new BrokenBlockInfo(BlocktoCheck.getLocation()));
                 }
                 return null;
             }
@@ -667,7 +667,7 @@ public class Claim {
 
         // if under siege, nobody accesses containers
         if (this.siegeData != null) {
-            return GriefPrevention.instance.dataStore.getMessage(Messages.NoContainersSiege, siegeData.attacker.getName());
+            return GriefPrevention.instance.dataStore.getMessage(Messages.NoContainersSiege, siegeData.getAttacker().getName());
         }
 
         // owner and administrators in ignoreclaims mode have access
