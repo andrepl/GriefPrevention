@@ -16,11 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention;
 
-//enumeration for golden shovel modes
-public enum ShovelMode 
-{
+// enumeration for golden shovel modes
+public enum ShovelMode {
 	Basic,
 	Admin,
 	Subdivide,

@@ -26,22 +26,19 @@ import org.bukkit.entity.Player;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-//information about an ongoing siege
-public class SiegeData
-{
+// information about an ongoing siege
+public class SiegeData {
 	public Player defender;
 	public Player attacker;
 	public ArrayList<Claim> claims;
 	public int checkupTaskID;
-	//number of containers that have been looted.
+	// number of containers that have been looted.
 	public int LootedContainers;
 	public Queue<BrokenBlockInfo> SiegedBlocks = new LinkedBlockingQueue<BrokenBlockInfo>();
-	public SiegeData(Player attacker, Player defender, Claim claim)
-	{
+	public SiegeData(Player attacker, Player defender, Claim claim) {
 		this.defender = defender;
 		this.attacker = attacker;
 		this.claims = new ArrayList<Claim>();
 		this.claims.add(claim);
 	}
-	
 }

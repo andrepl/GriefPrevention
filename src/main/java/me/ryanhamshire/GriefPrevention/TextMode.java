@@ -20,9 +20,8 @@ package me.ryanhamshire.GriefPrevention;
 
 import org.bukkit.ChatColor;
 
-//just a few constants for chat color codes
-public class TextMode 
-{	
+// just a few constants for chat color codes
+public class TextMode {
 	public final static ChatColor Info = ChatColor.AQUA;
 	public final static ChatColor Instr = ChatColor.YELLOW;
 	public final static ChatColor Warn = ChatColor.GOLD;

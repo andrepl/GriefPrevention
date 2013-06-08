@@ -15,33 +15,29 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 package me.ryanhamshire.GriefPrevention.tasks;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-//sends a message to a player
-//used to send delayed messages, for example help text triggered by a player's chat
-public class SendPlayerMessageTask implements Runnable 
-{
-	private Player player;
-	private ChatColor color;
-	private String message;
-	
-	public SendPlayerMessageTask(Player player, ChatColor color, String message)
-	{
-		this.player = player;
-		this.color = color;
-		this.message = message;
-	}
+// sends a message to a player
+// used to send delayed messages, for example help text triggered by a player's chat
+public class SendPlayerMessageTask implements Runnable {
+    private Player player;
+    private ChatColor color;
+    private String message;
 
-	@Override
-	public void run()
-	{
-		
-		GriefPrevention.sendMessage(this.player, this.color, this.message);
-	}	
+    public SendPlayerMessageTask(Player player, ChatColor color, String message) {
+        this.player = player;
+        this.color = color;
+        this.message = message;
+    }
+
+    @Override
+    public void run() {
+
+        GriefPrevention.sendMessage(this.player, this.color, this.message);
+    }
 }

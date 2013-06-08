@@ -18,9 +18,8 @@
  
 package me.ryanhamshire.GriefPrevention;
 
-//basic enum stuff
-public enum ClaimPermission 
-{
+// basic enum stuff
+public enum ClaimPermission {
 	Build,
 	Inventory,
 	Access
