@@ -104,14 +104,7 @@ public class BlockEventHandler implements Listener {
             Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, null);
             if (claim == null || claim.allowContainers(player) == null) return;
 
-            // if the player is under siege, he can't give away items
             PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
-            if (playerData.getSiegeData() != null) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoDrop);
-                event.setCancelled(true);
-                return;
-            }
-
             // if a player is in pvp combat, he can't give away items
             if (playerData.inPvpCombat()) return;
 

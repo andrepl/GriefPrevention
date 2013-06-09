@@ -384,7 +384,7 @@ public class PlayerEventHandler implements Listener {
 
         // if in pvp, block any pvp-banned slash commands
         PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
-        if ((playerData.inPvpCombat() || playerData.getSiegeData() != null) && wc.getPvPBlockedCommands().contains(command)) {
+        if (playerData.inPvpCombat() && wc.getPvPBlockedCommands().contains(command)) {
             event.setCancelled(true);
             GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, Messages.CommandBannedInPvP);
             return;
@@ -596,14 +596,6 @@ public class PlayerEventHandler implements Listener {
             player.setHealth(0);
         }
 
-        // FEATURE: during a siege, any player who logs out dies and forfeits the siege
-
-        // if player was involved in a siege, he forfeits
-        if (playerData.getSiegeData() != null) {
-            if (player.getHealth() > 0)
-                player.setHealth(0);  // might already be zero from above, this avoids a double death message
-        }
-
         // drop data about this player
         this.dataStore.clearCachedPlayerData(player.getName());
     }
@@ -650,12 +642,6 @@ public class PlayerEventHandler implements Listener {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.PvPNoDrop);
             event.setCancelled(true);
         }
-
-        // if he's under siege, don't let him drop it
-        else if (playerData.getSiegeData() != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoDrop);
-            event.setCancelled(true);
-        }
     }
 
     // when a player teleports
@@ -681,27 +667,10 @@ public class PlayerEventHandler implements Listener {
         // FEATURE: prevent teleport abuse to win sieges
         // these rules only apply to non-ender-pearl teleportation
         if (event.getCause() == TeleportCause.ENDER_PEARL) return;
-
-        Location source = event.getFrom();
-        Claim sourceClaim = this.dataStore.getClaimAt(source, false, playerData.getLastClaim());
-        if (sourceClaim != null && sourceClaim.getSiegeData() != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoTeleport);
-            event.setCancelled(true);
-            return;
-        }
-
-        Location destination = event.getTo();
-        Claim destinationClaim = this.dataStore.getClaimAt(destination, false, null);
-        if (destinationClaim != null && destinationClaim.getSiegeData() != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.BesiegedNoTeleport);
-            event.setCancelled(true);
-            return;
-        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerShearEntity(PlayerShearEntityEvent event) {
-
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
         Player player = event.getPlayer();
         Entity entity = event.getEntity();
@@ -743,12 +712,6 @@ public class PlayerEventHandler implements Listener {
         // don't allow container access during pvp combat
 
         if ((entity instanceof StorageMinecart || entity instanceof PoweredMinecart || entity instanceof HopperMinecart)) {
-            if (playerData.getSiegeData() != null) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoContainers);
-                event.setCancelled(true);
-                return;
-            }
-
             if (playerData.inPvpCombat()) {
                 GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.PvPNoContainers);
                 event.setCancelled(true);
@@ -1043,13 +1006,6 @@ public class PlayerEventHandler implements Listener {
                     clickedBlockType == Material.HOPPER ||
                     wc.getModsContainerTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null))))) {
 
-            // block container use while under siege, so players can't hide items from attackers
-            if (playerData.getSiegeData() != null) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoContainers);
-                event.setCancelled(true);
-                return;
-            }
-
             // special Chest looting behaviour.
             Claim cc = this.dataStore.getClaimAt(clickedBlock.getLocation(), true, null);
             // if doorsOpen...
@@ -1241,13 +1197,6 @@ public class PlayerEventHandler implements Listener {
 
             // if it's a golden shovel
             else if (materialInHand != wc.getClaimsModificationTool()) return;
-
-            // disable golden shovel while under siege
-            if (playerData.getSiegeData() != null) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoShovel);
-                event.setCancelled(true);
-                return;
-            }
 
             // can't use the shovel from too far away
             if (clickedBlockType == Material.AIR) {

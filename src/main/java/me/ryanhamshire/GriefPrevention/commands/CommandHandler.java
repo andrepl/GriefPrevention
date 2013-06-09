@@ -46,7 +46,6 @@ public class CommandHandler implements TabExecutor {
     DeleteAllAdminClaims cmdDeleteAllAdminClaims;
     AdjustBonusClaimBlocks cmdAdjustBonusClaimBlocks;
     Trapped cmdTrapped;
-    Siege cmdSiege;
 
     public CommandHandler(GriefPrevention plugin) {
         this.plugin = plugin;
@@ -86,7 +85,6 @@ public class CommandHandler implements TabExecutor {
         cmdDeleteAllAdminClaims = new DeleteAllAdminClaims(plugin);
         cmdAdjustBonusClaimBlocks = new AdjustBonusClaimBlocks(plugin);
         cmdTrapped = new Trapped(plugin);
-        cmdSiege = new Siege(plugin);
     }
 
     @Override

@@ -33,27 +33,7 @@ import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.Enderman;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Hanging;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Ocelot;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Snowball;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.ThrownPotion;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wither;
-import org.bukkit.entity.WitherSkull;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 
 import org.bukkit.event.EventHandler;
@@ -288,46 +268,6 @@ public class EntityEventHandler implements Listener {
 
         Player player = (Player) entity;
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-
-        // if involved in a siege
-        if (playerData.getSiegeData() != null) {
-            // don't drop items as usual, they will be sent to the siege winner
-            event.getDrops().clear();
-
-            // end it, with the dieing player being the loser
-            this.dataStore.endSiege(playerData.getSiegeData(), null, player.getName(), true /*ended due to death*/);
-        }
-
-        // if it is an ocelot or wolf, and the owner is under seige,
-        // inform the owner of the casualty on the line of battle.
-
-        if (entity instanceof Wolf || entity instanceof Ocelot) {
-
-            if (entity instanceof Tameable) {
-                Tameable tamed = (Tameable) entity;
-                if (tamed.isTamed()) {
-                    String ownername = tamed.getOwner().getName();
-                    PlayerData ownerdata = GriefPrevention.instance.dataStore.getPlayerData(ownername);
-                    if (ownerdata != null) {
-                        if (ownerdata.getSiegeData() != null) {
-                            // if the owner is the Defender...
-                            if (ownerdata.getSiegeData().getDefender() == tamed.getOwner()) {
-                                // inform them of the loss to their great cause.
-                                if (tamed.getOwner() instanceof Player) {
-                                    String tamedname = "";
-                                    if (tamed instanceof Wolf) tamedname = "Wolf";
-                                    else tamedname = "Ocelot";
-
-                                    Player theplayer = (Player) tamed.getOwner();
-                                    GriefPrevention.sendMessage(theplayer, TextMode.INFO, Messages.TamedDeathDefend, tamedname);
-                                    // theplayer.sendMessage(arg0)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     // when an entity picks up an item
@@ -418,7 +358,6 @@ public class EntityEventHandler implements Listener {
 
         }
 
-
         if (!(event instanceof EntityDamageByEntityEvent)) return;
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
         // monsters are never protected
@@ -428,39 +367,14 @@ public class EntityEventHandler implements Listener {
 
         // determine which player is attacking, if any
         Player attacker = null;
-        Arrow arrow = null;
+        Projectile projectile = null;
         Entity damageSource = subEvent.getDamager();
         if (damageSource instanceof Player) {
             attacker = (Player) damageSource;
-        } else if (damageSource instanceof Arrow) {
-            arrow = (Arrow) damageSource;
-            if (arrow.getShooter() instanceof Player) {
-                attacker = (Player) arrow.getShooter();
-            }
-        } else if (damageSource instanceof ThrownPotion) {
-            ThrownPotion potion = (ThrownPotion) damageSource;
-            if (potion.getShooter() instanceof Player) {
-                attacker = (Player) potion.getShooter();
-            }
-        } else if (damageSource instanceof Snowball) {
-            Snowball sball = (Snowball) damageSource;
-            if (sball.getShooter() instanceof Player) {
-                attacker = (Player) sball.getShooter();
-            }
-        } else if (damageSource instanceof Egg) {
-            Egg segg = (Egg) damageSource;
-            if (segg.getShooter() instanceof Player) {
-                attacker = (Player) segg.getShooter();
-            }
-        } else if (damageSource instanceof Fireball) {
-            Fireball fball = (Fireball) damageSource;
-            if (fball.getShooter() instanceof Player) {
-                attacker = (Player) fball.getShooter();
-            }
-        } else if (damageSource instanceof WitherSkull) {
-            WitherSkull wskull = (WitherSkull) damageSource;
-            if (wskull.getShooter() instanceof Player) {
-                attacker = (Player) wskull.getShooter();
+        } else if (damageSource instanceof Projectile) {
+            projectile = (Projectile) damageSource;
+            if (projectile.getShooter() instanceof Player) {
+                attacker = (Player) projectile.getShooter();
             }
         }
 
@@ -565,31 +479,17 @@ public class EntityEventHandler implements Listener {
                     // otherwise the player damaging the entity must have permission,
                     // or, for wolves and ocelots, apply special logic for sieges.
                     else {
-                        if (event.getEntityType() == EntityType.WOLF || event.getEntityType() == EntityType.OCELOT) {
-                            // get the claim at this position...
-                            Claim mobclaim = GriefPrevention.instance.dataStore.getClaimAt(event.getEntity().getLocation(), true, null);
-                            // is this claim under siege?
-                            if (mobclaim != null && mobclaim.getSiegeData() != null) {
-
-                                SiegeData sd = mobclaim.getSiegeData();
-                                // get the defending player.
-                                Player defender = sd.getDefender();
-                                // if the player attacking this entity is within 15 blocks, don't cancel.
-                                if (attacker.getLocation().distance(defender.getLocation()) < wc.getSiegeTamedAnimalDistance()) {
-                                    event.setCancelled(false);
-                                    return;
-                                }
-                            }
-                        }
-
                         String noContainersReason = claim.allowContainers(attacker);
                         if (noContainersReason != null) {
                             event.setCancelled(true);
                             // kill the arrow to avoid infinite bounce between crowded together animals
-                            if (arrow != null) arrow.remove();
+                            if (projectile != null) {
+                                if (projectile instanceof Arrow) {
+                                    projectile.remove();
+                                }
+                            }
                             GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
                         }
-
                         // cache claim for later
                         if (playerData != null) {
                             playerData.setLastClaim(claim);

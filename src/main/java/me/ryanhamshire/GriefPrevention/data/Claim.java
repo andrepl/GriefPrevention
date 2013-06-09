@@ -31,7 +31,6 @@ import java.util.Set;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.PlayerGroup;
-import me.ryanhamshire.GriefPrevention.SiegeData;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.ClaimModifiedEvent;
 import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
@@ -112,11 +111,6 @@ public class Claim {
      * note subdivisions themselves never have children
      */
     private ArrayList<Claim> children = new ArrayList<Claim>();
-
-    /**
-     * information about a siege involving this claim.  null means no siege is currently impacting this claim
-     */
-    private SiegeData siegeData = null;
 
     /**
      * following a siege, buttons/levers are unlocked temporarily.  this represents that state
@@ -440,11 +434,6 @@ public class Claim {
 
         // no resizing, deleting, and so forth while under siege
         if (this.ownerName.equals(player.getName())) {
-            if (this.siegeData != null) {
-                return GriefPrevention.instance.dataStore.getMessage(Messages.NoModifyDuringSiege);
-            }
-
-            // otherwise, owners can do whatever
             return null;
         }
 
@@ -466,17 +455,9 @@ public class Claim {
         // if we don't know who's asking, always say no (i've been told some mods can make this happen somehow)
         if (player == null) return "";
 
-        // when a player tries to build in a claim, if he's under siege, the siege may extend to include the new claim
-        GriefPrevention.instance.dataStore.tryExtendSiege(player, this);
-
         // admin claims can always be modified by admins, no exceptions
         if (this.isAdminClaim()) {
             if (player.hasPermission("griefprevention.adminclaims")) return null;
-        }
-
-        // no building while under siege
-        if (this.siegeData != null) {
-            return GriefPrevention.instance.dataStore.getMessage(Messages.NoBuildUnderSiege, this.siegeData.getAttacker().getName());
         }
 
         // no building while in pvp combat
@@ -583,33 +564,6 @@ public class Claim {
     public String allowBreak(Player player, Block BlocktoCheck) {
         Material material = BlocktoCheck.getType();
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
-        // if under siege, some blocks will be breakable
-        if (this.siegeData != null) {
-            boolean breakable = false;
-
-            // search for block type in list of breakable blocks
-            for (int i = 0; i < wc.getSiegeBlocks().size(); i++) {
-                Material breakableMaterial = wc.getSiegeBlocks().get(i);
-                if (breakableMaterial.getId() == material.getId()) {
-                    breakable = true;
-                    break;
-                }
-            }
-            breakable |= BrokenBlockInfo.canBreak(BlocktoCheck.getLocation());
-            // custom error messages for siege mode
-            if (!breakable) {
-                return GriefPrevention.instance.dataStore.getMessage(Messages.NonSiegeMaterial);
-            } else if (this.ownerName.equals(player.getName())) {
-                return GriefPrevention.instance.dataStore.getMessage(Messages.NoOwnerBuildUnderSiege);
-            } else {
-                if (wc.getSiegeBlockRevert()) {
-                    siegeData.getSiegedBlocks().add(new BrokenBlockInfo(BlocktoCheck.getLocation()));
-                }
-                return null;
-            }
-        }
-
-        // if not under siege, build rules apply
         return this.allowBuild(player);
     }
 
@@ -662,14 +616,6 @@ public class Claim {
     public String allowContainers(Player player) {
         // if we don't know who's asking, always say no (i've been told some mods can make this happen somehow)
         if (player == null) return "";
-
-        // trying to access inventory in a claim may extend an existing siege to include this claim
-        GriefPrevention.instance.dataStore.tryExtendSiege(player, this);
-
-        // if under siege, nobody accesses containers
-        if (this.siegeData != null) {
-            return GriefPrevention.instance.dataStore.getMessage(Messages.NoContainersSiege, siegeData.getAttacker().getName());
-        }
 
         // owner and administrators in ignoreclaims mode have access
         if (this.ownerName.equals(player.getName()) || GriefPrevention.instance.dataStore.getPlayerData(player.getName()).isIgnoreClaims())
@@ -1236,14 +1182,6 @@ public class Claim {
 
     public void setExplosivesAllowed(boolean isExplosivesAllowed) {
         this.explosivesAllowed = isExplosivesAllowed;
-    }
-
-    public SiegeData getSiegeData() {
-        return siegeData;
-    }
-
-    public void setSiegeData(SiegeData siegeData) {
-        this.siegeData = siegeData;
     }
 
     public boolean isDoorsOpen() {

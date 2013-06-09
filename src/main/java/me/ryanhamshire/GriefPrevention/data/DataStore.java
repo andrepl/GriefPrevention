@@ -23,14 +23,14 @@ import me.ryanhamshire.GriefPrevention.configuration.CustomizableMessage;
 import me.ryanhamshire.GriefPrevention.configuration.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.*;
+import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
+import me.ryanhamshire.GriefPrevention.exceptions.SubdivisionException;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
-import me.ryanhamshire.GriefPrevention.tasks.SecureClaimTask;
-import me.ryanhamshire.GriefPrevention.tasks.SiegeCheckupTask;
+import org.apache.commons.lang.SerializationException;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public abstract class DataStore {
     final static String messagesFilePath = dataLayerFolderPath + File.separator + "messages.yml";
 
     // initialization!
-    void initialize() throws Exception {
+    void initialize() throws DatastoreInitializationException {
         GriefPrevention.addLogEntry(this.claims.size() + " total claims loaded.");
 
         // make a list of players who own claims
@@ -139,14 +139,14 @@ public abstract class DataStore {
     /**
      * Changes the claim's owner.
      *
-     * @param claim
-     * @param newOwnerName
+     * @param claim the claim to change ownership of
+     * @param newOwnerName the new owner's name
      * @throws Exception
      */
-    synchronized public void changeClaimOwner(Claim claim, String newOwnerName) throws Exception {
+    synchronized public void changeClaimOwner(Claim claim, String newOwnerName) throws SubdivisionException {
         // if it's a subdivision, throw an exception
         if (claim.getParent() != null) {
-            throw new Exception("Subdivisions can't be transferred.  Only top-level claims may change owners.");
+            throw new SubdivisionException("Subdivisions can't be transferred.  Only top-level claims may change owners.");
         }
 
         // otherwise update information
@@ -237,13 +237,13 @@ public abstract class DataStore {
     }
 
     // turns a location string back into a location
-    public Location locationFromString(String string) throws Exception {
+    public Location locationFromString(String string) throws SerializationException, WorldNotFoundException {
         // split the input string on the space
         String[] elements = string.split(locationStringDelimiter);
 
         // expect four elements - world name, X, Y, and Z, respectively
         if (elements.length != 4) {
-            throw new Exception("Expected four distinct parts to the location string:{" + string + "}");
+            throw new SerializationException("Expected four distinct parts to the location string:{" + string + "}");
         }
 
         String worldName = elements[0];
@@ -497,15 +497,6 @@ public abstract class DataStore {
         return createClaim(world, x1, x2, y1, y2, z1, z2, ownerName, parent, id, false, null);
     }
 
-    // creates a claim.
-    // if the new claim would overlap an existing claim, returns a failure along with a reference to the existing claim
-    // otherwise, returns a success along with a reference to the new claim
-    // use ownerName == "" for administrative claims
-    // for top level claims, pass parent == NULL
-    // DOES adjust claim blocks available on success (players can go into negative quantity available)
-    // does NOT check a player has permission to create a claim, or enough claim blocks.
-    // does NOT check minimum claim size constraints
-    // does NOT visualize the new claim for any players
     synchronized private CreateClaimResult createClaim(World world, int x1, int x2, int y1, int y2, int z1, int z2, String ownerName, Claim parent, Long id, boolean neverdelete, Claim oldclaim, Player claimcreator, boolean doRaiseEvent) {
         CreateClaimResult result = new CreateClaimResult();
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(world);
@@ -595,13 +586,6 @@ public abstract class DataStore {
                     return result;
                 }
             }
-        } else {
-            /*ClaimResizeEvent claimevent = new ClaimResizeEvent(oldclaim, newClaim.lesserBoundaryCorner,newClaim.greaterBoundaryCorner,gotplayer);
-			Bukkit.getServer().getPluginManager().callEvent(claimevent);
-			if(claimevent.isCancelled()) {
-				result.succeeded = CreateClaimResult.Result.Canceled;
-				return result;
-			}*/
         }
         // otherwise add this new claim to the data store to make it effective
         this.addClaim(newClaim);
@@ -635,10 +619,6 @@ public abstract class DataStore {
 
         if (claim.getParent() != null) claim = claim.getParent();
 
-        // delete the claim
-        // this.deleteClaim(claim);
-
-        // re-create it at the new depth
         claim.lesserBoundaryCorner.setY(newDepth);
         claim.greaterBoundaryCorner.setY(newDepth);
 
@@ -647,228 +627,10 @@ public abstract class DataStore {
             claim.getChildren().get(i).lesserBoundaryCorner.setY(newDepth);
             claim.getChildren().get(i).greaterBoundaryCorner.setY(newDepth);
         }
-
-        // save changes
-        // this.addClaim(claim);
         saveClaim(claim);
     }
 
     /**
-     * Starts a siege on a claim. Does NOT check siege cooldowns, see onCooldown().
-     *
-     * @param attacker      The attacker
-     * @param defender      The defending player
-     * @param defenderClaim The claim being attacked
-     * @see #onCooldown(Player, Player, Claim)
-     */
-    synchronized public boolean startSiege(Player attacker, Player defender, Claim defenderClaim) {
-        // fill-in the necessary SiegeData instance
-        SiegeData siegeData = new SiegeData(attacker, defender, defenderClaim);
-        PlayerData attackerData = this.getPlayerData(attacker.getName());
-        PlayerData defenderData = this.getPlayerData(defender.getName());
-        attackerData.setSiegeData(siegeData);
-        defenderData.setSiegeData(siegeData);
-        defenderClaim.setSiegeData(siegeData);
-
-        // Raise the event, and cancel if necessary.
-        SiegeStartEvent startevent = new SiegeStartEvent(siegeData);
-        Bukkit.getPluginManager().callEvent(startevent);
-        if (startevent.isCancelled()) return false;
-
-        // start a task to monitor the siege
-        // why isn't this a "repeating" task?
-        // because depending on the status of the siege at the time the task runs, there may or may not be a reason to run the task again
-        SiegeCheckupTask task = new SiegeCheckupTask(siegeData);
-        siegeData.setCheckupTaskID(GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 30));
-        return true;
-    }
-
-    /**
-     * Ends a siege. Either winnerName or loserName can be null, but not both
-     *
-     * @param siegeData  The siege data
-     * @param winnerName The winner's name
-     * @param loserName  The loser's name
-     * @param death      Was the siege ended by a player's death?
-     */
-    synchronized public void endSiege(SiegeData siegeData, String winnerName, String loserName, boolean death) {
-        boolean grantAccess = false;
-        SiegeEndEvent event = new SiegeEndEvent(siegeData);
-        Bukkit.getPluginManager().callEvent(event);
-        // determine winner and loser
-        if (winnerName == null && loserName != null) {
-            if (siegeData.getAttacker().getName().equals(loserName)) {
-                winnerName = siegeData.getDefender().getName();
-            } else {
-                winnerName = siegeData.getAttacker().getName();
-            }
-        } else if (winnerName != null && loserName == null) {
-            if (siegeData.getAttacker().getName().equals(winnerName)) {
-                loserName = siegeData.getDefender().getName();
-            } else {
-                loserName = siegeData.getAttacker().getName();
-            }
-        }
-
-        // if the attacker won, plan to open the doors for looting
-        if (siegeData.getAttacker().getName().equals(winnerName)) {
-            grantAccess = true;
-        }
-
-        PlayerData attackerData = this.getPlayerData(siegeData.getAttacker().getName());
-        attackerData.setSiegeData(null);
-
-        PlayerData defenderData = this.getPlayerData(siegeData.getDefender().getName());
-        defenderData.setSiegeData(null);
-
-        // start a cooldown for this attacker/defender pair
-        Long now = Calendar.getInstance().getTimeInMillis();
-        Long cooldownEnd = now + 1000 * 60 * 60;  // one hour from now
-        this.siegeCooldownRemaining.put(siegeData.getAttacker().getName() + "_" + siegeData.getDefender().getName(), cooldownEnd);
-
-        // if there are blocks queued up to revert, do so.
-        int revertedCount = 0;
-        if (!siegeData.getSiegedBlocks().isEmpty()) {
-
-
-            while (!siegeData.getSiegedBlocks().isEmpty()) {
-                siegeData.getSiegedBlocks().poll().reset();
-            }
-            GriefPrevention.addLogEntry("reverted " + revertedCount + " Sieged Blocks.");
-
-        }
-        // start cooldowns for every attacker/involved claim pair
-        for (int i = 0; i < siegeData.getClaims().size(); i++) {
-            Claim claim = siegeData.getClaims().get(i);
-            claim.setSiegeData(null);
-            this.siegeCooldownRemaining.put(siegeData.getAttacker().getName() + "_" + claim.getOwnerName(), cooldownEnd);
-
-            // if doors should be opened for looting, do that now
-            if (grantAccess) {
-                claim.setDoorsOpen(true);
-                claim.setLootedChests(0);
-            }
-        }
-
-        // cancel the siege checkup task
-        GriefPrevention.instance.getServer().getScheduler().cancelTask(siegeData.getCheckupTaskID());
-
-        // notify everyone who won and lost
-        if (winnerName != null && loserName != null) {
-            GriefPrevention.instance.getServer().broadcastMessage(winnerName + " defeated " + loserName + " in siege warfare!");
-        }
-
-        // if the claim should be opened to looting
-        if (grantAccess) {
-            Player winner = GriefPrevention.instance.getServer().getPlayer(winnerName);
-            if (winner != null) {
-                // notify the winner
-                GriefPrevention.sendMessage(winner, TextMode.SUCCESS, Messages.SiegeWinDoorsOpen);
-
-                // schedule a task to secure the claims in about 5 minutes
-                // set siegeData's LootedChests to 0, and also register it for events temporarily so it can
-                // handle Inventory Open events.
-                siegeData.setLootedContainers(0);
-                SecureClaimTask task = new SecureClaimTask(siegeData);
-                GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 60 * 5);
-            }
-        }
-
-        // if the siege ended due to death, transfer inventory to winner
-        if (death) {
-            Player winner = GriefPrevention.instance.getServer().getPlayer(winnerName);
-            Player loser = GriefPrevention.instance.getServer().getPlayer(loserName);
-            if (winner != null && loser != null) {
-                // get loser's inventory, then clear it
-                ItemStack[] loserItems = loser.getInventory().getContents();
-                loser.getInventory().clear();
-
-                // try to add it to the winner's inventory
-                for (int j = 0; j < loserItems.length; j++) {
-                    if (loserItems[j] == null || loserItems[j].getType() == Material.AIR || loserItems[j].getAmount() == 0)
-                        continue;
-
-                    HashMap<Integer, ItemStack> wontFitItems = winner.getInventory().addItem(loserItems[j]);
-
-                    // drop any remainder on the ground at his feet
-                    Object[] keys = wontFitItems.keySet().toArray();
-                    Location winnerLocation = winner.getLocation();
-                    for (int i = 0; i < keys.length; i++) {
-                        Integer key = (Integer) keys[i];
-                        winnerLocation.getWorld().dropItemNaturally(winnerLocation, wontFitItems.get(key));
-                    }
-                }
-            }
-        }
-    }
-
-    // timestamp for each siege cooldown to end
-    private HashMap<String, Long> siegeCooldownRemaining = new HashMap<String, Long>();
-
-    /**
-     * whether or not a sieger can siege a particular victim or claim, considering only cooldowns
-     *
-     * @param attacker      The attacking player
-     * @param defender      The defending player
-     * @param defenderClaim The defender's claim
-     * @return
-     */
-    synchronized public boolean onCooldown(Player attacker, Player defender, Claim defenderClaim) {
-        Long cooldownEnd = null;
-
-        // look for an attacker/defender cooldown
-        if (this.siegeCooldownRemaining.get(attacker.getName() + "_" + defender.getName()) != null) {
-            cooldownEnd = this.siegeCooldownRemaining.get(attacker.getName() + "_" + defender.getName());
-
-            if (Calendar.getInstance().getTimeInMillis() < cooldownEnd) {
-                return true;
-            }
-
-            // if found but expired, remove it
-            this.siegeCooldownRemaining.remove(attacker.getName() + "_" + defender.getName());
-        }
-
-        // look for an attacker/claim cooldown
-        if (cooldownEnd == null && this.siegeCooldownRemaining.get(attacker.getName() + "_" + defenderClaim.getOwnerName()) != null) {
-            cooldownEnd = this.siegeCooldownRemaining.get(attacker.getName() + "_" + defenderClaim.getOwnerName());
-
-            if (Calendar.getInstance().getTimeInMillis() < cooldownEnd) {
-                return true;
-            }
-
-            // if found but expired, remove it
-            this.siegeCooldownRemaining.remove(attacker.getName() + "_" + defenderClaim.getOwnerName());
-        }
-
-        return false;
-    }
-
-    /**
-     * extend a siege, if it's possible to do so
-     *
-     * @param player The player to be sieged
-     * @param claim  the claim being sieged
-     */
-    synchronized void tryExtendSiege(Player player, Claim claim) {
-        PlayerData playerData = this.getPlayerData(player.getName());
-
-        // player must be sieged
-        if (playerData.getSiegeData() == null) return;
-
-        // claim isn't already under the same siege
-        if (playerData.getSiegeData().getClaims().contains(claim)) return;
-
-        // admin claims can't be sieged
-        if (claim.isAdminClaim()) return;
-
-        // player must have some level of permission to be sieged in a claim
-        if (claim.allowAccess(player) != null) return;
-
-        // otherwise extend the siege
-        playerData.getSiegeData().getClaims().add(claim);
-        claim.setSiegeData(playerData.getSiegeData());
-    }
-
     // deletes all claims owned by a player with the exception of locked claims
     @Deprecated
     synchronized public void deleteClaimsForPlayer(String playerName, boolean deleteCreativeClaims) {
@@ -898,10 +660,7 @@ public abstract class DataStore {
         for (int i = 0; i < claimsToDelete.size(); i++) {
             Claim claim = claimsToDelete.get(i);
             claim.removeSurfaceFluids(null);
-
             this.deleteClaim(claim);
-
-            // if in a creative mode world, delete the claim
             if (GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner())) {
                 GriefPrevention.instance.restoreClaim(claim, 0);
             }
@@ -917,7 +676,7 @@ public abstract class DataStore {
         int y2 = Math.max(p1.getBlockY(), p2.getBlockY());
         int z2 = Math.max(p1.getBlockZ(), p2.getBlockZ());
 
-        return resizeClaim(claim, x1, x1, y1, y2, z1, z2, resizer);
+        return resizeClaim(claim, x1, x2, y1, y2, z1, z2, resizer);
 
     }
 
@@ -935,10 +694,8 @@ public abstract class DataStore {
      */
     synchronized public CreateClaimResult resizeClaim(Claim claim, int newx1, int newx2, int newy1, int newy2, int newz1, int newz2, Player claimcreator) {
 
-        Location newLesser = new Location(claim.getLesserBoundaryCorner().getWorld(),
-                newx1, newy1, newz1);
-        Location newGreater = new Location(claim.getLesserBoundaryCorner().getWorld(),
-                newx2, newy2, newz2);
+        Location newLesser = new Location(claim.getLesserBoundaryCorner().getWorld(), newx1, newy1, newz1);
+        Location newGreater = new Location(claim.getLesserBoundaryCorner().getWorld(), newx2, newy2, newz2);
 
         ClaimResizeEvent cre = new ClaimResizeEvent(claim, newLesser, newGreater, claimcreator);
         Bukkit.getPluginManager().callEvent(cre);
@@ -1238,20 +995,17 @@ public abstract class DataStore {
         System.gc();
     }
 
-    private void addDefault(HashMap<String, CustomizableMessage> defaults,
-                            Messages id, String text, String notes) {
+    private void addDefault(HashMap<String, CustomizableMessage> defaults, Messages id, String text, String notes) {
         CustomizableMessage message = new CustomizableMessage(id, text, notes);
         defaults.put(id.name(), message);
     }
 
     synchronized public String getMessage(Messages messageID, String... args) {
         String message = messages[messageID.ordinal()];
-
         for (int i = 0; i < args.length; i++) {
             String param = args[i];
             message = message.replace("{" + i + "}", param);
         }
-
         return message;
     }
 

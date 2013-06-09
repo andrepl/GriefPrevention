@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 
 import org.bukkit.*;
@@ -43,12 +44,12 @@ public class FlatFileDataStore extends DataStore {
     }
 
     // initialization!
-    public FlatFileDataStore() throws Exception {
+    public FlatFileDataStore() throws DatastoreInitializationException {
         this.initialize();
     }
 
     @Override
-    void initialize() throws Exception {
+    void initialize() throws DatastoreInitializationException {
 
         // ensure data folders exist
         new File(playerDataFolderPath).mkdirs();

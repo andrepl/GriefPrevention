@@ -25,7 +25,6 @@ import java.util.Vector;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.ShovelMode;
-import me.ryanhamshire.GriefPrevention.SiegeData;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 
@@ -119,9 +118,6 @@ public class PlayerData {
 
     // the last claim this player was in, that we know of
     private Claim lastClaim = null;
-
-    // siege
-    private SiegeData siegeData = null;
 
     // pvp
     private long lastPvpTimestamp = 0;
@@ -386,14 +382,6 @@ public class PlayerData {
 
     public void setLastClaim(Claim lastClaim) {
         this.lastClaim = lastClaim;
-    }
-
-    public SiegeData getSiegeData() {
-        return siegeData;
-    }
-
-    public void setSiegeData(SiegeData siegeData) {
-        this.siegeData = siegeData;
     }
 
     public long getLastPvpTimestamp() {

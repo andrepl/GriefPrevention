@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 
 import org.bukkit.*;
@@ -39,7 +40,7 @@ public class DatabaseDataStore extends DataStore {
     private String userName;
     private String password;
 
-    public DatabaseDataStore(String url, String userName, String password) throws Exception {
+    public DatabaseDataStore(String url, String userName, String password) throws DatastoreInitializationException {
         this.databaseUrl = url;
         this.userName = userName;
         this.password = password;
@@ -47,20 +48,20 @@ public class DatabaseDataStore extends DataStore {
     }
 
     @Override
-    void initialize() throws Exception {
+    void initialize() throws DatastoreInitializationException {
         try {
             //load the java driver for mySQL
             Class.forName("com.mysql.jdbc.Driver");
-        } catch (Exception e) {
+        } catch (Exception ex) {
             GriefPrevention.addLogEntry("ERROR: Unable to load Java's mySQL database driver.  Check to make sure you've installed it properly.");
-            throw e;
+            throw new DatastoreInitializationException(ex);
         }
 
         try {
             this.refreshDataConnection();
         } catch (Exception e2) {
             GriefPrevention.addLogEntry("ERROR: Unable to connect to database.  Check your config file settings.");
-            throw e2;
+            throw new DatastoreInitializationException(e2);
         }
 
         try {
@@ -83,137 +84,55 @@ public class DatabaseDataStore extends DataStore {
         } catch (Exception e3) {
             GriefPrevention.addLogEntry("ERROR: Unable to create the necessary database table.  Details:");
             GriefPrevention.addLogEntry(e3.getMessage());
-            throw e3;
+            throw new DatastoreInitializationException(e3);
         }
 
         //load group data into memory
-        Statement statement = databaseConnection.createStatement();
-        ResultSet results = statement.executeQuery("SELECT * FROM griefprevention_playerdata;");
+        Statement statement = null;
+        ResultSet results = null;
+        try {
+            statement = databaseConnection.createStatement();
+            results = statement.executeQuery("SELECT * FROM griefprevention_playerdata;");
+            while (results.next()) {
+                String name = results.getString("name");
 
-        while (results.next()) {
-            String name = results.getString("name");
+                //ignore non-groups.  all group names start with a dollar sign.
+                if (!name.startsWith("$")) continue;
 
-            //ignore non-groups.  all group names start with a dollar sign.
-            if (!name.startsWith("$")) continue;
+                String groupName = name.substring(1);
+                if (groupName == null || groupName.isEmpty()) continue;  //defensive coding, avoid unlikely cases
 
-            String groupName = name.substring(1);
-            if (groupName == null || groupName.isEmpty()) continue;  //defensive coding, avoid unlikely cases
-
-            int groupBonusBlocks = results.getInt("bonusblocks");
-            this.permissionToBonusBlocksMap.put(groupName, groupBonusBlocks);
+                int groupBonusBlocks = results.getInt("bonusblocks");
+                this.permissionToBonusBlocksMap.put(groupName, groupBonusBlocks);
+            }
+        } catch (SQLException e) {
+            throw new DatastoreInitializationException(e);
         }
 
         //load next claim number into memory
-        results = statement.executeQuery("SELECT * FROM griefprevention_nextclaimid;");
-
-        //if there's nothing yet, add it
-        if (!results.next()) {
-            statement.execute("INSERT INTO griefprevention_nextclaimid VALUES(0);");
-            this.nextClaimID = (long) 0;
-        } else {  //otherwise load it
-            this.nextClaimID = results.getLong("nextid");
+        try {
+            results = statement.executeQuery("SELECT * FROM griefprevention_nextclaimid;");
+            //if there's nothing yet, add it
+            if (!results.next()) {
+                statement.execute("INSERT INTO griefprevention_nextclaimid VALUES(0);");
+                this.nextClaimID = (long) 0;
+            } else {  //otherwise load it
+                this.nextClaimID = results.getLong("nextid");
+            }
+        } catch (SQLException e) {
+            throw new DatastoreInitializationException(e);
         }
 
         //load claims data into memory
-        results = statement.executeQuery("SELECT * FROM griefprevention_claimdata;");
 
         ArrayList<Claim> claimsToRemove = new ArrayList<Claim>();
 
-        while (results.next()) {
-            try {
-                //skip subdivisions
-                long parentId = results.getLong("parentid");
-                if (parentId != -1) continue;
-
-
-                long claimID = results.getLong("id");
-
-                String lesserCornerString = results.getString("lessercorner");
-                Location lesserBoundaryCorner = this.locationFromString(lesserCornerString);
-
-                String greaterCornerString = results.getString("greatercorner");
-                Location greaterBoundaryCorner = this.locationFromString(greaterCornerString);
-
-                String ownerName = results.getString("owner");
-
-                String buildersString = results.getString("builders");
-                String[] builderNames = buildersString.split(";");
-
-                String containersString = results.getString("containers");
-                String[] containerNames = containersString.split(";");
-
-                String accessorsString = results.getString("accessors");
-                String[] accessorNames = accessorsString.split(";");
-
-                String managersString = results.getString("managers");
-                String[] managerNames = managersString.split(";");
-
-                boolean neverdelete = results.getBoolean("neverdelete");
-
-                Claim topLevelClaim = new Claim(lesserBoundaryCorner, greaterBoundaryCorner, ownerName, builderNames, containerNames, accessorNames, managerNames, claimID, neverdelete);
-
-                //search for another claim overlapping this one
-                Claim conflictClaim = this.getClaimAt(topLevelClaim.lesserBoundaryCorner, true, null);
-
-                //if there is such a claim, mark it for later removal
-                if (conflictClaim != null) {
-                    claimsToRemove.add(conflictClaim);
-                    continue;
-                }
-
-                //otherwise, add this claim to the claims collection
-                else {
-                    int j = 0;
-                    while (j < this.claims.size() && !this.claims.get(j).greaterThan(topLevelClaim)) j++;
-                    if (j < this.claims.size())
-                        this.claims.add(j, topLevelClaim);
-                    else
-                        this.claims.add(this.claims.size(), topLevelClaim);
-                    topLevelClaim.setInDataStore(true);
-                }
-
-                //look for any subdivisions for this claim
-                Statement statement2 = this.databaseConnection.createStatement();
-                ResultSet childResults = statement2.executeQuery("SELECT * FROM griefprevention_claimdata WHERE parentid=" + topLevelClaim.getID() + ";");
-
-                while (childResults.next()) {
-                    lesserCornerString = childResults.getString("lessercorner");
-                    lesserBoundaryCorner = this.locationFromString(lesserCornerString);
-                    Long subid = childResults.getLong("id");
-                    greaterCornerString = childResults.getString("greatercorner");
-                    greaterBoundaryCorner = this.locationFromString(greaterCornerString);
-
-                    buildersString = childResults.getString("builders");
-                    builderNames = buildersString.split(";");
-
-                    containersString = childResults.getString("containers");
-                    containerNames = containersString.split(";");
-
-                    accessorsString = childResults.getString("accessors");
-                    accessorNames = accessorsString.split(";");
-
-                    managersString = childResults.getString("managers");
-                    managerNames = managersString.split(";");
-
-                    neverdelete = results.getBoolean("neverdelete");
-
-                    Claim childClaim = new Claim(lesserBoundaryCorner, greaterBoundaryCorner, ownerName, builderNames, containerNames, accessorNames, managerNames, null, neverdelete);
-
-                    //add this claim to the list of children of the current top level claim
-                    childClaim.setParent(topLevelClaim);
-                    topLevelClaim.getChildren().add(childClaim);
-                    childClaim.subClaimid = subid;
-                    childClaim.setInDataStore(true);
-                }
-            } catch (SQLException e) {
-                GriefPrevention.addLogEntry("Unable to load a claim.  Details: " + e.getMessage() + " ... " + results.toString());
-                e.printStackTrace();
-            } catch (WorldNotFoundException e) {
-                //We don't need to worry about this exception.
-                //This is just here to catch it so that the plugin
-                //can load without erroring out.
-            }
+        try {
+            results = statement.executeQuery("SELECT * FROM griefprevention_claimdata;");
+        } catch (SQLException e) {
+            throw new DatastoreInitializationException(e);
         }
+
 
         for (int i = 0; i < claimsToRemove.size(); i++) {
             this.deleteClaimFromSecondaryStorage(claimsToRemove.get(i));
@@ -419,11 +338,8 @@ public class DatabaseDataStore extends DataStore {
                 if (!this.databaseConnection.isClosed()) {
                     this.databaseConnection.close();
                 }
-            } catch (SQLException e) {
-            }
-            ;
+            } catch (SQLException e) {}
         }
-
         this.databaseConnection = null;
     }
 
@@ -433,7 +349,6 @@ public class DatabaseDataStore extends DataStore {
             Properties connectionProps = new Properties();
             connectionProps.put("user", this.userName);
             connectionProps.put("password", this.password);
-
             //establish connection
             this.databaseConnection = DriverManager.getConnection(this.databaseUrl, connectionProps);
         }
