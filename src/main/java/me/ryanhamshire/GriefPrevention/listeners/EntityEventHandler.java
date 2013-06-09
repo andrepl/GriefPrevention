@@ -164,7 +164,7 @@ public class EntityEventHandler implements Listener {
                 if (claimpos != null && !claimpos.isExplosivesAllowed()) {
                     blocks.remove(i--);
                 } else if (block.getType() == Material.LOG) {
-                    plugin.handleLogBroken(block);
+                    plugin.getBlockEventHandler().handleLogBroken(block);
                 }
             }
         }

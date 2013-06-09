@@ -18,7 +18,10 @@
 
 package me.ryanhamshire.GriefPrevention.listeners;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import me.ryanhamshire.GriefPrevention.*;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
@@ -27,6 +30,7 @@ import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
+import me.ryanhamshire.GriefPrevention.tasks.TreeCleanupTask;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 
@@ -213,7 +217,7 @@ public class BlockEventHandler implements Listener {
         // if it's a log
         if (block.getType() == Material.LOG && wc.getRemoveFloatingTreetops()) {
             // run the specialized code for treetop removal (see below)
-            plugin.handleLogBroken(block);
+            handleLogBroken(block);
         }
     }
 
@@ -697,4 +701,155 @@ public class BlockEventHandler implements Listener {
             }
         }
     }
+
+    // processes broken log blocks to automatically remove floating treetops
+    public void handleLogBroken(Block block) {
+        // find the lowest log in the tree trunk including this log
+        Block rootBlock = this.getRootBlock(block);
+
+        // null indicates this block isn't part of a tree trunk
+        if (rootBlock == null) return;
+
+        // next step: scan for other log blocks and leaves in this tree
+
+        // set boundaries for the scan
+        int min_x = rootBlock.getX() - GriefPrevention.TREE_RADIUS;
+        int max_x = rootBlock.getX() + GriefPrevention.TREE_RADIUS;
+        int min_z = rootBlock.getZ() - GriefPrevention.TREE_RADIUS;
+        int max_z = rootBlock.getZ() + GriefPrevention.TREE_RADIUS;
+        int max_y = rootBlock.getWorld().getMaxHeight() - 1;
+
+        // keep track of all the examined blocks, and all the log blocks found
+        ArrayList<Block> examinedBlocks = new ArrayList<Block>();
+        ArrayList<Block> treeBlocks = new ArrayList<Block>();
+
+        // queue the first block, which is the block immediately above the player-chopped block
+        ConcurrentLinkedQueue<Block> blocksToExamine = new ConcurrentLinkedQueue<Block>();
+        blocksToExamine.add(rootBlock);
+        examinedBlocks.add(rootBlock);
+
+        boolean hasLeaves = false;
+
+        while (!blocksToExamine.isEmpty()) {
+            // pop a block from the queue
+            Block currentBlock = blocksToExamine.remove();
+
+            // if this is a log block, determine whether it should be chopped
+            if (currentBlock.getType() == Material.LOG) {
+                boolean partOfTree = false;
+
+                // if it's stacked with the original chopped block, the answer is always yes
+                if (currentBlock.getX() == block.getX() && currentBlock.getZ() == block.getZ()) {
+                    partOfTree = true;
+                }
+
+                // otherwise find the block underneath this stack of logs
+                else {
+                    Block downBlock = currentBlock.getRelative(BlockFace.DOWN);
+                    while (downBlock.getType() == Material.LOG) {
+                        downBlock = downBlock.getRelative(BlockFace.DOWN);
+                    }
+
+                    // if it's air or leaves, it's okay to chop this block
+                    // this avoids accidentally chopping neighboring trees which are close enough to touch their leaves to ours
+                    if (downBlock.getType() == Material.AIR || downBlock.getType() == Material.LEAVES) {
+                        partOfTree = true;
+                    }
+
+                    // otherwise this is a stack of logs which touches a solid surface
+                    // if it's close to the original block's stack, don't clean up this tree (just stop here)
+                    else {
+                        if (Math.abs(downBlock.getX() - block.getX()) <= 1 && Math.abs(downBlock.getZ() - block.getZ()) <= 1)
+                            return;
+                    }
+                }
+
+                if (partOfTree) {
+                    treeBlocks.add(currentBlock);
+                }
+            }
+
+            // if this block is a log OR a leaf block, also check its neighbors
+            if (currentBlock.getType() == Material.LOG || currentBlock.getType() == Material.LEAVES) {
+                if (currentBlock.getType() == Material.LEAVES) {
+                    hasLeaves = true;
+                }
+
+                Block[] neighboringBlocks = new Block[] {
+                        currentBlock.getRelative(BlockFace.EAST),
+                        currentBlock.getRelative(BlockFace.WEST),
+                        currentBlock.getRelative(BlockFace.NORTH),
+                        currentBlock.getRelative(BlockFace.SOUTH),
+                        currentBlock.getRelative(BlockFace.UP),
+                        currentBlock.getRelative(BlockFace.DOWN)
+                };
+
+                for (Block neighboringBlock : neighboringBlocks) {
+                    // if the neighboringBlock is out of bounds, skip it
+                    if (neighboringBlock.getX() < min_x || neighboringBlock.getX() > max_x || neighboringBlock.getZ() < min_z || neighboringBlock.getZ() > max_z || neighboringBlock.getY() > max_y)
+                        continue;
+
+                    // if we already saw this block, skip it
+                    if (examinedBlocks.contains(neighboringBlock)) continue;
+
+                    // mark the block as examined
+                    examinedBlocks.add(neighboringBlock);
+
+                    // if the neighboringBlock is a leaf or log, put it in the queue to be examined later
+                    if (neighboringBlock.getType() == Material.LOG || neighboringBlock.getType() == Material.LEAVES) {
+                        blocksToExamine.add(neighboringBlock);
+                    }
+
+                    // if we encounter any player-placed block type, bail out (don't automatically remove parts of this tree, it might support a treehouse!)
+                    else if (this.isPlayerBlock(neighboringBlock)) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        // if it doesn't have leaves, it's not a tree, so don't clean it up
+        if (hasLeaves) {
+            // schedule a cleanup task for later, in case the player leaves part of this tree hanging in the air
+            TreeCleanupTask cleanupTask = new TreeCleanupTask(block, rootBlock, treeBlocks, rootBlock.getData());
+
+            // 20L ~ 1 second, so 2 mins = 120 seconds ~ 2400L
+            GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, cleanupTask, 2400L);
+        }
+    }
+
+    // helper for above, finds the "root" of a stack of logs
+    // will return null if the stack is determined to not be a natural tree
+    private Block getRootBlock(Block logBlock) {
+        if (logBlock.getType() != Material.LOG) return null;
+
+        // run down through log blocks until finding a non-log block
+        Block underBlock = logBlock.getRelative(BlockFace.DOWN);
+        while (underBlock.getType() == Material.LOG) {
+            underBlock = underBlock.getRelative(BlockFace.DOWN);
+        }
+
+        // if this is a standard tree, that block MUST be dirt
+        if (underBlock.getType() != Material.DIRT) return null;
+
+        // run up through log blocks until finding a non-log block
+        Block aboveBlock = logBlock.getRelative(BlockFace.UP);
+        while (aboveBlock.getType() == Material.LOG) {
+            aboveBlock = aboveBlock.getRelative(BlockFace.UP);
+        }
+
+        // if this is a standard tree, that block MUST be air or leaves
+        if (aboveBlock.getType() != Material.AIR && aboveBlock.getType() != Material.LEAVES) return null;
+
+        return underBlock.getRelative(BlockFace.UP);
+    }
+
+    // for sake of identifying trees ONLY, a cheap but not 100% reliable method for identifying player-placed blocks
+    private boolean isPlayerBlock(Block block) {
+        Material material = block.getType();
+        return !EnumSet.of(Material.AIR, Material.LEAVES, Material.LOG, Material.DIRT, Material.GRASS, Material.STATIONARY_WATER,
+                Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.RED_ROSE, Material.LONG_GRASS, Material.SNOW,
+                Material.STONE, Material.VINE, Material.WATER_LILY, Material.YELLOW_FLOWER, Material.CLAY).contains(material);
+    }
+
 }
