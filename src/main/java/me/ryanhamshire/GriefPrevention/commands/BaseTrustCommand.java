@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
 import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.configuration.Messages;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
@@ -137,25 +137,24 @@ public class BaseTrustCommand extends BaseClaimCommand {
         }
 
         //notify player
-        if (recipientName.equals("public")) recipientName = plugin.dataStore.getMessage(Messages.CollectivePublic);
+        if (recipientName.equals("public")) recipientName = plugin.getMessageManager().getMessage(Messages.CollectivePublic);
         String permissionDescription;
         if (permissionLevel == null) {
-            permissionDescription = plugin.dataStore.getMessage(Messages.PermissionsPermission);
+            permissionDescription = plugin.getMessageManager().getMessage(Messages.PermissionsPermission);
         } else if (permissionLevel == ClaimPermission.Build) {
-            permissionDescription = plugin.dataStore.getMessage(Messages.BuildPermission);
+            permissionDescription = plugin.getMessageManager().getMessage(Messages.BuildPermission);
         } else if (permissionLevel == ClaimPermission.Access) {
-            permissionDescription = plugin.dataStore.getMessage(Messages.AccessPermission);
+            permissionDescription = plugin.getMessageManager().getMessage(Messages.AccessPermission);
         } else //ClaimPermission.Inventory
         {
-            permissionDescription = plugin.dataStore.getMessage(Messages.ContainersPermission);
+            permissionDescription = plugin.getMessageManager().getMessage(Messages.ContainersPermission);
         }
 
         String location;
         if (claim == null) {
-
-            location = plugin.dataStore.getMessage(Messages.LocationAllClaims);
+            location = plugin.getMessageManager().getMessage(Messages.LocationAllClaims);
         } else {
-            location = plugin.dataStore.getMessage(Messages.LocationCurrentClaim);
+            location = plugin.getMessageManager().getMessage(Messages.LocationCurrentClaim);
         }
         String userecipientName = recipientName;
         if (userecipientName.toUpperCase().startsWith("G:")) {

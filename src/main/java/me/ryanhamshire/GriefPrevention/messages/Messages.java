@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention.configuration;
+package me.ryanhamshire.GriefPrevention.messages;
 
 public enum Messages {
     RespectingClaims,
@@ -193,4 +193,6 @@ public enum Messages {
     TransferBlocksSuccess,
     BooleanParseError,
     UnknownCommand;
+
+
 }

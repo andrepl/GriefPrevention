@@ -27,7 +27,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
-import me.ryanhamshire.GriefPrevention.configuration.Messages;
+import me.ryanhamshire.GriefPrevention.messages.MessageManager;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.commands.CommandHandler;
 import me.ryanhamshire.GriefPrevention.data.*;
@@ -69,6 +70,7 @@ public class GriefPrevention extends JavaPlugin {
     // for logging to the console and log file
     public ConfigData configuration = null;
 
+    
     // this handles data storage, like player and region data
     public DataStore dataStore;
 
@@ -82,11 +84,12 @@ public class GriefPrevention extends JavaPlugin {
     public static final int NOTIFICATION_SECONDS = 20;
 
     private CommandHandler commandHandler;
-
+    
     private static boolean eventsRegistered = false;
 
     public DeliverClaimBlocksTask claimTask = null;
     public CleanupUnusedClaimsTask cleanupTask = null;
+    private MessageManager messageManager;
 
 
     // adds a server log entry
@@ -135,6 +138,8 @@ public class GriefPrevention extends JavaPlugin {
         commandHandler = new CommandHandler(this);
         commandHandler.initialize();
 
+        messageManager = new MessageManager(this);
+        
         // load player groups.
 
         // optional database settings
@@ -551,7 +556,7 @@ public class GriefPrevention extends JavaPlugin {
 
     // sends a color-coded message to a player
     public static void sendMessage(CommandSender player, TextMode color, Messages messageID, long delayInTicks, String... args) {
-        String message = GriefPrevention.instance.dataStore.getMessage(messageID, args);
+        String message = instance.getMessageManager().getMessage(messageID, args);
         if (message == null || message.equals("")) return;
         sendMessage(player, color, message, delayInTicks);
     }
@@ -600,16 +605,16 @@ public class GriefPrevention extends JavaPlugin {
         if (claim == null) {
             // no building in the wilderness in creative mode
             if (this.creativeRulesApply(location)) {
-                String reason = this.dataStore.getMessage(Messages.NoBuildOutsideClaims) + "  " + this.dataStore.getMessage(Messages.CreativeBasicsDemoAdvertisement);
+                String reason = this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.CreativeBasicsDemoAdvertisement);
                 if (player.hasPermission("griefprevention.ignoreclaims"))
-                    reason += "  " + this.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+                    reason += "  " + this.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
                 return reason;
             }
 
             // no building in survival wilderness when that is configured
             else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
                 if (wc.getTrashBlockPlacementBehaviour().Allowed(location, player).Denied())
-                    return this.dataStore.getMessage(Messages.NoBuildOutsideClaims) + "  " + this.dataStore.getMessage(Messages.SurvivalBasicsDemoAdvertisement);
+                    return this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
                 else
                     return null;
             } else {
@@ -637,12 +642,12 @@ public class GriefPrevention extends JavaPlugin {
         if (claim == null) {
             // no building in the wilderness in creative mode
             if (this.creativeRulesApply(location)) {
-                String reason = this.dataStore.getMessage(Messages.NoBuildOutsideClaims) + "  " + this.dataStore.getMessage(Messages.CreativeBasicsDemoAdvertisement);
+                String reason = this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.CreativeBasicsDemoAdvertisement);
                 if (player.hasPermission("griefprevention.ignoreclaims"))
-                    reason += "  " + this.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+                    reason += "  " + this.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
                 return reason;
             } else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
-                return this.dataStore.getMessage(Messages.NoBuildOutsideClaims) + "  " + this.dataStore.getMessage(Messages.SurvivalBasicsDemoAdvertisement);
+                return this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
             }
 
             // but it's fine in survival mode
@@ -732,5 +737,9 @@ public class GriefPrevention extends JavaPlugin {
     public int getSeaLevel(World world) {
         int overrideValue = getWorldCfg(world).getSeaLevelOverride();
         return overrideValue;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 }

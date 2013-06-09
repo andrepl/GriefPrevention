@@ -29,7 +29,7 @@ import java.util.Set;
 
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.configuration.Messages;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.PlayerGroup;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.ClaimModifiedEvent;
@@ -419,7 +419,7 @@ public class Claim {
             return this.parent.allowBuild(player);
 
         // error message if all else fails
-        return GriefPrevention.instance.dataStore.getMessage(Messages.OnlyOwnersModifyClaims, this.getOwnerName());
+        return GriefPrevention.instance.getMessageManager().getMessage(Messages.OnlyOwnersModifyClaims, this.getOwnerName());
     }
 
     /**
@@ -440,7 +440,7 @@ public class Claim {
         // no building while in pvp combat
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
         if (playerData.inPvpCombat()) {
-            return GriefPrevention.instance.dataStore.getMessage(Messages.NoBuildPvP);
+            return GriefPrevention.instance.getMessageManager().getMessage(Messages.NoBuildPvP);
         }
 
         // owners can make changes, or admins with ignore claims mode enabled
@@ -459,9 +459,9 @@ public class Claim {
             return this.parent.allowBuild(player);
 
         // failure message for all other cases
-        String reason = GriefPrevention.instance.dataStore.getMessage(Messages.NoBuildPermission, this.getOwnerName());
+        String reason = GriefPrevention.instance.getMessageManager().getMessage(Messages.NoBuildPermission, this.getOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims"))
-            reason += "  " + GriefPrevention.instance.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+            reason += "  " + GriefPrevention.instance.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         return reason;
     }
 
@@ -575,9 +575,9 @@ public class Claim {
             return this.parent.allowAccess(player);
 
         // catch-all error message for all other cases
-        String reason = GriefPrevention.instance.dataStore.getMessage(Messages.NoAccessPermission, this.getOwnerName());
+        String reason = GriefPrevention.instance.getMessageManager().getMessage(Messages.NoAccessPermission, this.getOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims"))
-            reason += "  " + GriefPrevention.instance.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+            reason += "  " + GriefPrevention.instance.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         return reason;
     }
 
@@ -613,9 +613,9 @@ public class Claim {
             return this.parent.allowContainers(player);
 
         // error message for all other cases
-        String reason = GriefPrevention.instance.dataStore.getMessage(Messages.NoContainersPermission, this.getOwnerName());
+        String reason = GriefPrevention.instance.getMessageManager().getMessage(Messages.NoContainersPermission, this.getOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims"))
-            reason += "  " + GriefPrevention.instance.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+            reason += "  " + GriefPrevention.instance.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         return reason;
     }
 
@@ -649,9 +649,9 @@ public class Claim {
             return this.parent.allowGrantPermission(player);
 
         // generic error message
-        String reason = GriefPrevention.instance.dataStore.getMessage(Messages.NoPermissionTrust, this.getOwnerName());
+        String reason = GriefPrevention.instance.getMessageManager().getMessage(Messages.NoPermissionTrust, this.getOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims")) {
-            reason += "  " + GriefPrevention.instance.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+            reason += "  " + GriefPrevention.instance.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         }
         return reason;
     }
@@ -808,7 +808,7 @@ public class Claim {
             return this.parent.getOwnerName();
 
         if (this.ownerName.length() == 0)
-            return GriefPrevention.instance.dataStore.getMessage(Messages.OwnerNameForAdminClaims);
+            return GriefPrevention.instance.getMessageManager().getMessage(Messages.OwnerNameForAdminClaims);
 
         return this.ownerName;
     }
@@ -950,7 +950,7 @@ public class Claim {
 
         // determine maximum allowable entity count, based on claim size
         int maxEntities = this.getArea() / 50;
-        if (maxEntities == 0) return GriefPrevention.instance.dataStore.getMessage(Messages.ClaimTooSmallForEntities);
+        if (maxEntities == 0) return GriefPrevention.instance.getMessageManager().getMessage(Messages.ClaimTooSmallForEntities);
 
         // count current entities (ignoring players)
         Chunk lesserChunk = this.getLesserBoundaryCorner().getChunk();
@@ -971,7 +971,7 @@ public class Claim {
             }
 
         if (totalEntities > maxEntities) {
-            return GriefPrevention.instance.dataStore.getMessage(Messages.TooManyEntitiesInClaim);
+            return GriefPrevention.instance.getMessageManager().getMessage(Messages.TooManyEntitiesInClaim);
         }
         return null;
     }

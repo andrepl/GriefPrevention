@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 import me.ryanhamshire.GriefPrevention.*;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
-import me.ryanhamshire.GriefPrevention.configuration.Messages;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.*;
 import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
@@ -38,7 +38,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -64,6 +63,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerEventHandler implements Listener {
+    private final GriefPrevention plugin;
     private DataStore dataStore;
 
     // number of milliseconds in a day
@@ -78,6 +78,7 @@ public class PlayerEventHandler implements Listener {
     // typical constructor, yawn
     public PlayerEventHandler(DataStore dataStore, GriefPrevention plugin) {
         this.dataStore = dataStore;
+        this.plugin = plugin;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -98,7 +99,7 @@ public class PlayerEventHandler implements Listener {
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
 
         if (this.howToClaimPattern == null) {
-            this.howToClaimPattern = Pattern.compile(this.dataStore.getMessage(Messages.HowToClaimRegex), Pattern.CASE_INSENSITIVE);
+            this.howToClaimPattern = Pattern.compile(plugin.getMessageManager().getMessage(Messages.HowToClaimRegex), Pattern.CASE_INSENSITIVE);
         }
         Messages showclaimmessage = null;
         if (this.howToClaimPattern.matcher(message).matches()) {
@@ -132,7 +133,7 @@ public class PlayerEventHandler implements Listener {
 
         // FEATURE: automatically educate players about the /trapped command
         // check for "trapped" or "stuck" to educate players about the /trapped command
-        if (!message.contains("/trapped") && (message.contains("trapped") || message.contains("stuck") || message.contains(this.dataStore.getMessage(Messages.TrappedChatKeyword)))) {
+        if (!message.contains("/trapped") && (message.contains("trapped") || message.contains("stuck") || message.contains(plugin.getMessageManager().getMessage(Messages.TrappedChatKeyword)))) {
             final PlayerData pdata = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
             // if not set to ignore the stuck message, show it, set the ignore flag, and set an anonymous runnable to reset it after the
             // configured delay.
