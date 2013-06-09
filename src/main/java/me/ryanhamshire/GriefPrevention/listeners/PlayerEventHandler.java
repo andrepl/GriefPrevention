@@ -1,4 +1,4 @@
-/*
+    /*
     GriefPrevention Server Plugin for Minecraft
     Copyright (C) 2011 Ryan Hamshire
 
@@ -18,11 +18,7 @@
 
 package me.ryanhamshire.GriefPrevention.listeners;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import me.ryanhamshire.GriefPrevention.*;
@@ -66,6 +62,7 @@ import org.bukkit.inventory.ItemStack;
 public class PlayerEventHandler implements Listener {
     private final GriefPrevention plugin;
     private DataStore dataStore;
+    private EnumSet<Material> containerBlocks;
 
     // number of milliseconds in a day
     private final long MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
@@ -80,6 +77,9 @@ public class PlayerEventHandler implements Listener {
     public PlayerEventHandler(DataStore dataStore, GriefPrevention plugin) {
         this.dataStore = dataStore;
         this.plugin = plugin;
+        containerBlocks = EnumSet.of(Material.WORKBENCH, Material.ENDER_CHEST, Material.DISPENSER, Material.ANVIL,
+                Material.BREWING_STAND, Material.JUKEBOX, Material.ENCHANTMENT_TABLE, Material.CAKE_BLOCK,
+                Material.DROPPER, Material.HOPPER);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -469,7 +469,6 @@ public class PlayerEventHandler implements Listener {
         Player player = bedEvent.getPlayer();
         Block block = bedEvent.getBed();
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(block.getWorld());
-
         if (!wc.getClaimsPreventButtonsSwitches()) return;
         // if the bed is in a claim 
         Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, null);
@@ -612,8 +611,7 @@ public class PlayerEventHandler implements Listener {
                 transparentMaterials.add(Byte.valueOf((byte) Material.LONG_GRASS.getId()));
                 clickedBlock = player.getTargetBlock(transparentMaterials, 250);
             }
-        } catch (Exception e)  // an exception intermittently comes from getTargetBlock().  when it does, just ignore the event
-        {
+        } catch (Exception e) {
             return;
         }
 
@@ -643,16 +641,7 @@ public class PlayerEventHandler implements Listener {
         if (wc.getClaimsPreventTheft() && event.getClickedBlock() != null && (
             event.getAction() == Action.RIGHT_CLICK_BLOCK && (
                 clickedBlock.getState() instanceof InventoryHolder ||
-                    clickedBlockType == Material.WORKBENCH ||
-                    clickedBlockType == Material.ENDER_CHEST ||
-                    clickedBlockType == Material.DISPENSER ||
-                    clickedBlockType == Material.ANVIL ||
-                    clickedBlockType == Material.BREWING_STAND ||
-                    clickedBlockType == Material.JUKEBOX ||
-                    clickedBlockType == Material.ENCHANTMENT_TABLE ||
-                    clickedBlockType == Material.CAKE_BLOCK ||
-                    clickedBlockType == Material.DROPPER ||
-                    clickedBlockType == Material.HOPPER ||
+                    containerBlocks.contains(clickedBlockType) ||
                     wc.getModsContainerTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null))))) {
 
             // block container use during pvp combat, same reason

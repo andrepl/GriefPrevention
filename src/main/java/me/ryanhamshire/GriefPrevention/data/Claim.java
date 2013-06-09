@@ -831,7 +831,7 @@ public class Claim {
             return false;
         if (Target.getBlockZ() < MinZ || Target.getBlockZ() > MaxZ)
             return false;
-        if (!ignoreHeight && (Target.getBlockY() < MaxY || Target.getBlockY() > MaxZ)) {
+        if (!ignoreHeight && (Target.getBlockY() < MinY || Target.getBlockY() > MaxY)) {
             return false;
         }
         return true;
@@ -1035,7 +1035,7 @@ public class Claim {
      * @param testfor  player name to test for.
      * @return
      */
-    private boolean PlayerinList(List<String> testlist, String testfor) {
+    private boolean playerInList(List<String> testlist, String testfor) {
         // if it starts with g: or G:, remove it.
 
         for (String iteratename : testlist) {
@@ -1057,7 +1057,7 @@ public class Claim {
     public boolean isManager(String player) {
         // if we don't know who's asking, always say no (i've been told some mods can make this happen somehow)
         if (player == null) return false;
-        return PlayerinList(managers, player);
+        return playerInList(managers, player);
     }
 
     /**

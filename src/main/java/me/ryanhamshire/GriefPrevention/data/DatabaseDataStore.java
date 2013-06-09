@@ -276,7 +276,6 @@ public class DatabaseDataStore extends DataStore {
             GriefPrevention.addLogEntry("Unable to retrieve data for player " + playerName + ".  Details:");
             GriefPrevention.addLogEntry(e.getMessage());
         }
-
         return playerData;
     }
 
