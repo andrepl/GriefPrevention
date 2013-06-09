@@ -79,7 +79,7 @@ public class Visualization {
 
        // add subdivisions first
         for (int i = 0; i < claim.getChildren().size(); i++) {
-            visualization.addClaimElements(claim.getChildren().get(i), height, VisualizationType.Subdivision, locality);
+            visualization.addClaimElements(claim.getChildren().get(i), height, VisualizationType.SUBDIVISION, locality);
         }
 
        // add top level last so that it takes precedence (it shows on top when the child claim boundaries overlap with its boundaries)
@@ -104,13 +104,13 @@ public class Visualization {
         Material cornerMaterial;
         Material accentMaterial;
 
-        if (visualizationType == VisualizationType.Claim) {
+        if (visualizationType == VisualizationType.CLAIM) {
             cornerMaterial = Material.GLOWSTONE;
             accentMaterial = Material.GOLD_BLOCK;
-        } else if (visualizationType == VisualizationType.Subdivision) {
+        } else if (visualizationType == VisualizationType.SUBDIVISION) {
             cornerMaterial = Material.IRON_BLOCK;
             accentMaterial = Material.WOOL;
-        } else if (visualizationType == VisualizationType.RestoreNature) {
+        } else if (visualizationType == VisualizationType.RESTORE_NATURE) {
             cornerMaterial = Material.DIAMOND_BLOCK;
             accentMaterial = Material.DIAMOND_BLOCK;
         } else {

@@ -24,7 +24,7 @@ public class SubdivideClaims extends BaseCommand {
         }
         Player player = (Player) sender;
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-        playerData.setShovelMode(ShovelMode.Subdivide);
+        playerData.setShovelMode(ShovelMode.SUBDIVIDE);
         playerData.setClaimSubdividing(null);
         GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.SubdivisionMode);
         GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.SubdivisionDemo);

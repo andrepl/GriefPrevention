@@ -31,13 +31,13 @@ public class RestoreNature extends BaseCommand {
             return true;
         }
 
-        ShovelMode newMode = ShovelMode.Admin.RestoreNature;
+        ShovelMode newMode = ShovelMode.ADMIN.RESTORE_NATURE;
 
         if (args.size() > 0) {
             if (args.peek().equalsIgnoreCase("aggressive")) {
-                newMode = ShovelMode.RestoreNatureAggressive;
+                newMode = ShovelMode.RESTORE_NATURE_AGGRESSIVE;
             } else if (args.peek().equalsIgnoreCase("fill")) {
-                newMode = ShovelMode.RestoreNatureFill;
+                newMode = ShovelMode.RESTORE_NATURE_FILL;
             } else {
                 return false;
             }
@@ -48,13 +48,13 @@ public class RestoreNature extends BaseCommand {
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
 
         switch (newMode) {
-            case RestoreNature:
+            case RESTORE_NATURE:
                 GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.RestoreNatureActivate);
                 break;
-            case RestoreNatureAggressive:
+            case RESTORE_NATURE_AGGRESSIVE:
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.RestoreNatureAggressiveActivate);
                 break;
-            case RestoreNatureFill:
+            case RESTORE_NATURE_FILL:
                 //set radius based on arguments
                 playerData.setFillRadius(2);
                 if (args.size() > 0) {

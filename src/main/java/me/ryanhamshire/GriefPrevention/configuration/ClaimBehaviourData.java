@@ -139,10 +139,10 @@ public class ClaimBehaviourData {
 		behaviourName =pName;
 	}
 
-	public static ClaimBehaviourData getOutsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.Both,PlacementRules.Neither,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getInsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.Neither,PlacementRules.Neither,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getAboveSeaLevel(String pName){ return new ClaimBehaviourData(pName,PlacementRules.AboveOnly,PlacementRules.AboveOnly,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getBelowSeaLevel(String pName){ return new ClaimBehaviourData(pName,PlacementRules.BelowOnly,PlacementRules.BelowOnly,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getNone(String pName){ return new ClaimBehaviourData(pName,PlacementRules.Neither,PlacementRules.Neither,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getAll(String pName){ return new ClaimBehaviourData(pName,PlacementRules.Both,PlacementRules.Both,ClaimBehaviourMode.None); }
+	public static ClaimBehaviourData getOutsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.both,PlacementRules.neither,ClaimBehaviourMode.None); }
+	public static ClaimBehaviourData getInsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.neither,PlacementRules.neither,ClaimBehaviourMode.None); }
+	public static ClaimBehaviourData getAboveSeaLevel(String pName){ return new ClaimBehaviourData(pName,PlacementRules.aboveOnly,PlacementRules.aboveOnly,ClaimBehaviourMode.None); }
+	public static ClaimBehaviourData getBelowSeaLevel(String pName){ return new ClaimBehaviourData(pName,PlacementRules.belowOnly,PlacementRules.belowOnly,ClaimBehaviourMode.None); }
+	public static ClaimBehaviourData getNone(String pName){ return new ClaimBehaviourData(pName,PlacementRules.neither,PlacementRules.neither,ClaimBehaviourMode.None); }
+	public static ClaimBehaviourData getAll(String pName){ return new ClaimBehaviourData(pName,PlacementRules.both,PlacementRules.both,ClaimBehaviourMode.None); }
 }

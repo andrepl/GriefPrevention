@@ -22,9 +22,9 @@ import me.ryanhamshire.GriefPrevention.data.Claim;
 
 public class CreateClaimResult {
     public enum Result {
-        ClaimOverlap,
-        Success,
-        Canceled;
+        CLAIM_OVERLAP,
+        SUCCESS,
+        CANCELED;
     }
 
     // whether or not the creation succeeded (it would fail if the new claim overlapped another existing claim)

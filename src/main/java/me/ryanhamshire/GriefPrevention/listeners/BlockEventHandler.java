@@ -310,7 +310,7 @@ public class BlockEventHandler implements Listener {
                             block.getY() - wc.getClaimsExtendIntoGroundDistance(), block.getY(),
                             block.getZ() - radius, block.getZ() + radius,
                             player.getName(),
-                            null, null, false, player).succeeded != CreateClaimResult.Result.Success)) {
+                            null, null, false, player).succeeded != CreateClaimResult.Result.SUCCESS)) {
                         radius--;
                     }
 
@@ -318,7 +318,7 @@ public class BlockEventHandler implements Listener {
                     GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.AutomaticClaimNotification);
                     // show the player the protected area
                     Claim newClaim = this.dataStore.getClaimAt(block.getLocation(), false, null);
-                    Visualization visualization = Visualization.FromClaim(newClaim, block.getY(), VisualizationType.Claim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(newClaim, block.getY(), VisualizationType.CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
                 }
 
@@ -354,7 +354,7 @@ public class BlockEventHandler implements Listener {
                 playerData.setUnclaimedBlockPlacementsUntilWarning(wc.getClaimsWildernessBlocksDelay());
 
                 if (playerData.getLastClaim() != null && playerData.getLastClaim().allowBuild(player) == null) {
-                    Visualization visualization = Visualization.FromClaim(playerData.getLastClaim(), block.getY(), VisualizationType.Claim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(playerData.getLastClaim(), block.getY(), VisualizationType.CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
                 }
             }

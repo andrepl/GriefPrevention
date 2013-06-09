@@ -834,8 +834,8 @@ public class PlayerEventHandler implements Listener {
             PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
 
             // always reset to basic claims mode
-            if (playerData.getShovelMode() != ShovelMode.Basic) {
-                playerData.setShovelMode(ShovelMode.Basic);
+            if (playerData.getShovelMode() != ShovelMode.BASIC) {
+                playerData.setShovelMode(ShovelMode.BASIC);
                 GriefPrevention.sendMessage(player, TextMode.INFO, Messages.ShovelBasicClaimMode);
             }
 
@@ -1214,7 +1214,7 @@ public class PlayerEventHandler implements Listener {
                     GriefPrevention.sendMessage(player, TextMode.INFO, Messages.BlockClaimed, claim.getOwnerName());
 
                     // visualize boundary
-                    Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
 
                     // if can resize this claim, tell about the boundaries
@@ -1258,12 +1258,12 @@ public class PlayerEventHandler implements Listener {
             // if the player is in restore nature mode, do only that
             String playerName = player.getName();
             playerData = this.dataStore.getPlayerData(player.getName());
-            if (playerData.getShovelMode() == ShovelMode.RestoreNature || playerData.getShovelMode() == ShovelMode.RestoreNatureAggressive) {
+            if (playerData.getShovelMode() == ShovelMode.RESTORE_NATURE || playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_AGGRESSIVE) {
                 // if the clicked block is in a claim, visualize that claim and deliver an error message
                 Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
                 if (claim != null) {
                     GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.BlockClaimed, claim.getOwnerName());
-                    Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ErrorClaim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
                     return;
                 }
@@ -1277,18 +1277,18 @@ public class PlayerEventHandler implements Listener {
                 int miny = clickedBlock.getY();
 
                 // if not in aggressive mode, extend the selection down to a little below sea level
-                if (!(playerData.getShovelMode() == ShovelMode.RestoreNatureAggressive)) {
+                if (!(playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_AGGRESSIVE)) {
                     if (miny > GriefPrevention.instance.getSeaLevel(chunk.getWorld()) - 10) {
                         miny = GriefPrevention.instance.getSeaLevel(chunk.getWorld()) - 10;
                     }
                 }
 
-                GriefPrevention.instance.restoreChunk(chunk, miny, playerData.getShovelMode() == ShovelMode.RestoreNatureAggressive, 0, player);
+                GriefPrevention.instance.restoreChunk(chunk, miny, playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_AGGRESSIVE, 0, player);
                 return;
             }
 
             // if in restore nature fill mode
-            if (playerData.getShovelMode() == ShovelMode.RestoreNatureFill) {
+            if (playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_FILL) {
                 ArrayList<Material> allowedFillBlocks = new ArrayList<Material>();
                 Environment environment = clickedBlock.getWorld().getEnvironment();
                 if (environment == Environment.NETHER) {
@@ -1403,7 +1403,7 @@ public class PlayerEventHandler implements Listener {
                         // it DOES belong to them.
                         // automatically switch to advanced claims mode, and show a message.
                         playerData.setClaimSubdividing(checkclaim);
-                        playerData.setShovelMode(ShovelMode.Subdivide);
+                        playerData.setShovelMode(ShovelMode.SUBDIVIDE);
                         // TODO: Raise StartClaimSubdivideEvent
                         GriefPrevention.sendMessage(player, TextMode.INFO, "Entering Claim subdivide mode.");
                     }
@@ -1496,12 +1496,12 @@ public class PlayerEventHandler implements Listener {
                 // ask the datastore to try and resize the claim, this checks for conflicts with other claims
                 CreateClaimResult result = GriefPrevention.instance.dataStore.resizeClaim(playerData.getClaimResizing(), newx1, newx2, newy1, newy2, newz1, newz2, player);
 
-                if (result.succeeded == CreateClaimResult.Result.Success) {
+                if (result.succeeded == CreateClaimResult.Result.SUCCESS) {
                     // TODO: Raise a ClaimResizeEvent here.
 
                     // inform and show the player
                     GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ClaimResizeSuccess, String.valueOf(playerData.getRemainingClaimBlocks()));
-                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
 
                     // if resizing someone else's claim, make a log entry
@@ -1519,12 +1519,12 @@ public class PlayerEventHandler implements Listener {
                     // clean up
                     playerData.setClaimResizing(null);
                     playerData.setLastShovelLocation(null);
-                } else if (result.succeeded == CreateClaimResult.Result.ClaimOverlap) {
+                } else if (result.succeeded == CreateClaimResult.Result.CLAIM_OVERLAP) {
                     // inform player
                     GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ResizeFailOverlap);
 
                     // show the player the conflicting claim
-                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ErrorClaim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
                 }
                 return;
@@ -1544,7 +1544,7 @@ public class PlayerEventHandler implements Listener {
                         playerData.setLastShovelLocation(clickedBlock.getLocation());
                         // TODO: Raise ClaimResizeBegin Event here
                         GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.ResizeStart);
-                    } else if (playerData.getShovelMode() == ShovelMode.Subdivide) { // if he didn't click on a corner and is in subdivision mode, he's creating a new subdivision
+                    } else if (playerData.getShovelMode() == ShovelMode.SUBDIVIDE) { // if he didn't click on a corner and is in subdivision mode, he's creating a new subdivision
                         // if it's the first click, he's trying to start a new subdivision
                         if (playerData.getLastShovelLocation() == null) {
                             // if the clicked claim was a subdivision, tell him he can't start a new subdivision here
@@ -1577,20 +1577,20 @@ public class PlayerEventHandler implements Listener {
                                     playerData.getClaimSubdividing(), null, false, player, true);
 
                             // if it didn't succeed, tell the player why
-                            if (result.succeeded == CreateClaimResult.Result.ClaimOverlap) {
+                            if (result.succeeded == CreateClaimResult.Result.CLAIM_OVERLAP) {
                                 GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CreateSubdivisionOverlap);
 
-                                Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ErrorClaim, player.getLocation());
+                                Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                                 Visualization.Apply(player, visualization);
 
                                 return;
-                            } else if (result.succeeded == CreateClaimResult.Result.Canceled) {
+                            } else if (result.succeeded == CreateClaimResult.Result.CANCELED) {
                                 // It was canceled by a plugin, just return, as the plugin should put out a 
                                 // custom error message.
                                 return;
                             } else { // otherwise, advise him on the /trust command and show him his new subdivision
                                 GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.SubdivisionSuccess);
-                                Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
+                                Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
                                 Visualization.Apply(player, visualization);
                                 playerData.setLastShovelLocation(null);
                                 playerData.setClaimSubdividing(null);
@@ -1600,13 +1600,13 @@ public class PlayerEventHandler implements Listener {
                         // otherwise tell him he can't create a claim here, and show him the existing claim
                         // also advise him to consider /abandonclaim or resizing the existing claim
                         GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CreateClaimFailOverlap);
-                        Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
+                        Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
                         Visualization.Apply(player, visualization);
                     }
                 } else { // otherwise tell the player he can't claim here because it's someone else's claim, and show him the claim
 
                     GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CreateClaimFailOverlapOtherPlayer, claim.getOwnerName());
-                    Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ErrorClaim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
                 }
                 return;
@@ -1617,7 +1617,7 @@ public class PlayerEventHandler implements Listener {
             Location lastShovelLocation = playerData.getLastShovelLocation();
             if (lastShovelLocation == null) {
                 // if claims are not enabled in this world and it's not an administrative claim, display an error message and stop
-                if (!GriefPrevention.instance.claimsEnabledForWorld(player.getWorld()) && playerData.getShovelMode() != ShovelMode.Admin) {
+                if (!GriefPrevention.instance.claimsEnabledForWorld(player.getWorld()) && playerData.getShovelMode() != ShovelMode.ADMIN) {
                     GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClaimsDisabledWorld);
                     return;
                 } else if (wc.getClaimsPerPlayerLimit() > 0 && !(player.hasPermission("griefprevention.ignoreclaimslimit"))) {
@@ -1632,7 +1632,7 @@ public class PlayerEventHandler implements Listener {
                 GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.ClaimStart);
                 // TODO: raise ClaimCreateStartEvent
                 // show him where he's working
-                Visualization visualization = Visualization.FromClaim(new Claim(clickedBlock.getLocation(), clickedBlock.getLocation(), "", new String[]{}, new String[]{}, new String[]{}, new String[]{}, null, false), clickedBlock.getY(), VisualizationType.RestoreNature, player.getLocation());
+                Visualization visualization = Visualization.FromClaim(new Claim(clickedBlock.getLocation(), clickedBlock.getLocation(), "", new String[]{}, new String[]{}, new String[]{}, new String[]{}, null, false), clickedBlock.getY(), VisualizationType.RESTORE_NATURE, player.getLocation());
                 Visualization.Apply(player, visualization);
             } else { // otherwise, he's trying to finish creating a claim by setting the other boundary corner
                 // if last shovel location was in a different world, assume the player is starting the create-claim workflow over
@@ -1646,13 +1646,13 @@ public class PlayerEventHandler implements Listener {
                 int newClaimWidth = Math.abs(playerData.getLastShovelLocation().getBlockX() - clickedBlock.getX()) + 1;
                 int newClaimHeight = Math.abs(playerData.getLastShovelLocation().getBlockZ() - clickedBlock.getZ()) + 1;
 
-                if (playerData.getShovelMode() != ShovelMode.Admin && (newClaimWidth < wc.getMinClaimSize() || newClaimHeight < wc.getMinClaimSize())) {
+                if (playerData.getShovelMode() != ShovelMode.ADMIN && (newClaimWidth < wc.getMinClaimSize() || newClaimHeight < wc.getMinClaimSize())) {
                     GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NewClaimTooSmall, String.valueOf(wc.getMinClaimSize()));
                     return;
                 }
 
                 // if not an administrative claim, verify the player has enough claim blocks for this new claim
-                if (playerData.getShovelMode() != ShovelMode.Admin) {
+                if (playerData.getShovelMode() != ShovelMode.ADMIN) {
                     int newClaimArea = newClaimWidth * newClaimHeight;
                     int remainingBlocks = playerData.getRemainingClaimBlocks();
                     if (newClaimArea > remainingBlocks) {
@@ -1674,7 +1674,7 @@ public class PlayerEventHandler implements Listener {
                         null, null, false, player, true);
 
                 // if it didn't succeed, tell the player why
-                if (result.succeeded == CreateClaimResult.Result.ClaimOverlap) {
+                if (result.succeeded == CreateClaimResult.Result.CLAIM_OVERLAP) {
                     // if the claim it overlaps is owned by the player...
                     System.out.println("Claim owned by:" + result.claim.getOwnerName());
                     if (result.claim.getOwnerName().equalsIgnoreCase(playerName)) {
@@ -1689,22 +1689,22 @@ public class PlayerEventHandler implements Listener {
 
                             // msg, and show visualization.
                             GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ClaimResizeSuccess, String.valueOf(playerData.getRemainingClaimBlocks()));
-                            Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
+                            Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
                             Visualization.Apply(player, visualization);
                             return;
                         }
                     }
                     GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CreateClaimFailOverlapShort);
 
-                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ErrorClaim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
                     return;
-                } else if (result.succeeded == CreateClaimResult.Result.Canceled) {
+                } else if (result.succeeded == CreateClaimResult.Result.CANCELED) {
                     // A plugin canceled the event.
                     return;
                 } else { // otherwise, advise him on the /trust command and show him his new claim
                     GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.CreateClaimSuccess);
-                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.Claim, player.getLocation());
+                    Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
                     Visualization.Apply(player, visualization);
                     playerData.setLastShovelLocation(null);
                 }
