@@ -631,12 +631,7 @@ public class PlayerEventHandler implements Listener {
             event.setCancelled(true);
             return;
         }
-
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-
-        // FEATURE: players under siege or in PvP combat, can't throw items on the ground to hide 
-        // them or give them away to other players before they are defeated
-
         // if in combat, don't let him drop it
         if (!wc.getAllowCombatItemDrop() && playerData.inPvpCombat()) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.PvPNoDrop);
@@ -663,8 +658,6 @@ public class PlayerEventHandler implements Listener {
                 }
             }
         }
-
-        // FEATURE: prevent teleport abuse to win sieges
         // these rules only apply to non-ender-pearl teleportation
         if (event.getCause() == TeleportCause.ENDER_PEARL) return;
     }
@@ -1005,18 +998,6 @@ public class PlayerEventHandler implements Listener {
                     clickedBlockType == Material.DROPPER ||
                     clickedBlockType == Material.HOPPER ||
                     wc.getModsContainerTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null))))) {
-
-            // special Chest looting behaviour.
-            Claim cc = this.dataStore.getClaimAt(clickedBlock.getLocation(), true, null);
-            // if doorsOpen...
-            if (cc != null && cc.isDoorsOpen()) {
-                cc.setLootedChests(cc.getLootedChests()+1);
-                if ((cc.getLootedChests()) <= wc.getSeigeLootChests()) {
-                    // tell the player how many more chests they can loot.
-                    player.sendMessage(ChatColor.YELLOW + " You may loot " + (wc.getSeigeLootChests() - cc.getLootedChests()) + " more chests");
-                    return;
-                }
-            }
 
             // block container use during pvp combat, same reason
             if (playerData.inPvpCombat() && wc.getPvPBlockContainers()) {

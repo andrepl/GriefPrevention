@@ -48,7 +48,6 @@ public class WorldConfig {
     private ClaimBehaviourData bonemealGrass;
     private ClaimBehaviourData playerTrampleRules;
 
-    private boolean claimsSeigeEnabled;
     private boolean claimsEnabled;
     private boolean configClaimsCreativeRules;
     private boolean configEntityCleanupEnabled;
@@ -88,15 +87,12 @@ public class WorldConfig {
     private boolean configSilverfishBreakBlocks;					// whether silverfish may break blocks
     private boolean configCreaturesTrampleCrops;					// whether or not non-player entities may trample crops
     private boolean configClaimsWarnOnBuildOutside;				// whether players should be warned when they're building in an unclaimed area
-    private boolean SiegeBlockRevert= false;
-    private boolean configSiegeEnabled;
     private int configSeaLevelOverride;
     private int configMessageCooldownClaims = 0;      // claims cooldown. 0= no cooldown.
     private int configMessageCooldownStuck = 0;       // stuck cooldown. 0= no cooldown.
     private int configClaimCleanupMaximumSize;        // maximum size of claims to cleanup. larger claims are not cleaned up.
     private int configClaimCleanupMaxInvestmentScore; // maximum investmentscore. claims with a higher score will not be cleaned up. if set to 0, claim cleanup will not have it's score calculated.
     private float configClaimsBlocksAccruedPerHour;					// how many additional blocks players get each hour of play (can be zero)
-    private int siegeTamedAnimalDistance;
     private int configClaimsMaxDepth;								// limit on how deep claims can go
     private int configClaimsExpirationDays;						// how many days of inactivity before a player loses his claims
     private int configClaimsAutomaticClaimsForNewPlayersRadius;	// how big automatic new player claims (when they place a chest) should be.  0 to disable
@@ -115,7 +111,6 @@ public class WorldConfig {
     private int configClaimsTrappedCooldownHours;					// number of hours between uses of the /trapped command
     private int configSpamLoginCooldownMinutes;					// how long players must wait between logins.  combats login spam.
     private int configSpamDeathMessageCooldownSeconds;				// cooldown period for death messages (per player) in seconds
-    private int configPVPSeigeLootChests;                       // defaults to 0, above zero means that a player is allowed to look into and take items from X chests on a claim they seige.
     private int configPVPCombatTimeoutSeconds;						// how long combat is considered to continue after the most recent damage
     private int configClaimsWildernessBlocksDelay;                   	// the number of non-trash blocks that can be placed before warning.  0 disables the display entirely.
     private int configClaimsPerPlayerClaimLimit;                        // maximum number of claims a user can have.
@@ -130,7 +125,6 @@ public class WorldConfig {
     private List<Material> configTrashBlocks = null;
     private List<String> configModsIgnoreClaimsAccounts;			// list of player names which ALWAYS ignore claims
     private MaterialCollection configModsExplodableIds;			// list of block IDs which can be destroyed by explosions, even in claimed areas
-    private ArrayList<Material> configSiegeBlocks;					// which blocks will be breakable in siege mode
     private Material configClaimsInvestigationTool;				// which material will be used to investigate claims with a right click
     private Material configClaimsModificationTool;	  				// which material will be used to create/resize claims with a right click
     private ArrayList<String> configPVPBlockedCommands;			// list of commands which may not be used during pvp combat
@@ -157,12 +151,6 @@ public class WorldConfig {
 	public ClaimBehaviourData getSheepDyeingRules() { return sheepDyeing; }
 	public ClaimBehaviourData getBonemealGrassRules() { return bonemealGrass; }
 	public ClaimBehaviourData getPlayerTrampleRules() { return playerTrampleRules; }
-
-	/**
-	 * Returns whether Seige is Enabled for this world.
-	 * @return
-	 */
-	public boolean getSeigeEnabled() { return claimsSeigeEnabled; }
 
 	/**
 	 * returns whether Claims are enabled. Most configuration Options, while still present and readable, become redundant when this is false.
@@ -192,7 +180,6 @@ public class WorldConfig {
 	public boolean getEnderPearlsRequireAccessTrust() { return configClaimsEnderPearlsRequireAccessTrust; }
     public boolean getClaimsLockFenceGates() { return configClaimsLockFenceGates; }
 	public float getClaimBlocksAccruedPerHour() { return configClaimsBlocksAccruedPerHour; }
-	public int getSiegeTamedAnimalDistance() { return siegeTamedAnimalDistance; }
 	public int getClaimsMaxDepth() { return configClaimsMaxDepth; }
 	public int getClaimsExpirationDays() { return configClaimsExpirationDays; }
 	public int getAutomaticClaimsForNewPlayerRadius() { return configClaimsAutomaticClaimsForNewPlayersRadius; }
@@ -218,7 +205,6 @@ public class WorldConfig {
 	public int getClaimsTrappedCooldownHours() { return configClaimsTrappedCooldownHours; }
 	public Material getClaimsInvestigationTool() { return configClaimsInvestigationTool; }
 	public Material getClaimsModificationTool() { return configClaimsModificationTool; }
-    public List<Material> getSiegeBlocks() { return configSiegeBlocks; }
 	public boolean getSpamProtectionEnabled() { return configSpamEnabled; }
 	public int getSpamLoginCooldownMinutes() { return configSpamLoginCooldownMinutes; }
 	public List<String> getSpamMonitorSlashCommands() { return configSpamMonitorSlashCommands; }
@@ -234,7 +220,6 @@ public class WorldConfig {
 	public int getPvPCombatTimeoutSeconds() { return configPVPCombatTimeoutSeconds; }
 	public boolean getPvPBlockContainers() { return configPVPBlockContainers; }
 	public boolean getAllowCombatItemDrop() { return configPVPAllowCombatItemDrop; }
-	public int getSeigeLootChests() { return configPVPSeigeLootChests; }
 	public List<String> getPvPBlockedCommands() { return configPVPBlockedCommands; }
 	public boolean getPvPNoCombatInPlayerClaims() { return configPVPNoCombatInPlayerLandClaims; }
 	public boolean getNoPvPCombatInAdminClaims() { return configPVPNoCombatInAdminLandClaims; }
@@ -268,7 +253,6 @@ public class WorldConfig {
 
 	public int getClaimsWildernessBlocksDelay() { return configClaimsWildernessBlocksDelay; }
     public int getClaimsPerPlayerLimit() { return configClaimsPerPlayerClaimLimit; }
-    public boolean getSiegeBlockRevert() { return SiegeBlockRevert; }
 	public String getWorldName() { return WorldName; }
 
 	// constructor accepts a Name and a FileConfiguration.
@@ -345,9 +329,6 @@ public class WorldConfig {
 		this.playerTrampleRules = new ClaimBehaviourData("Crop Trampling",config,outConfig,"GriefPrevention.PlayerCropTrample",
 				ClaimBehaviourData.getInsideClaims("Crop Trampling"));
 
-
-		this.SiegeBlockRevert = config.getBoolean("GriefPrevention.Siege.BlockRevert",false);
-		outConfig.set("GriefPrevention.Siege.BlockRevert", SiegeBlockRevert);
 		// read trash blocks.
 		// Cobblestone,Torch,Dirt,Sapling,Gravel,Sand,TNT,Workbench
 		this.configTrashBlocks = new ArrayList<Material>();
@@ -407,12 +388,6 @@ public class WorldConfig {
         this.configSpamMuteThreshold = config.getInt("GriefPrevention.Spam.MuteThreshold",4);
 		outConfig.set("GriefPrevention.Spam.MuteThreshold", configSpamMuteThreshold);
 
-		this.claimsSeigeEnabled = config.getBoolean("GriefPrevention.Siege.Enabled",true);
-		outConfig.set("GriefPrevention.Siege.Enabled", claimsSeigeEnabled);
-
-		this.siegeTamedAnimalDistance = config.getInt("GriefPrevention.Claims.SiegeTamedAnimalDistance",20);
-		outConfig.set("GriefPrevention.Claims.SiegeTamedAnimalDistance", siegeTamedAnimalDistance);
-
         this.claimsEnabled = config.getBoolean("GriefPrevention.Claims.Enabled",true);
 		outConfig.set("GriefPrevention.Claims.Enabled", claimsEnabled);
 
@@ -452,9 +427,6 @@ public class WorldConfig {
 
 		this.configClaimsPerPlayerClaimLimit = config.getInt("GriefPrevention.Claims.PerPlayerLimit",0);
 		outConfig.set("GriefPrevention.Claims.PerPlayerLimit", configClaimsPerPlayerClaimLimit);
-
-		this.configPVPSeigeLootChests = config.getInt("GriefPrevention.Claims.SeigeLootChests",0);
-		outConfig.set("GriefPrevention.Claims.SeigeLootChests", configPVPSeigeLootChests);
 
 		this.configClaimsPreventTheft = config.getBoolean("GriefPrevention.Claims.PreventTheft", true);
         outConfig.set("GriefPrevention.Claims.PreventTheft", this.configClaimsPreventTheft);
@@ -704,63 +676,11 @@ public class WorldConfig {
 			this.configClaimsModificationTool = Material.GOLD_SPADE;
 		}
 
-		// default for siege worlds list
-		ArrayList<String> defaultSiegeWorldNames = new ArrayList<String>();
-		this.configSiegeEnabled = config.getBoolean("GriefPrevention.Siege.Enabled",isPvP);
-		// get siege world names from the config file
-
-		// default siege blocks
-		this.configSiegeBlocks = new ArrayList<Material>();
-		this.configSiegeBlocks.add(Material.DIRT);
-		this.configSiegeBlocks.add(Material.GRASS);
-		this.configSiegeBlocks.add(Material.LONG_GRASS);
-		this.configSiegeBlocks.add(Material.COBBLESTONE);
-		this.configSiegeBlocks.add(Material.GRAVEL);
-		this.configSiegeBlocks.add(Material.SAND);
-		this.configSiegeBlocks.add(Material.GLASS);
-		this.configSiegeBlocks.add(Material.THIN_GLASS);
-		this.configSiegeBlocks.add(Material.WOOD);
-		this.configSiegeBlocks.add(Material.WOOL);
-		this.configSiegeBlocks.add(Material.SNOW);
-
-		// build a default config entry
-		ArrayList<String> defaultBreakableBlocksList = new ArrayList<String>();
-		for(int i = 0; i < this.configSiegeBlocks.size(); i++)
-		{
-			defaultBreakableBlocksList.add(this.configSiegeBlocks.get(i).name());
-		}
-
-		// try to load the list from the config file
-		List<String> breakableBlocksList = config.getStringList("GriefPrevention.Siege.BreakableBlocks");
-
-		// if it fails, use default list instead
-		if(breakableBlocksList == null || breakableBlocksList.size() == 0)
-		{
-			breakableBlocksList = defaultBreakableBlocksList;
-		}
-
-		// parse the list of siege-breakable blocks
-		this.configSiegeBlocks = new ArrayList<Material>();
-		for(int i = 0; i < breakableBlocksList.size(); i++)
-		{
-			String blockName = breakableBlocksList.get(i);
-			Material material = Material.getMaterial(blockName);
-			if(material == null)
-			{
-				GriefPrevention.addLogEntry("Siege Configuration: Material not found: " + blockName + ".");
-			}
-			else
-			{
-				this.configSiegeBlocks.add(material);
-			}
-		}
-
-		this.configPVPNoCombatInPlayerLandClaims = config.getBoolean("GriefPrevention.PvP.ProtectPlayersInLandClaims.PlayerOwnedClaims", !this.configSiegeEnabled);
+		this.configPVPNoCombatInPlayerLandClaims = config.getBoolean("GriefPrevention.PvP.ProtectPlayersInLandClaims.PlayerOwnedClaims", false);
         outConfig.set("GriefPrevention.PvP.ProtectPlayersInLandClaims.PlayerOwnedClaims", this.configPVPNoCombatInPlayerLandClaims);
 
-		this.configPVPNoCombatInAdminLandClaims = config.getBoolean("GriefPrevention.PvP.ProtectPlayersInLandClaims.AdministrativeClaims", !this.configSiegeEnabled);
+		this.configPVPNoCombatInAdminLandClaims = config.getBoolean("GriefPrevention.PvP.ProtectPlayersInLandClaims.AdministrativeClaims", true);
         outConfig.set("GriefPrevention.PvP.ProtectPlayersInLandClaims.AdministrativeClaims", this.configPVPNoCombatInAdminLandClaims);
-        outConfig.set("GriefPrevention.Siege.BreakableBlocks", breakableBlocksList);
         outConfig.set("GriefPrevention.Mods.BlockIdsExplodable", this.configModsExplodableIds);
         outConfig.set("GriefPrevention.Mods.BlockIdsRequiringAccessTrust", accessTrustStrings);
         outConfig.set("GriefPrevention.Mods.BlockIdsRequiringContainerTrust", containerTrustStrings);

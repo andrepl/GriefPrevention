@@ -113,16 +113,6 @@ public class Claim {
     private ArrayList<Claim> children = new ArrayList<Claim>();
 
     /**
-     * following a siege, buttons/levers are unlocked temporarily.  this represents that state
-     */
-    private boolean doorsOpen = false;
-
-    /**
-     * following a siege, anybody can open containers in that claim, up to a set limit.
-     */
-    private int LootedChests = 0;
-
-    /**
      * This variable sets whether a claim gets deleted with the automatic cleanup.
      */
     private boolean neverdelete = false;
@@ -193,18 +183,6 @@ public class Claim {
     // see above declarations for other defaults
     Claim() {
         this.modifiedDate = Calendar.getInstance().getTime();
-    }
-
-    /**
-     * Players may only siege someone when he's not in an admin claim and when he has some level of permission in the claim.
-     *
-     * @param defender
-     * @return
-     */
-    public boolean canSiege(Player defender) {
-        if (this.isAdminClaim()) return false;
-        if (this.allowAccess(defender) != null) return false;
-        return true;
     }
 
     /**
@@ -432,7 +410,6 @@ public class Claim {
             if (player.hasPermission("griefprevention.deleteclaims")) return null;
         }
 
-        // no resizing, deleting, and so forth while under siege
         if (this.ownerName.equals(player.getName())) {
             return null;
         }
@@ -574,9 +551,6 @@ public class Claim {
      * @return
      */
     public String allowAccess(Player player) {
-        // following a siege where the defender lost, the claim will allow everyone access for a time
-        if (this.doorsOpen) return null;
-
         // admin claims need adminclaims permission only.
         if (this.isAdminClaim()) {
             if (player.hasPermission("griefprevention.adminclaims")) return null;
@@ -1182,22 +1156,6 @@ public class Claim {
 
     public void setExplosivesAllowed(boolean isExplosivesAllowed) {
         this.explosivesAllowed = isExplosivesAllowed;
-    }
-
-    public boolean isDoorsOpen() {
-        return doorsOpen;
-    }
-
-    public int getLootedChests() {
-        return LootedChests;
-    }
-
-    public void setLootedChests(int lootedChests) {
-        LootedChests = lootedChests;
-    }
-
-    public void setDoorsOpen(boolean doorsOpen) {
-        this.doorsOpen = doorsOpen;
     }
 
     /**

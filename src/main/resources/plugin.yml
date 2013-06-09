@@ -137,9 +137,6 @@ commands:
       description: Lists permissions for the claim you're standing in.
       usage: /TrustList
       permission: griefprevention.claims
-   siege:
-      description: Initiates a siege versus another player.
-      usage: /Siege <playerName>
    ignoreclaims:
       description: Toggles ignore claims mode.
       usage: /IgnoreClaims

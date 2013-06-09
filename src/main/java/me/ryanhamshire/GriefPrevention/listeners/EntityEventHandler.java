@@ -260,10 +260,6 @@ public class EntityEventHandler implements Listener {
             event.setDroppedExp(0);
             event.getDrops().clear();
         }
-
-        // FEATURE: when a player is involved in a siege (attacker or defender role)
-        // his death will end the siege
-
         if (!(entity instanceof Player)) return;  // only tracking players
 
         Player player = (Player) entity;
@@ -477,7 +473,6 @@ public class EntityEventHandler implements Listener {
                     }
 
                     // otherwise the player damaging the entity must have permission,
-                    // or, for wolves and ocelots, apply special logic for sieges.
                     else {
                         String noContainersReason = claim.allowContainers(attacker);
                         if (noContainersReason != null) {

@@ -354,11 +354,6 @@ public class GriefPrevention extends JavaPlugin {
         return this.getWorldCfg(world).getClaimsEnabled();
     }
 
-    // checks whether players siege in a world
-    public boolean siegeEnabledForWorld(World world) {
-        return this.getWorldCfg(world).getSeigeEnabled();
-    }
-
     // processes broken log blocks to automatically remove floating treetops
     public void handleLogBroken(Block block) {
         // find the lowest log in the tree trunk including this log
