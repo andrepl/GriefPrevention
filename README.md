@@ -1,6 +1,7 @@
 Grief Prevention: TNG
 =====================
 
+
 "Minecraft, The final frontier.
 These are the  voyages of the plugin Grief Prevention.
 It's continuing mission, to protect strange new claims,
@@ -32,8 +33,4 @@ What's Planned?
  - Player movements will be tracked and events fired when claims are entered/left.
  - an api for new claim 'flags' to be created.
  - Probably a name change, there won't be much in common with the original when I'm through with it. :)
-
-
-
-
 

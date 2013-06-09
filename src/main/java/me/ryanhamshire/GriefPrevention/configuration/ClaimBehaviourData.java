@@ -12,30 +12,30 @@ import org.bukkit.entity.Player;
 // used primarily for information on explosions.
 public class ClaimBehaviourData {
 	public enum ClaimAllowanceConstants {
-		Allow_Forced,
-		Allow,
-		Deny,
-		Deny_Forced;
+        ALLOW_FORCED,
+        ALLOW,
+        DENY,
+        DENY_FORCED;
 
-		public boolean Allowed(){ return this==Allow || this==Allow_Forced;}
-		public boolean Denied(){ return this==Deny || this==Deny_Forced;}
+		public boolean Allowed(){ return this == ALLOW || this == ALLOW_FORCED;}
+		public boolean Denied(){ return this == DENY || this == DENY_FORCED;}
 	}
 
 
     public enum ClaimBehaviourMode{
-		None,
-		ForceAllow,
-		RequireOwner,
-		RequireManager,
-		RequireAccess,
-		RequireContainer;
+        NONE,
+        FORCE_ALLOW,
+        REQUIRE_OWNER,
+        REQUIRE_MANAGER,
+        REQUIRE_ACCESS,
+        REQUIRE_CONTAINER;
 
 		public static ClaimBehaviourMode parseMode(String name){
 			for(ClaimBehaviourMode cb:ClaimBehaviourMode.values()){
 				if(cb.name().equalsIgnoreCase(name))
 					return cb;
 			}
-			return ClaimBehaviourMode.None;
+			return ClaimBehaviourMode.NONE;
 		}
 	}
 
@@ -43,61 +43,57 @@ public class ClaimBehaviourData {
     private String behaviourName;
     private PlacementRules wilderness;
 	private PlacementRules claims;
-	private ClaimBehaviourMode claimBehaviour = ClaimBehaviourMode.None;
+	private ClaimBehaviourMode claimBehaviour = ClaimBehaviourMode.NONE;
 	
-	public ClaimBehaviourMode getClaimBehaviour(){
+	public ClaimBehaviourMode getClaimBehaviour() {
         return claimBehaviour;
     }
 	
-	public ClaimAllowanceConstants Allowed(Location position,Player RelevantPlayer){
+	public ClaimAllowanceConstants Allowed(Location position, Player relevantPlayer) {
 		String result=null;
-		Claim testclaim = GriefPrevention.instance.dataStore.getClaimAt(position, true, null);
-		if(claimBehaviour !=ClaimBehaviourMode.None && testclaim!=null){
+		Claim testClaim = GriefPrevention.instance.dataStore.getClaimAt(position, true, null);
+		if (claimBehaviour != ClaimBehaviourMode.NONE && testClaim != null) {
 			// if forcibly allowed, allow.
-			if(claimBehaviour == ClaimBehaviourMode.ForceAllow){
-				return ClaimAllowanceConstants.Allow;
-			}
-			else if(claimBehaviour == ClaimBehaviourMode.RequireOwner){
+			if (claimBehaviour == ClaimBehaviourMode.FORCE_ALLOW) {
+				return ClaimAllowanceConstants.ALLOW;
+			} else if (claimBehaviour == ClaimBehaviourMode.REQUIRE_OWNER) {
 				// RequireOwner means it only applies if the player passed is the owner.
 				// if the passed player is null, then we assume the operation has no relevant player, so allow it in this case.
-				if(RelevantPlayer!=null){
-					if(!testclaim.getOwnerName().equalsIgnoreCase(RelevantPlayer.getName())){
+				if (relevantPlayer != null) {
+					if (!testClaim.getOwnerName().equalsIgnoreCase(relevantPlayer.getName())) {
 						// they aren't the owner, so fail the test.
-						return ClaimAllowanceConstants.Deny;
+						return ClaimAllowanceConstants.DENY;
 					}
 				}
-			}
-			else if(claimBehaviour == ClaimBehaviourMode.RequireAccess){
-				if(RelevantPlayer!=null){
-					if(null!=(result =testclaim.allowAccess(RelevantPlayer))){
-						GriefPrevention.sendMessage(RelevantPlayer, TextMode.ERROR, result);
-						return ClaimAllowanceConstants.Deny;
+			} else if (claimBehaviour == ClaimBehaviourMode.REQUIRE_ACCESS) {
+				if (relevantPlayer != null) {
+					if (null != (result = testClaim.allowAccess(relevantPlayer))) {
+						GriefPrevention.sendMessage(relevantPlayer, TextMode.ERROR, result);
+						return ClaimAllowanceConstants.DENY;
 					}
 				}
-			}
-			else if(claimBehaviour == ClaimBehaviourMode.RequireContainer){
-				if(RelevantPlayer!=null){
-					if(null!=(result = testclaim.allowContainers(RelevantPlayer))){
-						GriefPrevention.sendMessage(RelevantPlayer, TextMode.ERROR, result);
-						return ClaimAllowanceConstants.Deny;
+			} else if (claimBehaviour == ClaimBehaviourMode.REQUIRE_CONTAINER) {
+				if (relevantPlayer!=null){
+					if (null != (result = testClaim.allowContainers(relevantPlayer))) {
+						GriefPrevention.sendMessage(relevantPlayer, TextMode.ERROR, result);
+						return ClaimAllowanceConstants.DENY;
 					}
 				}
-			}
-			else if(claimBehaviour == ClaimBehaviourMode.RequireManager){
-				if(RelevantPlayer!=null){
-					if(!testclaim.isManager(RelevantPlayer.getName())){
-						return ClaimAllowanceConstants.Deny;
+            } else if (claimBehaviour == ClaimBehaviourMode.REQUIRE_MANAGER){
+				if(relevantPlayer != null){
+					if(!testClaim.isManager(relevantPlayer.getName())){
+						return ClaimAllowanceConstants.DENY;
 					}
 				}
 			}
 		}
 
-		if(testclaim==null){
+		if(testClaim == null){
 			// we aren't inside a claim.
-			return wilderness.allow(position)?ClaimAllowanceConstants.Allow:ClaimAllowanceConstants.Deny;
+			return wilderness.allow(position) ? ClaimAllowanceConstants.ALLOW : ClaimAllowanceConstants.DENY;
 		} else {
 			// we are inside a claim.
-			return claims.allow(position)?ClaimAllowanceConstants.Allow:ClaimAllowanceConstants.Deny;
+			return claims.allow(position) ? ClaimAllowanceConstants.ALLOW : ClaimAllowanceConstants.DENY;
 		}
 	}
 
@@ -105,7 +101,7 @@ public class ClaimBehaviourData {
         return wilderness;
     }
 
-	public PlacementRules getClaimsRules(){
+	public PlacementRules getClaimsRules() {
         return claims;
     }
 
@@ -114,7 +110,7 @@ public class ClaimBehaviourData {
     }
 
     @Override
-	public String toString(){
+	public String toString() {
 		return behaviourName + " in the wilderness " + getWildernessRules().toString() + " and in claims " + getClaimsRules().toString();
 	}
 	
@@ -122,27 +118,26 @@ public class ClaimBehaviourData {
 		behaviourName = pName;
 		// we want to read NodePath.BelowSeaLevelWilderness and whatnot.
 		// bases Defaults off another ClaimBehaviourData instance.
-		wilderness = new PlacementRules(source,outConfig,nodePath + ".Wilderness",defaults.getWildernessRules());
-		claims = new PlacementRules (source,outConfig,nodePath + ".Claims",defaults.getClaimsRules());
+		wilderness = new PlacementRules(source, outConfig, nodePath + ".Wilderness", defaults.getWildernessRules());
+		claims = new PlacementRules (source, outConfig, nodePath + ".Claims", defaults.getClaimsRules());
+
+		String claimBehaviour = source.getString(nodePath + ".Claims.Behaviour","None");
+		this.claimBehaviour = ClaimBehaviourMode.parseMode(claimBehaviour);
 		
-		
-		String claimbehave = source.getString(nodePath + ".Claims.Behaviour","None");
-		claimBehaviour = ClaimBehaviourMode.parseMode(claimbehave);
-		
-		outConfig.set(nodePath + ".Claims.Behaviour", claimBehaviour.name());
+		outConfig.set(nodePath + ".Claims.Behaviour", this.claimBehaviour.name());
 	}
 
-	public ClaimBehaviourData(String pName,PlacementRules pWilderness,PlacementRules pClaims, ClaimBehaviourMode cb) {
+	public ClaimBehaviourData(String pName, PlacementRules pWilderness, PlacementRules pClaims, ClaimBehaviourMode cb) {
 		wilderness = pWilderness;
 		claims = pClaims;
 		claimBehaviour = cb;
-		behaviourName =pName;
+		behaviourName = pName;
 	}
 
-	public static ClaimBehaviourData getOutsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.both,PlacementRules.neither,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getInsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.neither,PlacementRules.neither,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getAboveSeaLevel(String pName){ return new ClaimBehaviourData(pName,PlacementRules.aboveOnly,PlacementRules.aboveOnly,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getBelowSeaLevel(String pName){ return new ClaimBehaviourData(pName,PlacementRules.belowOnly,PlacementRules.belowOnly,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getNone(String pName){ return new ClaimBehaviourData(pName,PlacementRules.neither,PlacementRules.neither,ClaimBehaviourMode.None); }
-	public static ClaimBehaviourData getAll(String pName){ return new ClaimBehaviourData(pName,PlacementRules.both,PlacementRules.both,ClaimBehaviourMode.None); }
+	public static ClaimBehaviourData getOutsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.BOTH,PlacementRules.NEITHER,ClaimBehaviourMode.NONE); }
+	public static ClaimBehaviourData getInsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.NEITHER,PlacementRules.NEITHER,ClaimBehaviourMode.NONE); }
+	public static ClaimBehaviourData getAboveSeaLevel(String pName) { return new ClaimBehaviourData(pName,PlacementRules.ABOVE_ONLY,PlacementRules.ABOVE_ONLY,ClaimBehaviourMode.NONE); }
+	public static ClaimBehaviourData getBelowSeaLevel(String pName) { return new ClaimBehaviourData(pName,PlacementRules.BELOW_ONLY,PlacementRules.BELOW_ONLY,ClaimBehaviourMode.NONE); }
+	public static ClaimBehaviourData getNone(String pName) { return new ClaimBehaviourData(pName,PlacementRules.NEITHER,PlacementRules.NEITHER,ClaimBehaviourMode.NONE); }
+	public static ClaimBehaviourData getAll(String pName) { return new ClaimBehaviourData(pName,PlacementRules.BOTH,PlacementRules.BOTH,ClaimBehaviourMode.NONE); }
 }

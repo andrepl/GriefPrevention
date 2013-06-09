@@ -19,8 +19,6 @@
 package me.ryanhamshire.GriefPrevention.data;
 
 import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.CustomizableMessage;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.*;
 import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
@@ -28,12 +26,9 @@ import me.ryanhamshire.GriefPrevention.exceptions.SubdivisionException;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 import org.apache.commons.lang.SerializationException;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -99,7 +94,6 @@ public abstract class DataStore {
                 bonusBlocks += this.permissionToBonusBlocksMap.get(groupName);
             }
         }
-
         return bonusBlocks;
     }
 
@@ -221,7 +215,6 @@ public abstract class DataStore {
         stringBuilder.append(location.getBlockY());
         stringBuilder.append(locationStringDelimiter);
         stringBuilder.append(location.getBlockZ());
-
         return stringBuilder.toString();
     }
 

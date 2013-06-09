@@ -13,10 +13,10 @@ import org.bukkit.configuration.file.FileConfiguration;
  */
 public class PlacementRules {
 
-    public static PlacementRules aboveOnly = new PlacementRules(true, false);
-    public static PlacementRules belowOnly = new PlacementRules(false, true);
-    public static PlacementRules both = new PlacementRules(true, true);
-    public static PlacementRules neither = new PlacementRules(false, false);
+    public static final PlacementRules ABOVE_ONLY = new PlacementRules(true, false);
+    public static final PlacementRules BELOW_ONLY = new PlacementRules(false, true);
+    public static final PlacementRules BOTH = new PlacementRules(true, true);
+    public static final PlacementRules NEITHER = new PlacementRules(false, false);
 
     // above and below placement rules.
     public enum BasicPermissionConstants {
@@ -108,7 +108,7 @@ public class PlacementRules {
     }
 
     /**
-     * determines if this Placementrule allows for the given location.
+     * determines if this PlacementRule allows for the given location.
      *
      * @param target
      * @return

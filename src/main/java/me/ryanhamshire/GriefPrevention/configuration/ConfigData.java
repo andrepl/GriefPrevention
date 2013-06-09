@@ -87,6 +87,7 @@ public class ConfigData {
         // GriefPrevention.WorldConfigFolder setting.
         String defaultConfigFolder = DataStore.dataLayerFolderPath + File.separator + "WorldConfigs" + File.separator;
         String defaultTemplateFile = defaultConfigFolder + "_template.cfg";
+
         // Configurable template file.
         templateFile = coreConfig.getString("GriefPrevention.WorldConfig.TemplateFile", defaultTemplateFile);
         if (!(new File(templateFile).exists())) {
@@ -197,7 +198,7 @@ public class ConfigData {
 				// set the input Yaml to default to the template.
 				// if the template file exists, load it's configuration and use the result as useSource. 
 				// Otherwise, we create a blank configuration.
-				FileConfiguration useSource = (new File(templateFile).exists()?YamlConfiguration.loadConfiguration(new File(templateFile)):new YamlConfiguration());
+				FileConfiguration useSource = (new File(templateFile).exists() ? YamlConfiguration.loadConfiguration(new File(templateFile)) : new YamlConfiguration());
 				// The target save location.
 				FileConfiguration Target = new YamlConfiguration();
 				// place it in the hashmap.

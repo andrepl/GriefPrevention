@@ -497,9 +497,9 @@ public class PlayerEventHandler implements Listener {
             bucketBehaviour = wc.getWaterBucketBehaviour().Allowed(block.getLocation(), player);
         }
         switch(bucketBehaviour) {
-        case Allow_Forced:
+        case ALLOW_FORCED:
             return;
-        case Deny_Forced:
+        case DENY_FORCED:
             bucketEvent.setCancelled(true);
             return;
         default:
