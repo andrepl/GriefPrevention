@@ -200,7 +200,7 @@ public class Claim {
         if (this.getArea() > 10000) return;
 
         // don't do it when surface fluids are allowed to be dumped
-        if (wc.getWaterBucketBehaviour().Allowed(getLesserBoundaryCorner(), null).Denied())
+        if (wc.getWaterBucketBehaviour().allowed(getLesserBoundaryCorner(), null).Denied())
             return;
 
         Location lesser = this.getLesserBoundaryCorner();
@@ -212,7 +212,7 @@ public class Claim {
 
         // respect sea level in normal worlds
         if (lesser.getWorld().getEnvironment() == Environment.NORMAL)
-            seaLevel = GriefPrevention.instance.getSeaLevel(lesser.getWorld());
+            seaLevel = GriefPrevention.instance.getWorldCfg(lesser.getWorld()).getSeaLevelOverride();
 
         for (int x = lesser.getBlockX(); x <= greater.getBlockX(); x++) {
             for (int z = lesser.getBlockZ(); z <= greater.getBlockZ(); z++) {
@@ -242,7 +242,7 @@ public class Claim {
 
         // respect sea level in normal worlds
         if (lesser.getWorld().getEnvironment() == Environment.NORMAL)
-            seaLevel = GriefPrevention.instance.getSeaLevel(lesser.getWorld());
+            seaLevel = GriefPrevention.instance.getWorldCfg(lesser.getWorld()).getSeaLevelOverride();
 
         int waterCount = 0;
         for (int x = lesser.getBlockX(); x <= greater.getBlockX(); x++) {
@@ -818,7 +818,7 @@ public class Claim {
                 contains(otherclaim.greaterBoundaryCorner, ignoreHeight, false));
     }
 
-    public static boolean Contains(Location pA, Location pB, Location Target, boolean ignoreHeight) {
+    public static boolean contains(Location pA, Location pB, Location Target, boolean ignoreHeight) {
 
         int MinX = Math.min(pA.getBlockX(), pB.getBlockX());
         int MinY = Math.min(pA.getBlockY(), pB.getBlockY());
@@ -999,7 +999,7 @@ public class Claim {
         for (int x = this.lesserBoundaryCorner.getBlockX(); x <= this.greaterBoundaryCorner.getBlockX(); x++) {
             for (int z = this.lesserBoundaryCorner.getBlockZ(); z <= this.greaterBoundaryCorner.getBlockZ(); z++) {
                 int y = this.lesserBoundaryCorner.getBlockY();
-                for (; y < GriefPrevention.instance.getSeaLevel(this.lesserBoundaryCorner.getWorld()) - 5; y++) {
+                for (; y < GriefPrevention.instance.getWorldCfg(this.getLesserBoundaryCorner().getWorld()).getSeaLevelOverride() - 5; y++) {
                     Block block = this.lesserBoundaryCorner.getWorld().getBlockAt(x, y, z);
                     if (playerBlocks.contains(block.getTypeId())) {
                         if (block.getType() == Material.CHEST && !creativeMode) {

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.SerializationUtil;
 import me.ryanhamshire.GriefPrevention.data.MaterialCollection;
 import me.ryanhamshire.GriefPrevention.data.MaterialInfo;
 
@@ -491,7 +492,7 @@ public class WorldConfig {
 		{
 			// none by default
 		}
-		GriefPrevention.instance.parseMaterialListFromConfig(accessTrustStrings, this.configModsAccessTrustIds);
+		SerializationUtil.parseMaterialListFromConfig(accessTrustStrings, this.configModsAccessTrustIds);
         outConfig.set("GriefPrevention.Mods.BlockIdsRequiringAccessTrust", this.configModsAccessTrustIds);
 
 		this.configModsContainerTrustIds = new MaterialCollection();
@@ -532,7 +533,7 @@ public class WorldConfig {
 		}
 
 		// parse the strings from the config file
-		GriefPrevention.instance.parseMaterialListFromConfig(containerTrustStrings, this.configModsContainerTrustIds);
+		SerializationUtil.parseMaterialListFromConfig(containerTrustStrings, this.configModsContainerTrustIds);
         outConfig.set("GriefPrevention.Mods.BlockIdsRequiringContainerTrust", this.configModsContainerTrustIds);
 
         this.configModsExplodableIds = new MaterialCollection();
@@ -546,7 +547,7 @@ public class WorldConfig {
 		}
 
 		// parse the strings from the config file
-		GriefPrevention.instance.parseMaterialListFromConfig(explodableStrings, this.configModsExplodableIds);
+		SerializationUtil.parseMaterialListFromConfig(explodableStrings, this.configModsExplodableIds);
 
 		// default for claim investigation tool
 		String investigationToolMaterialName = Material.STICK.name();

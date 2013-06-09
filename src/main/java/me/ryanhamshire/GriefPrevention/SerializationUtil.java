@@ -1,11 +1,15 @@
 package me.ryanhamshire.GriefPrevention;
 
+import me.ryanhamshire.GriefPrevention.data.MaterialCollection;
+import me.ryanhamshire.GriefPrevention.data.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 import org.apache.commons.lang.SerializationException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+
+import java.util.List;
 
 public class SerializationUtil {
 
@@ -21,6 +25,30 @@ public class SerializationUtil {
         stringBuilder.append(locationStringDelimiter);
         stringBuilder.append(location.getBlockZ());
         return stringBuilder.toString();
+    }
+
+    public static void parseMaterialListFromConfig(List<String> stringsToParse, MaterialCollection materialCollection) {
+        materialCollection.clear();
+
+        // for each string in the list
+        for (int i = 0; i < stringsToParse.size(); i++) {
+            // try to parse the string value into a material info
+            MaterialInfo materialInfo = MaterialInfo.fromString(stringsToParse.get(i));
+
+            // null value returned indicates an error parsing the string from the config file
+            if (materialInfo == null) {
+                // show error in log
+                GriefPrevention.addLogEntry("ERROR: Unable to read a material entry from the config file.  Please update your config.yml.");
+                // update string, which will go out to config file to help user find the error entry
+                if (!stringsToParse.get(i).contains("can't")) {
+                    stringsToParse.set(i, stringsToParse.get(i) + "     <-- can't understand this entry, see BukkitDev documentation");
+                }
+            }
+            // otherwise store the valid entry in config data
+            else {
+                materialCollection.add(materialInfo);
+            }
+        }
     }
 
     // turns a location string back into a location

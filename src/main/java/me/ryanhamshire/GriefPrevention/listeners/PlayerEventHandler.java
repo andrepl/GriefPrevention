@@ -323,7 +323,7 @@ public class PlayerEventHandler implements Listener {
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
         Player player = event.getPlayer();
         Entity entity = event.getEntity();
-        if (wc.getShearingRules().Allowed(entity.getLocation(), player).Denied()) {
+        if (wc.getShearingRules().allowed(entity.getLocation(), player).Denied()) {
             event.setCancelled(true);
         }
 
@@ -346,13 +346,13 @@ public class PlayerEventHandler implements Listener {
             }
         }
 
-        if (entity instanceof Villager && wc.getVillagerTrades().Allowed(entity.getLocation(), player).Denied()) {
+        if (entity instanceof Villager && wc.getVillagerTrades().allowed(entity.getLocation(), player).Denied()) {
             event.setCancelled(true);
             return;
         }
         if ((entity instanceof Sheep && event.getPlayer().getItemInHand().getType() == Material.INK_SACK)) {
             // apply dyeing rules.
-            if (wc.getSheepDyeingRules().Allowed(entity.getLocation(), event.getPlayer()).Denied()) {
+            if (wc.getSheepDyeingRules().allowed(entity.getLocation(), event.getPlayer()).Denied()) {
                 event.setCancelled(true);
                 return;
             }
@@ -492,9 +492,9 @@ public class PlayerEventHandler implements Listener {
         ClaimBehaviourData.ClaimAllowanceConstants bucketBehaviour = null;
 
         if (bucketEvent.getBucket() == Material.LAVA_BUCKET) {
-            bucketBehaviour = wc.getLavaBucketBehaviour().Allowed(block.getLocation(), player);
+            bucketBehaviour = wc.getLavaBucketBehaviour().allowed(block.getLocation(), player);
         } else if (bucketEvent.getBucket() == Material.WATER_BUCKET) {
-            bucketBehaviour = wc.getWaterBucketBehaviour().Allowed(block.getLocation(), player);
+            bucketBehaviour = wc.getWaterBucketBehaviour().allowed(block.getLocation(), player);
         }
         switch(bucketBehaviour) {
         case ALLOW_FORCED:
@@ -519,13 +519,13 @@ public class PlayerEventHandler implements Listener {
 
         // checks for Behaviour perms.
         if (bucketEvent.getBucket() == Material.LAVA_BUCKET) {
-            if (wc.getLavaBucketBehaviour().Allowed(block.getLocation(), player).Denied()) {
+            if (wc.getLavaBucketBehaviour().allowed(block.getLocation(), player).Denied()) {
                 GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ConfigDisabled, "Lava placement ");
                 bucketEvent.setCancelled(true);
                 return;
             }
         } else if (bucketEvent.getBucket() == Material.WATER_BUCKET) {
-            if (wc.getWaterBucketBehaviour().Allowed(block.getLocation(), player).Denied()) {
+            if (wc.getWaterBucketBehaviour().allowed(block.getLocation(), player).Denied()) {
                 GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ConfigDisabled, "Water placement ");
                 bucketEvent.setCancelled(true);
                 return;
@@ -545,7 +545,7 @@ public class PlayerEventHandler implements Listener {
                 }
                 if (bucketEvent.getBucket() == Material.WATER_BUCKET) {
 
-                    if (wc.getWaterBucketBehaviour().Allowed(block.getLocation(), player).Denied()) {
+                    if (wc.getWaterBucketBehaviour().allowed(block.getLocation(), player).Denied()) {
                         GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoWildernessBuckets);
                         bucketEvent.setCancelled(true);
                         return;
@@ -558,7 +558,7 @@ public class PlayerEventHandler implements Listener {
         if (!block.getWorld().getPVP() && !player.hasPermission("griefprevention.lava")) {
             if (bucketEvent.getBucket() == Material.LAVA_BUCKET) {
 
-                if (wc.getLavaBucketBehaviour().Allowed(block.getLocation(), player).Denied()) {
+                if (wc.getLavaBucketBehaviour().allowed(block.getLocation(), player).Denied()) {
                     GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ConfigDisabled, "Lava Placement");
                     bucketEvent.setCancelled(true);
                     return;
@@ -586,7 +586,7 @@ public class PlayerEventHandler implements Listener {
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(block.getWorld());
         // make sure the player is allowed to build at the location
         // String noBuildReason = GriefPrevention.instance.allowBuild(player, block.getLocation());
-        if (wc.getWaterBucketBehaviour().Allowed(block.getLocation(), player).Denied()) {
+        if (wc.getWaterBucketBehaviour().allowed(block.getLocation(), player).Denied()) {
             // GriefPrevention.sendMessage(player, TextMode.Err, noBuildReason);
             bucketEvent.setCancelled(true);
             return;
@@ -708,7 +708,7 @@ public class PlayerEventHandler implements Listener {
         // apply rule for players trampling tilled soil back to dirt (never allow it)
         // NOTE: that this event applies only to players.  monsters and animals can still trample.
         else if (event.getAction() == Action.PHYSICAL && clickedBlockType == Material.SOIL) {
-            if (wc.getPlayerTrampleRules().Allowed(event.getPlayer().getLocation(), event.getPlayer()).Denied()) {
+            if (wc.getPlayerTrampleRules().allowed(event.getPlayer().getLocation(), event.getPlayer()).Denied()) {
                 event.setCancelled(true);
                 return;
             }
@@ -735,7 +735,7 @@ public class PlayerEventHandler implements Listener {
 
             // if it's bonemeal, check for build permission (ink sac == bone meal, must be a Bukkit bug?)
             if (materialInHand == Material.INK_SACK) {
-                if (wc.getBonemealGrassRules().Allowed(event.getClickedBlock().getLocation(), event.getPlayer()).Denied()) {
+                if (wc.getBonemealGrassRules().allowed(event.getClickedBlock().getLocation(), event.getPlayer()).Denied()) {
                     event.setCancelled(true);
                 }
                 return;
@@ -853,8 +853,8 @@ public class PlayerEventHandler implements Listener {
 
                 // if not in aggressive mode, extend the selection down to a little below sea level
                 if (!(playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_AGGRESSIVE)) {
-                    if (miny > GriefPrevention.instance.getSeaLevel(chunk.getWorld()) - 10) {
-                        miny = GriefPrevention.instance.getSeaLevel(chunk.getWorld()) - 10;
+                    if (miny > GriefPrevention.instance.getWorldCfg(chunk.getWorld()).getSeaLevelOverride() - 10) {
+                        miny = GriefPrevention.instance.getWorldCfg(chunk.getWorld()).getSeaLevelOverride() - 10;
                     }
                 }
 
@@ -1256,8 +1256,8 @@ public class PlayerEventHandler implements Listener {
                         // owned by the player. make sure our larger 
                         // claim entirely contains the smaller one.
 
-                        if ((Claim.Contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getLesserBoundaryCorner(), true) &&
-                                (Claim.Contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getGreaterBoundaryCorner(), true)))) {
+                        if ((Claim.contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getLesserBoundaryCorner(), true) &&
+                                (Claim.contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getGreaterBoundaryCorner(), true)))) {
                             // it contains it
                             // resize the other claim
                             result.claim.setLocation(lastShovelLocation, clickedBlock.getLocation());

@@ -81,7 +81,7 @@ public class EntityEventHandler implements Listener {
 
         // don't allow the wither to break blocks, when the wither is determined, too expensive to constantly check for claimed blocks
         else if (event.getEntityType() == EntityType.WITHER && wc.getClaimsEnabled()) {
-            event.setCancelled(wc.getWitherEatBehaviour().Allowed(event.getEntity().getLocation(), null).Denied());
+            event.setCancelled(wc.getWitherEatBehaviour().allowed(event.getEntity().getLocation(), null).Denied());
         }
     }
 
@@ -89,7 +89,7 @@ public class EntityEventHandler implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onZombieBreakDoor(EntityBreakDoorEvent event) {
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
-        if (!wc.getZombieDoorBreaking().Allowed(event.getEntity().getLocation(), null).Allowed()) {
+        if (!wc.getZombieDoorBreaking().allowed(event.getEntity().getLocation(), null).Allowed()) {
             event.setCancelled(true);
         }
     }
@@ -153,7 +153,7 @@ public class EntityEventHandler implements Listener {
             if (wc.getModsExplodableIds().contains(new MaterialInfo(block.getTypeId(), block.getData(), null)))
                 continue;
             // creative rules stop all explosions, regardless of the other settings.
-            if (wc.getCreativeRules() || (usebehaviour != null && usebehaviour.Allowed(block.getLocation(), null).Denied())) {
+            if (wc.getCreativeRules() || (usebehaviour != null && usebehaviour.allowed(block.getLocation(), null).Denied())) {
                 // if not allowed. remove it...
                 blocks.remove(i--);
             } else {
@@ -217,19 +217,19 @@ public class EntityEventHandler implements Listener {
 
         if (reason == SpawnReason.BUILD_WITHER) {
             // can we build a wither?
-            if (wc.getWitherSpawnBehaviour().Allowed(entity.getLocation(), null).Denied()) {
+            if (wc.getWitherSpawnBehaviour().allowed(entity.getLocation(), null).Denied()) {
                 event.setCancelled(true);
                 return;
             }
         } else if (reason == SpawnReason.BUILD_SNOWMAN) {
             // can we build a snowman?
-            if (wc.getSnowGolemSpawnBehaviour().Allowed(entity.getLocation(), null).Denied()) {
+            if (wc.getSnowGolemSpawnBehaviour().allowed(entity.getLocation(), null).Denied()) {
                 event.setCancelled(true);
                 return;
             }
         } else if (reason == SpawnReason.BUILD_IRONGOLEM) {
 
-            if (wc.getIronGolemSpawnBehaviour().Allowed(entity.getLocation(), null).Denied()) {
+            if (wc.getIronGolemSpawnBehaviour().allowed(entity.getLocation(), null).Denied()) {
                 event.setCancelled(true);
                 return;
 
@@ -521,7 +521,7 @@ public class EntityEventHandler implements Listener {
             }
         }
         // if Damage source is unspecified and we allow environmental damage, don't cancel the event.
-        else if (damageSource == null && wc.getEnvironmentalVehicleDamage().Allowed(event.getVehicle().getLocation(), attacker).Allowed()) {
+        else if (damageSource == null && wc.getEnvironmentalVehicleDamage().allowed(event.getVehicle().getLocation(), attacker).Allowed()) {
             return;
         }
         // NOTE: vehicles can be pushed around.

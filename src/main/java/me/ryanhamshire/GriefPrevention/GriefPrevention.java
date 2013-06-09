@@ -206,23 +206,10 @@ public class GriefPrevention extends JavaPlugin {
             // try to load Vault
             RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
             GriefPrevention.addLogEntry("Vault loaded successfully!");
-
             // ask Vault to hook into an economy plugin
             if (economyProvider != null) {
                 GriefPrevention.economy = economyProvider.getProvider();
-
-                // on success, display success message
-                if (GriefPrevention.economy != null) {
-                    GriefPrevention.addLogEntry("Hooked into economy: " + GriefPrevention.economy.getName() + ".");
-                }
-
-                // otherwise error message
-                else {
-                    GriefPrevention.addLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
-                }
-            }
-            // another error case
-            else {
+            } else {
                 GriefPrevention.addLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
             }
         }
@@ -614,7 +601,7 @@ public class GriefPrevention extends JavaPlugin {
 
             // no building in survival wilderness when that is configured
             else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
-                if (wc.getTrashBlockPlacementBehaviour().Allowed(location, player).Denied())
+                if (wc.getTrashBlockPlacementBehaviour().allowed(location, player).Denied())
                     return this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
                 else
                     return null;
@@ -680,7 +667,7 @@ public class GriefPrevention extends JavaPlugin {
         for (int x = lesserChunk.getX(); x <= greaterChunk.getX(); x++)
             for (int z = lesserChunk.getZ(); z <= greaterChunk.getZ(); z++) {
                 Chunk chunk = lesserChunk.getWorld().getChunkAt(x, z);
-                this.restoreChunk(chunk, this.getSeaLevel(chunk.getWorld()) - 15, false, delayInTicks, null);
+                this.restoreChunk(chunk, getWorldCfg(chunk.getWorld()).getSeaLevelOverride() - 15, false, delayInTicks, null);
             }
     }
 
@@ -705,39 +692,8 @@ public class GriefPrevention extends JavaPlugin {
 
         // create task
         // when done processing, this task will create a main thread task to actually update the world with processing results
-        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, this.getSeaLevel(chunk.getWorld()), aggressiveMode, GriefPrevention.instance.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
+        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, getWorldCfg(chunk.getWorld()).getSeaLevelOverride(), aggressiveMode, GriefPrevention.instance.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
         GriefPrevention.instance.getServer().getScheduler().runTaskLaterAsynchronously(GriefPrevention.instance, task, delayInTicks);
-    }
-
-    public void parseMaterialListFromConfig(List<String> stringsToParse, MaterialCollection materialCollection) {
-        materialCollection.clear();
-
-        // for each string in the list
-        for (int i = 0; i < stringsToParse.size(); i++) {
-            // try to parse the string value into a material info
-            MaterialInfo materialInfo = MaterialInfo.fromString(stringsToParse.get(i));
-
-            // null value returned indicates an error parsing the string from the config file
-            if (materialInfo == null) {
-                // show error in log
-                GriefPrevention.addLogEntry("ERROR: Unable to read a material entry from the config file.  Please update your config.yml.");
-
-                // update string, which will go out to config file to help user find the error entry
-                if (!stringsToParse.get(i).contains("can't")) {
-                    stringsToParse.set(i, stringsToParse.get(i) + "     <-- can't understand this entry, see BukkitDev documentation");
-                }
-            }
-
-            // otherwise store the valid entry in config data
-            else {
-                materialCollection.add(materialInfo);
-            }
-        }
-    }
-
-    public int getSeaLevel(World world) {
-        int overrideValue = getWorldCfg(world).getSeaLevelOverride();
-        return overrideValue;
     }
 
     public MessageManager getMessageManager() {

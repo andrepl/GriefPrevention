@@ -154,7 +154,7 @@ public class BlockEventHandler implements Listener {
         // if the block is a trash block....
         if (wc.getTrashBlocks().contains(breakEvent.getBlock().getType())) {
             // and if this location is applicable for trash block placement...
-            if (wc.getTrashBlockPlacementBehaviour().Allowed(breakEvent.getBlock().getLocation(), player).Allowed()) ;
+            if (wc.getTrashBlockPlacementBehaviour().allowed(breakEvent.getBlock().getLocation(), player).Allowed()) ;
             // allow it with abandon...
             return;
         }
@@ -230,7 +230,7 @@ public class BlockEventHandler implements Listener {
             // if set, then we only allow Trash Blocks to be placed, and only in the allowed places.
             Claim testclaim = GriefPrevention.instance.dataStore.getClaimAt(block.getLocation(), true, null);
             if (testclaim == null) {
-                if (wc.getTrashBlockPlacementBehaviour().Allowed(block.getLocation(), player).Allowed()) {
+                if (wc.getTrashBlockPlacementBehaviour().allowed(block.getLocation(), player).Allowed()) {
                     if (wc.getTrashBlocks().contains(block.getType())) {
                         return;
                     }
@@ -357,11 +357,11 @@ public class BlockEventHandler implements Listener {
         // warn players when they place TNT above sea level, since it doesn't destroy blocks there
 
         // warn players if Explosions are not allowed at the position they place it.
-        boolean TNTAllowed = wc.getTntExplosionBehaviour().Allowed(block.getLocation(), null).Allowed();
+        boolean TNTAllowed = wc.getTntExplosionBehaviour().allowed(block.getLocation(), null).Allowed();
 
         if (!TNTAllowed && block.getType() == Material.TNT &&
                 block.getWorld().getEnvironment() != Environment.NETHER &&
-                block.getY() > GriefPrevention.instance.getSeaLevel(block.getWorld()) - 5) {
+                block.getY() > GriefPrevention.instance.getWorldCfg(block.getWorld()).getSeaLevelOverride() - 5) {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.NoTNTDamageAboveSeaLevel);
         }
     }
@@ -619,8 +619,8 @@ public class BlockEventHandler implements Listener {
         // into wilderness is NOT OK when surface buckets are limited
         Material materialDispensed = dispenseEvent.getItem().getType();
 
-        if (materialDispensed == Material.WATER_BUCKET && wc.getWaterBucketBehaviour().Allowed(toBlock.getLocation(), null).Allowed() ||
-                (materialDispensed == Material.LAVA_BUCKET && wc.getLavaBucketBehaviour().Allowed(toBlock.getLocation(), null).Allowed())
+        if (materialDispensed == Material.WATER_BUCKET && wc.getWaterBucketBehaviour().allowed(toBlock.getLocation(), null).Allowed() ||
+                (materialDispensed == Material.LAVA_BUCKET && wc.getLavaBucketBehaviour().allowed(toBlock.getLocation(), null).Allowed())
                 && GriefPrevention.instance.claimsEnabledForWorld(fromBlock.getWorld())) {
             dispenseEvent.setCancelled(true);
             return;

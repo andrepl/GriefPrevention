@@ -49,7 +49,7 @@ public class ClaimBehaviourData {
         return claimBehaviour;
     }
 	
-	public ClaimAllowanceConstants Allowed(Location position, Player relevantPlayer) {
+	public ClaimAllowanceConstants allowed(Location position, Player relevantPlayer) {
 		String result=null;
 		Claim testClaim = GriefPrevention.instance.dataStore.getClaimAt(position, true, null);
 		if (claimBehaviour != ClaimBehaviourMode.NONE && testClaim != null) {
