@@ -2,7 +2,7 @@ package me.ryanhamshire.GriefPrevention.commands;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
-import me.ryanhamshire.GriefPrevention.TextMode;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;

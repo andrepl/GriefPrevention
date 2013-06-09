@@ -35,6 +35,7 @@ import me.ryanhamshire.GriefPrevention.data.*;
 import me.ryanhamshire.GriefPrevention.listeners.BlockEventHandler;
 import me.ryanhamshire.GriefPrevention.listeners.EntityEventHandler;
 import me.ryanhamshire.GriefPrevention.listeners.PlayerEventHandler;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
 import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
 import me.ryanhamshire.GriefPrevention.tasks.EntityCleanupTask;

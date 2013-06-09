@@ -30,6 +30,7 @@ import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.*;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;

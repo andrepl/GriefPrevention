@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.SerializationUtil;
 import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 
@@ -161,10 +162,10 @@ public class FlatFileDataStore extends DataStore {
                             DeferredGreater = inStream.readLine();
                             usedeferred = true;
                         } else {
-                            lesserBoundaryCorner = this.locationFromString(line);
+                            lesserBoundaryCorner = SerializationUtil.locationFromString(line);
                             // second line is greater boundary corner location
                             line = inStream.readLine();
-                            greaterBoundaryCorner = this.locationFromString(line);
+                            greaterBoundaryCorner = SerializationUtil.locationFromString(line);
                         }
 
                         // third line is owner name
@@ -317,11 +318,11 @@ public class FlatFileDataStore extends DataStore {
             outStream.newLine();
         }
         // first line is lesser boundary corner location
-        outStream.write(this.locationToString(claim.getLesserBoundaryCorner()));
+        outStream.write(SerializationUtil.locationToString(claim.getLesserBoundaryCorner()));
         outStream.newLine();
 
         // second line is greater boundary corner location
-        outStream.write(this.locationToString(claim.getGreaterBoundaryCorner()));
+        outStream.write(SerializationUtil.locationToString(claim.getGreaterBoundaryCorner()));
         outStream.newLine();
 
         // third line is owner name
@@ -472,9 +473,9 @@ public class FlatFileDataStore extends DataStore {
 
             // fourth line is a double-semicolon-delimited list of claims
             if (playerData.getClaims().size() > 0) {
-                outStream.write(this.locationToString(playerData.getClaims().get(0).getLesserBoundaryCorner()));
+                outStream.write(SerializationUtil.locationToString(playerData.getClaims().get(0).getLesserBoundaryCorner()));
                 for (int i = 1; i < playerData.getClaims().size(); i++) {
-                    outStream.write(";;" + this.locationToString(playerData.getClaims().get(i).getLesserBoundaryCorner()));
+                    outStream.write(";;" + SerializationUtil.locationToString(playerData.getClaims().get(i).getLesserBoundaryCorner()));
                 }
             }
             outStream.newLine();

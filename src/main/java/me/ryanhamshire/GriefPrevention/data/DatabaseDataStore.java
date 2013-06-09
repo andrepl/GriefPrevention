@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.SerializationUtil;
 import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 
@@ -158,15 +159,15 @@ public class DatabaseDataStore extends DataStore {
                 this.writeClaimData(claim.getChildren().get(i));
             }
         } catch (SQLException e) {
-            GriefPrevention.addLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
+            GriefPrevention.addLogEntry("Unable to save data for claim at " + SerializationUtil.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
             GriefPrevention.addLogEntry(e.getMessage());
         }
     }
 
     //actually writes claim data to the database
     synchronized private void writeClaimData(Claim claim) throws SQLException {
-        String lesserCornerString = this.locationToString(claim.getLesserBoundaryCorner());
-        String greaterCornerString = this.locationToString(claim.getGreaterBoundaryCorner());
+        String lesserCornerString = SerializationUtil.locationToString(claim.getLesserBoundaryCorner());
+        String greaterCornerString = SerializationUtil.locationToString(claim.getGreaterBoundaryCorner());
         String owner = claim.getOwnerName();
 
         ArrayList<String> builders = new ArrayList<String>();
@@ -229,7 +230,7 @@ public class DatabaseDataStore extends DataStore {
                     claim.isNeverdelete() +
                     ");");
         } catch (SQLException e) {
-            GriefPrevention.addLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
+            GriefPrevention.addLogEntry("Unable to save data for claim at " + SerializationUtil.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
             GriefPrevention.addLogEntry(e.getMessage());
         }
     }
@@ -244,7 +245,7 @@ public class DatabaseDataStore extends DataStore {
             statement.execute("DELETE FROM griefprevention_claimdata WHERE id=" + claim.getID() + ";");
             statement.execute("DELETE FROM griefprevention_claimdata WHERE parentid=" + claim.getID() + ";");
         } catch (SQLException e) {
-            GriefPrevention.addLogEntry("Unable to delete data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
+            GriefPrevention.addLogEntry("Unable to delete data for claim at " + SerializationUtil.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
             GriefPrevention.addLogEntry(e.getMessage());
         }
     }

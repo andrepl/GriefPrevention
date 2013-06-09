@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
-import me.ryanhamshire.GriefPrevention.TextMode;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;

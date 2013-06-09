@@ -5,6 +5,7 @@ import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

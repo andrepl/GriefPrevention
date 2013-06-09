@@ -4,6 +4,7 @@ import me.ryanhamshire.GriefPrevention.*;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

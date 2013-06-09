@@ -2,7 +2,7 @@ package me.ryanhamshire.GriefPrevention.configuration;
 
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.TextMode;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 // this enum is used for some of the configuration options.
