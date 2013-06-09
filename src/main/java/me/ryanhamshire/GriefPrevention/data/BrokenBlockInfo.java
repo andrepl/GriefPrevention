@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.data;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

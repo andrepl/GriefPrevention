@@ -21,6 +21,8 @@ package me.ryanhamshire.GriefPrevention;
 import java.util.ArrayList;
 
 
+import me.ryanhamshire.GriefPrevention.data.BrokenBlockInfo;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import org.bukkit.entity.Player;
 
 import java.util.Queue;

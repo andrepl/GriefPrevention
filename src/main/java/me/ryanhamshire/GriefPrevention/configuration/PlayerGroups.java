@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.configuration;
 
 import java.util.ArrayList;
 import java.util.HashMap;

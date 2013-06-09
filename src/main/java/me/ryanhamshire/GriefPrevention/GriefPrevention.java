@@ -27,8 +27,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
+import me.ryanhamshire.GriefPrevention.configuration.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.commands.CommandHandler;
+import me.ryanhamshire.GriefPrevention.data.*;
 import me.ryanhamshire.GriefPrevention.listeners.BlockEventHandler;
 import me.ryanhamshire.GriefPrevention.listeners.EntityEventHandler;
 import me.ryanhamshire.GriefPrevention.listeners.PlayerEventHandler;
@@ -234,8 +236,8 @@ public class GriefPrevention extends JavaPlugin {
                 for (int z = lesser.getBlockZ(); z <= upper.getBlockZ(); z++) {
                     Location createloc = new Location(lesser.getWorld(), x, y, z);
                     Block acquired = lesser.getWorld().getBlockAt(createloc);
-                    if (acquired.getTypeId() == source.getTypeID() && acquired.getData() == source.data) {
-                        acquired.setTypeIdAndData(target.getTypeID(), target.data, true);
+                    if (acquired.getTypeId() == source.getTypeID() && acquired.getData() == source.getData()) {
+                        acquired.setTypeIdAndData(target.getTypeID(), target.getData(), true);
                     }
                 }
             }
@@ -517,7 +519,7 @@ public class GriefPrevention extends JavaPlugin {
 
             // if there's a claim here, keep looking
             if (claim != null) {
-                candidateLocation = new Location(claim.lesserBoundaryCorner.getWorld(), claim.lesserBoundaryCorner.getBlockX() - 1, claim.lesserBoundaryCorner.getBlockY(), claim.lesserBoundaryCorner.getBlockZ() - 1);
+                candidateLocation = new Location(claim.getLesserBoundaryCorner().getWorld(), claim.getLesserBoundaryCorner().getBlockX() - 1, claim.getLesserBoundaryCorner().getBlockY(), claim.getLesserBoundaryCorner().getBlockZ() - 1);
                 continue;
             }
 
@@ -727,7 +729,7 @@ public class GriefPrevention extends JavaPlugin {
 
             // otherwise store the valid entry in config data
             else {
-                materialCollection.Add(materialInfo);
+                materialCollection.add(materialInfo);
             }
         }
     }

@@ -19,6 +19,8 @@
 package me.ryanhamshire.GriefPrevention.tasks;
 
 import me.ryanhamshire.GriefPrevention.*;
+import me.ryanhamshire.GriefPrevention.configuration.Messages;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import org.bukkit.entity.Player;
 
 // secures a claim after a siege looting window has closed

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.data;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class MaterialCollection {
     ArrayList<MaterialInfo> materials = new ArrayList<MaterialInfo>();
 
-    void Add(MaterialInfo material) {
+    public void add(MaterialInfo material) {
         int i;
         for (i = 0; i < this.materials.size() && this.materials.get(i).getTypeID() <= material.getTypeID(); i++) ;
         this.materials.add(i, material);

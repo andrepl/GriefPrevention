@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.data;
 
 import java.util.ArrayList;
 import java.util.Iterator;

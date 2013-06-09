@@ -18,7 +18,7 @@
 
 package me.ryanhamshire.GriefPrevention.visualization;
 
-import me.ryanhamshire.GriefPrevention.PlayerData;
+import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import org.bukkit.entity.Player;
 // applies a visualization for a player by sending him block change packets
 class VisualizationApplicationTask implements Runnable {

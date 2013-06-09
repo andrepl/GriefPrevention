@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.data;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,6 +26,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 
 import org.bukkit.*;
@@ -38,7 +39,7 @@ public class DatabaseDataStore extends DataStore {
     private String userName;
     private String password;
 
-    DatabaseDataStore(String url, String userName, String password) throws Exception {
+    public DatabaseDataStore(String url, String userName, String password) throws Exception {
         this.databaseUrl = url;
         this.userName = userName;
         this.password = password;
@@ -412,7 +413,7 @@ public class DatabaseDataStore extends DataStore {
     }
 
     @Override
-    synchronized void close() {
+    public synchronized void close() {
         if (this.databaseConnection != null) {
             try {
                 if (!this.databaseConnection.isClosed()) {

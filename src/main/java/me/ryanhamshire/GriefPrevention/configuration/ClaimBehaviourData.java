@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
-import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.TextMode;
 import org.bukkit.Location;

@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.MaterialCollection;
-import me.ryanhamshire.GriefPrevention.MaterialInfo;
+import me.ryanhamshire.GriefPrevention.data.MaterialCollection;
+import me.ryanhamshire.GriefPrevention.data.MaterialInfo;
 
 import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
 import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;

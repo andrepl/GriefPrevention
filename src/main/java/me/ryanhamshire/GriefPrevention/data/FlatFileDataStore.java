@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.data;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 
 import org.bukkit.*;
@@ -34,7 +35,7 @@ public class FlatFileDataStore extends DataStore {
     private final static String claimDataFolderPath = dataLayerFolderPath + File.separator + "ClaimData";
     private final static String nextClaimIdFilePath = claimDataFolderPath + File.separator + "_nextClaimID";
 
-    static boolean hasData() {
+    public static boolean hasData() {
         File playerDataFolder = new File(playerDataFolderPath);
         File claimsDataFolder = new File(claimDataFolderPath);
 
@@ -42,7 +43,7 @@ public class FlatFileDataStore extends DataStore {
     }
 
     // initialization!
-    FlatFileDataStore() throws Exception {
+    public FlatFileDataStore() throws Exception {
         this.initialize();
     }
 
@@ -550,7 +551,7 @@ public class FlatFileDataStore extends DataStore {
         }
     }
 
-    synchronized void migrateData(DatabaseDataStore databaseStore) {
+    public synchronized void migrateData(DatabaseDataStore databaseStore) {
         // migrate claims
         for (int i = 0; i < this.claims.size(); i++) {
             Claim claim = this.claims.get(i);
@@ -611,6 +612,6 @@ public class FlatFileDataStore extends DataStore {
     }
 
     @Override
-    synchronized void close() {
+    public synchronized void close() {
     }
 }

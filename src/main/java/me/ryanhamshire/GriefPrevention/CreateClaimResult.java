@@ -18,6 +18,8 @@
 
 package me.ryanhamshire.GriefPrevention;
 
+import me.ryanhamshire.GriefPrevention.data.Claim;
+
 public class CreateClaimResult {
     public enum Result {
         ClaimOverlap,

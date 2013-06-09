@@ -9,10 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import me.ryanhamshire.GriefPrevention.DataStore;
+import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
-import me.ryanhamshire.GriefPrevention.PlayerGroups;
 import me.ryanhamshire.GriefPrevention.TextMode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
