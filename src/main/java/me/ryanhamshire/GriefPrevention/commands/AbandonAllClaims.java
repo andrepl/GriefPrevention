@@ -66,9 +66,7 @@ public class AbandonAllClaims extends BaseCommand {
 
         //revert any current visualization
         Visualization.Revert(player);
-
         return true;
-
     }
 
     @Override

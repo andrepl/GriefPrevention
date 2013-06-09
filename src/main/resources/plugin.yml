@@ -5,6 +5,11 @@ dev-url: ${project.devurl}
 version: ${project.version}
 
 commands:
+   griefprevention:
+      description: The main GriefPrevention command.
+      aliases: [gp, grief, gprev]
+      usage: /griefprevention <subcommand>
+
    setclaimblocks:
       description: sets the claim blocks for a player to a specific value.
       usage: /SetClaimBlocks <player> <amount>
@@ -45,7 +50,7 @@ commands:
       permission: griefprevention.claims
    containertrust:
       description: Grants a player access to your containers.
-      usage: /ContainerTrust <player>.  Grants a player access to your inventory, bed, and buttons/levers.
+      usage: /<command> <player>.  Grants a player access to your inventory, bed, and buttons/levers.
       aliases: ct
       permission: griefprevention.claims
    accesstrust:
@@ -166,7 +171,19 @@ commands:
       usage: /UnlockClaim
    gpreload:
       description: reloads GP configuration.
-      usage: /gpreload
+      usage: /<command>
+   gphelp:
+       description: displays GriefPrevention help.
+       usage: /<command>
+   giveclaimblocks:
+       description: give claimblocks to a player
+       usage: /<command> <player> <amount>
+       permission: griefprevention.giveclaimblocks
+   giveclaim:
+          description: give a claim to another player
+          usage: /<command> <player>
+          permission: griefprevention.transferclaim
+
 permissions:
     griefprevention.cleanclaim:
         description: Allows the use of the cleanclaim command to cleanup owned claims.

@@ -156,6 +156,7 @@ public class GriefPrevention extends JavaPlugin {
         Configuration = new ConfigData(config, outConfig);
         // read configuration settings (note defaults)
         commandHandler = new CommandHandler(this);
+        commandHandler.initialize();
 
         // load player groups.
         this.config_player_groups = new PlayerGroups(config, "GriefPrevention.Groups");

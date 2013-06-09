@@ -49,7 +49,10 @@ public class CommandHandler implements TabExecutor {
 
     public CommandHandler(GriefPrevention plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginCommand("griefprevention").setExecutor(this);
+    }
 
+    public void initialize() {
         cmdAbandonClaim = new AbandonClaim(plugin);
         cmdHelp = new Help(plugin);
         cmdClaimInfo = new ClaimInfo(plugin);
@@ -87,6 +90,8 @@ public class CommandHandler implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+
+        plugin.getLogger().info(cmd.toString() + "," + commandLabel + "," + "," + args);
         LinkedList<String> params = new LinkedList<String>();
         params.addAll(Arrays.asList(args));
         if (params.size() == 0) {
@@ -97,7 +102,12 @@ public class CommandHandler implements TabExecutor {
             GriefPrevention.sendMessage(sender, TextMode.Err, Messages.UnknownCommand, params.peek());
             return true;
         }
-        return bc.onCommand(sender, bc.getPluginCommand(), commandLabel + " " + params.pop(), params);
+        String newLabel = commandLabel + " " + params.pop();
+        boolean result = bc.onCommand(sender, bc.getPluginCommand(), newLabel, params);
+        if (!result) {
+            sender.sendMessage(bc.getPluginCommand().getUsage().replace("<command>", newLabel));
+        }
+        return true;
     }
 
     @Override
@@ -110,7 +120,7 @@ public class CommandHandler implements TabExecutor {
             for (String s: commandMap.keySet()) {
                 if (s.startsWith(params.peek().toLowerCase())) {
                     BaseCommand bc = commandMap.get(s);
-                    if (sender.hasPermission(bc.getPermissionNode())) {
+                    if (bc.getPermissionNode() == null || sender.hasPermission(bc.getPermissionNode())) {
                         if (s.startsWith(params.peek().toLowerCase())) {
                             results.add(s);
                         }
@@ -129,7 +139,7 @@ public class CommandHandler implements TabExecutor {
     }
 
     public void registerCommand(BaseCommand baseCommand, String name) {
-        this.plugin.getServer().getPluginCommand(name).setExecutor(this);
+        this.plugin.getServer().getPluginCommand(name).setExecutor(baseCommand);
         if (name.startsWith("gp")) {
             name = name.substring(2);
         }
