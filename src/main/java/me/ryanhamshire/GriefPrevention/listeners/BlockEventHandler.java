@@ -310,7 +310,7 @@ public class BlockEventHandler implements Listener {
                             block.getY() - wc.getClaimsExtendIntoGroundDistance(), block.getY(),
                             block.getZ() - radius, block.getZ() + radius,
                             player.getName(),
-                            null, null, false, player).succeeded != CreateClaimResult.Result.Success)) {
+                            null, null, false, player).succeeded != CreateClaimResult.Result.SUCCESS)) {
                         radius--;
                     }
 

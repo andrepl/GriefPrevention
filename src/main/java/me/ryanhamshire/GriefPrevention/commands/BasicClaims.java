@@ -24,7 +24,7 @@ public class BasicClaims extends BaseCommand {
         }
         Player player = (Player) sender;
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-        playerData.setShovelMode(ShovelMode.Basic);
+        playerData.setShovelMode(ShovelMode.BASIC);
         playerData.setClaimSubdividing(null);
         GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.BasicClaimsMode);
         return true;

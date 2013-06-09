@@ -63,7 +63,7 @@ public class PlayerData {
     private int bonusClaimBlocks = 0;
 
     // what "mode" the shovel is in determines what it will do when it's used
-    private ShovelMode shovelMode = ShovelMode.Basic;
+    private ShovelMode shovelMode = ShovelMode.BASIC;
 
     // radius for restore nature fill mode
     private int fillRadius = 0;

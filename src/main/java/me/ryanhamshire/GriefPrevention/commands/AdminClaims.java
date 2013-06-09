@@ -24,7 +24,7 @@ public class AdminClaims extends BaseCommand {
         }
         Player player = (Player) sender;
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-        playerData.setShovelMode(ShovelMode.Admin);
+        playerData.setShovelMode(ShovelMode.ADMIN);
         GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.AdminClaimsMode);
         return true;
     }

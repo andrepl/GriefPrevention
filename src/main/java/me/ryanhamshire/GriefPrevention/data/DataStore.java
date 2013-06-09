@@ -581,7 +581,7 @@ public abstract class DataStore {
             // if we find an existing claim which will be overlapped
             if (otherClaim.overlaps(newClaim)) {
                 // result = fail, return conflicting claim
-                result.succeeded = CreateClaimResult.Result.ClaimOverlap;
+                result.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
                 result.claim = otherClaim;
                 return result;
             }
@@ -591,7 +591,7 @@ public abstract class DataStore {
                 ClaimCreatedEvent claimevent = new ClaimCreatedEvent(newClaim, claimcreator);
                 Bukkit.getServer().getPluginManager().callEvent(claimevent);
                 if (claimevent.isCancelled()) {
-                    result.succeeded = CreateClaimResult.Result.Canceled;
+                    result.succeeded = CreateClaimResult.Result.CANCELED;
                     return result;
                 }
             }
@@ -607,7 +607,7 @@ public abstract class DataStore {
         this.addClaim(newClaim);
 
         // then return success along with reference to new claim
-        result.succeeded = CreateClaimResult.Result.Success;
+        result.succeeded = CreateClaimResult.Result.SUCCESS;
         result.claim = newClaim;
         return result;
     }
@@ -945,7 +945,7 @@ public abstract class DataStore {
         if (cre.isCancelled()) {
             CreateClaimResult res = new CreateClaimResult();
             res.claim = claim;
-            res.succeeded = CreateClaimResult.Result.Canceled;
+            res.succeeded = CreateClaimResult.Result.CANCELED;
             return res;
         }
 
@@ -959,7 +959,7 @@ public abstract class DataStore {
                 claim.getOwnerName(), claim.getParent(), claim.getID(), claim.isNeverdelete(), claim, claimcreator, false);
 
         // if succeeded
-        if (result.succeeded == CreateClaimResult.Result.Success) {
+        if (result.succeeded == CreateClaimResult.Result.SUCCESS) {
             // copy permissions from old claim
             ArrayList<String> builders = new ArrayList<String>();
             ArrayList<String> containers = new ArrayList<String>();
