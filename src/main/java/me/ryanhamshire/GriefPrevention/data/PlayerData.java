@@ -98,13 +98,9 @@ public class PlayerData {
 
     private boolean ignoreStuckMessage = false; // save semantics as above, but for Stuck Messages.
 
-    // spam
     private Date lastLogin;                            // when the player last logged into the server
     private String lastMessage = "";                    // the player's last chat message, or slash command complete with parameters
     private Date lastMessageTimestamp = new Date();  // last time the player sent a chat message or used a monitored slash command
-
-    private int spamCount = 0;                        // number of consecutive "spams"
-    private boolean spamWarned = false;                // whether the player recently received a warning
 
     // visualization
     private Visualization currentVisualization = null;
@@ -323,25 +319,6 @@ public class PlayerData {
 
     public void setLastMessageTimestamp(Date lastMessageTimestamp) {
         this.lastMessageTimestamp = lastMessageTimestamp;
-    }
-
-    public int getSpamCount() {
-        return spamCount;
-    }
-
-    public void setSpamCount(int spamCount) {
-        this.spamCount = spamCount;
-    }
-
-    public void incrementSpamCount() {
-        this.spamCount++;
-    }
-    public boolean isSpamWarned() {
-        return spamWarned;
-    }
-
-    public void setSpamWarned(boolean spamWarned) {
-        this.spamWarned = spamWarned;
     }
 
     public Visualization getCurrentVisualization() {

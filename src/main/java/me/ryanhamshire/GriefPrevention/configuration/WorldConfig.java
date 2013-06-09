@@ -63,10 +63,8 @@ public class WorldConfig {
     private boolean configClaimsAllowUnclaim;			// whether players may unclaim land (resize or abandon)
     private boolean configClaimsAutoRestoreUnclaimed; 	// whether unclaimed land in creative worlds is automatically /restorenature-d
     private boolean configClaimsApplyTrashBlockRules;				// whether players can build in survival worlds outside their claimed areas
-    private boolean configSpamEnabled;								// whether or not to monitor for spam
     private boolean configClaimsAutoNatureRestoration;		// whether survival claims will be automatically restored to nature when auto-deleted
     private boolean configClaimsAbandonNatureRestoration; // whether survival claims will be automatically restored to nature when abandoned.
-    private boolean configSpamBanOffenders;						// whether or not to ban spammers automatically
     private boolean configPVPProtectFreshSpawns;					// whether to make newly spawned players immune until they pick up an item
     private boolean configPVPPunishLogout;						    // whether to kill players who log out during PvP combat
     private boolean configPVPAllowCombatItemDrop;					// whether a player can drop items during combat to hide them
@@ -81,7 +79,6 @@ public class WorldConfig {
     private boolean configAddItemsToClaimedChests;					// whether players may add items to claimed chests by left-clicking them
     private boolean configSignEavesdrop;                           // whether to allow sign eavesdropping at all.
     private boolean configEavesdrop; 								// whether whispered messages will be visible to administrators
-    private boolean configEavesdropBookdrop;
     private boolean configSmartBan;									// whether to ban accounts which very likely owned by a banned player
     private boolean configEndermenMoveBlocks;						// whether or not endermen may move blocks around
     private boolean configSilverfishBreakBlocks;					// whether silverfish may break blocks
@@ -98,37 +95,20 @@ public class WorldConfig {
     private int configClaimsAutomaticClaimsForNewPlayersRadius;	// how big automatic new player claims (when they place a chest) should be.  0 to disable
     private int configClaimsClaimsExtendIntoGroundDistance;		// how far below the shoveled block a new claim will reach
     private int configClaimsMinSize;								// minimum width and height for non-admin claims
-    private int configSpamDelayThreshold;
-    private int configSpamCapsMinLength;
-    private int configSpamAlphaNumMinLength;
-    private int configSpamASCIIArtMinLength;
-    private int configSpamShortMessageMaxLength;
-    private int configSpamShortMessageTimeout;
-    private int configSpamBanThreshold;
-    private int configSpamMuteThreshold;
     private int configClaimsChestClaimExpirationDays;				// number of days of inactivity before an automatic chest claim will be deleted
     private int configClaimsUnusedClaimExpirationDays;				// number of days of inactivity before an unused (nothing build) claim will be deleted
     private int configClaimsTrappedCooldownHours;					// number of hours between uses of the /trapped command
-    private int configSpamLoginCooldownMinutes;					// how long players must wait between logins.  combats login spam.
-    private int configSpamDeathMessageCooldownSeconds;				// cooldown period for death messages (per player) in seconds
     private int configPVPCombatTimeoutSeconds;						// how long combat is considered to continue after the most recent damage
     private int configClaimsWildernessBlocksDelay;                   	// the number of non-trash blocks that can be placed before warning.  0 disables the display entirely.
     private int configClaimsPerPlayerClaimLimit;                        // maximum number of claims a user can have.
     private double configClaimsAbandonReturnRatio;                // return ratio when abandoning a claim- .80 will result in players getting 80% of the used claim blocks back.
-    private String configSpamWarningMessage;						// message to show a player who is close to spam level
-    private String configSpamBanMessage;							// message to show an automatically banned player
-    private String configSpamBanCommand;                           // command to run when spam detector triggers. {0} will be player name.
-    private String configSpamAllowedIpAddresses;					// IP addresses which will not be censored
-    private String configSpamKickCommand;                          // command(s) to run when spam detector triggers and kicks. {0} will be player name.
     private String WorldName;
-    private List<String> configSpamMonitorSlashCommands;  	// the list of slash commands monitored for spam
     private List<Material> configTrashBlocks = null;
     private List<String> configModsIgnoreClaimsAccounts;			// list of player names which ALWAYS ignore claims
     private MaterialCollection configModsExplodableIds;			// list of block IDs which can be destroyed by explosions, even in claimed areas
     private Material configClaimsInvestigationTool;				// which material will be used to investigate claims with a right click
     private Material configClaimsModificationTool;	  				// which material will be used to create/resize claims with a right click
     private ArrayList<String> configPVPBlockedCommands;			// list of commands which may not be used during pvp combat
-    private ArrayList<String> configEavesdropWhisperCommands;		// list of whisper commands to eavesdrop on
     private MaterialCollection configModsAccessTrustIds;			// list of block IDs which should require /accesstrust for player interaction
     private MaterialCollection configModsContainerTrustIds;		// list of block IDs which should require /containertrust for player interaction
 
@@ -186,14 +166,6 @@ public class WorldConfig {
 	public boolean getCreateClaimRequiresPermission() { return configClaimsCreationRequiresPermission; }
 	public int getClaimsExtendIntoGroundDistance() { return configClaimsClaimsExtendIntoGroundDistance; }
 	public int getMinClaimSize() { return configClaimsMinSize; }
-	public int getSpamDelayThreshold() { return configSpamDelayThreshold; }
-	public int getSpamCapsMinLength() { return configSpamCapsMinLength; }
-	public int getSpamAlphaNumMinLength() { return configSpamAlphaNumMinLength; }
-	public int getSpamASCIIArtMinLength() { return configSpamASCIIArtMinLength; }
-	public int getSpamShortMessageMaxLength() { return configSpamShortMessageMaxLength; }
-	public int getSpamShortMessageTimeout() { return configSpamShortMessageTimeout; }
-	public int getSpamBanThreshold() { return configSpamBanThreshold; }
-	public int getSpamMuteThreshold() { return configSpamMuteThreshold; }
 	public boolean getCreativeRules() { return configClaimsCreativeRules; }
     public boolean getAutoRestoreUnclaimed() { return configClaimsAutoRestoreUnclaimed; }
 	public boolean getAllowUnclaim() { return configClaimsAllowUnclaim; }
@@ -205,16 +177,6 @@ public class WorldConfig {
 	public int getClaimsTrappedCooldownHours() { return configClaimsTrappedCooldownHours; }
 	public Material getClaimsInvestigationTool() { return configClaimsInvestigationTool; }
 	public Material getClaimsModificationTool() { return configClaimsModificationTool; }
-	public boolean getSpamProtectionEnabled() { return configSpamEnabled; }
-	public int getSpamLoginCooldownMinutes() { return configSpamLoginCooldownMinutes; }
-	public List<String> getSpamMonitorSlashCommands() { return configSpamMonitorSlashCommands; }
-	public boolean getSpamBanOffenders() { return configSpamBanOffenders; }
-	public String getSpamBanMessage() { return configSpamBanMessage; }
-    public String getSpamWarningMessage() { return configSpamWarningMessage; }
-    public String getSpamAllowedIpAddresses() { return configSpamAllowedIpAddresses; }
-	public int getSpamDeathMessageCooldownSeconds() { return configSpamDeathMessageCooldownSeconds; }
-	public String getSpamBanCommand() { return configSpamBanCommand; }
-	public String getSpamKickCommand() { return configSpamKickCommand; }
     public boolean getProtectFreshSpawns() { return configPVPProtectFreshSpawns; }
     public boolean getPvPPunishLogout() { return configPVPPunishLogout; }
 	public int getPvPCombatTimeoutSeconds() { return configPVPCombatTimeoutSeconds; }
@@ -231,8 +193,6 @@ public class WorldConfig {
 	public boolean getAddItemsToClaimedChests() { return configAddItemsToClaimedChests; }
 	public boolean getSignEavesdrop() { return configSignEavesdrop; }
 	public boolean getEavesDrop() { return configEavesdrop; }
-	public boolean getEavesDropBookDrop() { return configEavesdropBookdrop; }
-	public List<String> eavesdropWhisperCommands() { return configEavesdropWhisperCommands; }
 	public boolean getSmartBan() { return configSmartBan; }
 	public boolean endermenMoveBlocks() { return configEndermenMoveBlocks; }
 	public boolean getSilverfishBreakBlocks() { return configSilverfishBreakBlocks; }
@@ -359,35 +319,6 @@ public class WorldConfig {
 			}
 		}
 
-		// SpamDelayThreshold=1500
-        // SpamCapsMinLength=4
-        // SpamAlphaNumMinLength=5
-        // SpamASCIIArtLengthMinLength=15
-        // SpamShortMessageMaxLength=5
-        // SpamShortMessageTimeout=3000
-        // SpamBanThreshold=8
-        // SpamMuteThreshold=4
-		this.configSpamDelayThreshold = config.getInt("GriefPrevention.Spam.DelayThreshold",1500);
-		outConfig.set("GriefPrevention.Spam.DelayThreshold", configSpamDelayThreshold);
-
-		this.configSpamCapsMinLength = config.getInt("GriefPrevention.Spam.CapsMinLength",4);
-		outConfig.set("GriefPrevention.Spam.CapsMinLength", configSpamCapsMinLength);
-
-        this.configSpamAlphaNumMinLength = config.getInt("GriefPrevention.Spam.AlphaNumMinLength",5);
-		outConfig.set("GriefPrevention.Spam.AlphaNumMinLength", configSpamAlphaNumMinLength);
-
-        this.configSpamASCIIArtMinLength = config.getInt("GriefPrevention.Spam.ASCIIArtMinLength",15);
-		outConfig.set("GriefPrevention.Spam.ASCIIArtMinLength", configSpamASCIIArtMinLength);
-
-        this.configSpamShortMessageMaxLength = config.getInt("GriefPrevention.Spam.ShortMessageMaxLength",5);
-		outConfig.set("GriefPrevention.Spam.ShortMessageMaxLength", configSpamShortMessageMaxLength);
-
-        this.configSpamBanThreshold = config.getInt("GriefPrevention.Spam.BanThreshold",8);
-		outConfig.set("GriefPrevention.Spam.BanThreshold", configSpamBanThreshold);
-
-        this.configSpamMuteThreshold = config.getInt("GriefPrevention.Spam.MuteThreshold",4);
-		outConfig.set("GriefPrevention.Spam.MuteThreshold", configSpamMuteThreshold);
-
         this.claimsEnabled = config.getBoolean("GriefPrevention.Claims.Enabled",true);
 		outConfig.set("GriefPrevention.Claims.Enabled", claimsEnabled);
 
@@ -493,37 +424,6 @@ public class WorldConfig {
 
 		this.configClaimsAutoNatureRestoration = config.getBoolean("GriefPrevention.Claims.Expiration.AutomaticNatureRestoration", false);
 		outConfig.set("GriefPrevention.Claims.Expiration.AutomaticNatureRestoration", this.configClaimsAutoNatureRestoration);
-
-		this.configSpamEnabled = config.getBoolean("GriefPrevention.Spam.Enabled", true);
-        outConfig.set("GriefPrevention.Spam.Enabled", this.configSpamEnabled);
-
-        this.configSpamLoginCooldownMinutes = config.getInt("GriefPrevention.Spam.LoginCooldownMinutes", 2);
-        outConfig.set("GriefPrevention.Spam.LoginCooldownMinutes", this.configSpamLoginCooldownMinutes);
-
-		this.configSpamWarningMessage = config.getString("GriefPrevention.Spam.WarningMessage", "Please reduce your noise level.  Spammers will be banned.");
-        outConfig.set("GriefPrevention.Spam.WarningMessage", this.configSpamWarningMessage);
-
-        this.configSpamAllowedIpAddresses = config.getString("GriefPrevention.Spam.AllowedIpAddresses", "1.2.3.4; 5.6.7.8");
-        outConfig.set("GriefPrevention.Spam.AllowedIpAddresses", this.configSpamAllowedIpAddresses);
-
-		this.configSpamBanOffenders = config.getBoolean("GriefPrevention.Spam.BanOffenders", true);
-        outConfig.set("GriefPrevention.Spam.BanOffenders", this.configSpamBanOffenders);
-
-        this.configSpamBanMessage = config.getString("GriefPrevention.Spam.BanMessage", "Banned for spam.");
-        outConfig.set("GriefPrevention.Spam.BanMessage", this.configSpamBanMessage);
-
-		String slashCommandsToMonitor = config.getString("GriefPrevention.Spam.MonitorSlashCommands", "/me;/tell;/global;/local");
-		this.configSpamMonitorSlashCommands = Arrays.asList(slashCommandsToMonitor.split(";"));
-        outConfig.set("GriefPrevention.Spam.MonitorSlashCommands", slashCommandsToMonitor);
-
-		this.configSpamDeathMessageCooldownSeconds = config.getInt("GriefPrevention.Spam.DeathMessageCooldownSeconds", 60);
-        outConfig.set("GriefPrevention.Spam.DeathMessageCooldownSeconds", this.configSpamDeathMessageCooldownSeconds);
-
-		this.configSpamKickCommand = config.getString("GriefPrevention.Spam.KickCommand","kick {0}");
-        outConfig.set("GriefPrevention.Spam.KickCommand", this.configSpamKickCommand);
-
-		this.configSpamBanCommand = config.getString("GriefPrevention.Spam.BanCommand","ban {0};kick {0}");
-		outConfig.set("GriefPrevention.Spam.BanCommand", configSpamBanCommand);
 
 		this.configPVPProtectFreshSpawns = config.getBoolean("GriefPrevention.PvP.ProtectFreshSpawns", true);
         outConfig.set("GriefPrevention.PvP.ProtectFreshSpawns", this.configPVPProtectFreshSpawns);

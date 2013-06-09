@@ -170,7 +170,6 @@ public enum Messages {
     ClaimUnlocked,
     DeleteLockedClaimWarning,
     ConfirmAbandonLockedClaim,
-    LoginSpamWait,
     AbandonClaimRestoreWarning,
     NoVillagerTradeOutsideClaims,
     ClearManagersNotFound,

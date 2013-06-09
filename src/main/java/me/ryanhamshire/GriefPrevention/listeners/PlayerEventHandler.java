@@ -23,7 +23,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.ryanhamshire.GriefPrevention.*;
@@ -32,12 +31,10 @@ import me.ryanhamshire.GriefPrevention.configuration.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.*;
 import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
-import me.ryanhamshire.GriefPrevention.tasks.PlayerKickBanTask;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,16 +59,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerEventHandler implements Listener {
     private DataStore dataStore;
-
-    // list of temporarily banned ip's
-    private ArrayList<IpBanInfo> tempBannedIps = new ArrayList<IpBanInfo>();
 
     // number of milliseconds in a day
     private final long MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
@@ -87,7 +80,6 @@ public class PlayerEventHandler implements Listener {
         this.dataStore = dataStore;
     }
 
-    // when a player chats, monitor for spam
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     synchronized void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
@@ -120,12 +112,10 @@ public class PlayerEventHandler implements Listener {
             final PlayerData pdata = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
             // if they are currently set to ignore, do not send anything.
             if (!pdata.isIgnoreClaimMessage()) {
-
                 // otherwise, set IgnoreClaimMessage and use a anonymous runnable to reset it after the timeout.
                 // of note is that if the value is zero this is pretty much run right away, which means the end result is there
                 // is no actual timeout.
                 pdata.setIgnoreClaimMessage(true);
-
                 Bukkit.getScheduler()
                         .runTaskLater(
                                 GriefPrevention.instance,
@@ -135,7 +125,6 @@ public class PlayerEventHandler implements Listener {
                                     }
                                 }, wc.getMessageCooldownClaims() * 20);
 
-
                 // send off the message.
                 GriefPrevention.sendMessage(player, TextMode.INFO, showclaimmessage, 10L);
             }
@@ -144,14 +133,11 @@ public class PlayerEventHandler implements Listener {
         // FEATURE: automatically educate players about the /trapped command
         // check for "trapped" or "stuck" to educate players about the /trapped command
         if (!message.contains("/trapped") && (message.contains("trapped") || message.contains("stuck") || message.contains(this.dataStore.getMessage(Messages.TrappedChatKeyword)))) {
-            final PlayerData pdata =
-                    GriefPrevention.instance.dataStore.getPlayerData(player.getName());
+            final PlayerData pdata = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
             // if not set to ignore the stuck message, show it, set the ignore flag, and set an anonymous runnable to reset it after the
             // configured delay.
             if (!pdata.isIgnoreStuckMessage()) {
-
                 pdata.setIgnoreStuckMessage(true);
-
                 Bukkit.getScheduler().runTaskLater(GriefPrevention.instance, new Runnable() {
                     public void run() {
                         pdata.setIgnoreStuckMessage(true);
@@ -160,189 +146,6 @@ public class PlayerEventHandler implements Listener {
                 GriefPrevention.sendMessage(player, TextMode.INFO, Messages.TrappedInstructions, 10L);
             }
         }
-
-        // FEATURE: monitor for chat and command spam
-        if (!wc.getSpamProtectionEnabled()) return false;
-
-        // if the player has permission to spam, don't bother even examining the message
-        if (player.hasPermission("griefprevention.spam")) return false;
-
-        boolean spam = false;
-        boolean muted = false;
-
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-
-        // remedy any CAPS SPAM, exception for very short messages which could be emoticons like =D or XD
-        if (message.length() > 4 && this.stringsAreSimilar(message.toUpperCase(), message)) {
-            // exception for strings containing forward slash to avoid changing a case-sensitive URL
-            if (event instanceof AsyncPlayerChatEvent && !message.contains("/")) {
-                ((AsyncPlayerChatEvent) event).setMessage(message.toLowerCase());
-            }
-        }
-
-        // where other types of spam are concerned, casing isn't significant
-        message = message.toLowerCase();
-
-        // check message content and timing		
-        long millisecondsSinceLastMessage = (new Date()).getTime() - playerData.getLastMessageTimestamp().getTime();
-
-        // if the message came too close to the last one
-        if (millisecondsSinceLastMessage < wc.getSpamDelayThreshold()) {
-            // increment the spam counter
-            playerData.incrementSpamCount();
-            spam = true;
-        }
-
-        // if it's very similar to the last message
-        if (!muted && this.stringsAreSimilar(message, playerData.getLastMessage())) {
-            playerData.incrementSpamCount();
-            spam = true;
-            muted = true;
-        }
-
-        // filter IP addresses
-        if (!muted) {
-            Pattern ipAddressPattern = Pattern.compile("\\d{1,4}\\D{1,3}\\d{1,4}\\D{1,3}\\d{1,4}\\D{1,3}\\d{1,4}");
-            Matcher matcher = ipAddressPattern.matcher(message);
-
-            // if it looks like an IP address
-            if (matcher.find()) {
-                // and it's not in the list of allowed IP addresses
-                if (!wc.getSpamAllowedIpAddresses().contains(matcher.group())) {
-                    // log entry
-                    GriefPrevention.addLogEntry("Muted IP address from " + player.getName() + ": " + message);
-
-                    // spam notation
-                    playerData.incrementSpamCount();
-                    spam = true;
-
-                    // block message
-                    muted = true;
-                }
-            }
-        }
-
-        // if the message was mostly non-alpha-numerics or doesn't include much whitespace, consider it a spam (probably ansi art or random text gibberish) 
-        if (!muted && message.length() > wc.getSpamAlphaNumMinLength()) {
-            int symbolsCount = 0;
-            int whitespaceCount = 0;
-            for (int i = 0; i < message.length(); i++) {
-                char character = message.charAt(i);
-                if (!(Character.isLetterOrDigit(character))) {
-                    symbolsCount++;
-                }
-
-                if (Character.isWhitespace(character)) {
-                    whitespaceCount++;
-                }
-            }
-
-            if (symbolsCount > message.length() / 2 || (message.length() > wc.getSpamASCIIArtMinLength() && whitespaceCount < message.length() / 10)) {
-                spam = true;
-                if (playerData.getSpamCount() > 0) muted = true;
-                playerData.incrementSpamCount();
-            }
-        }
-
-        // very short messages close together are spam
-        if (!muted && message.length() < wc.getSpamShortMessageMaxLength() && millisecondsSinceLastMessage < wc.getSpamShortMessageTimeout()) {
-            spam = true;
-            playerData.incrementSpamCount();
-        }
-
-        // if the message was determined to be a spam, consider taking action		
-        if (spam) {
-            // anything above level 8 for a player which has received a warning...  kick or if enabled, ban 
-            if (playerData.getSpamCount() > wc.getSpamBanThreshold() && playerData.isSpamWarned()) {
-                if (wc.getSpamBanOffenders()) {
-                    // log entry
-                    GriefPrevention.addLogEntry("Acting on " + player.getName() + " for spam.");
-
-                    // kick and ban
-                    PlayerKickBanTask task = new PlayerKickBanTask(player, wc.getSpamBanMessage());
-                    GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 1L);
-                } else {
-                    // log entry
-                    GriefPrevention.addLogEntry("Banning " + player.getName() + " for spam.");
-
-                    // just kick
-                    PlayerKickBanTask task = new PlayerKickBanTask(player, null);
-                    GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 1L);
-                }
-
-                return true;
-            }
-
-            // cancel any messages while at or above the third spam level and issue warnings
-            // anything above level 2, mute and warn
-            if (playerData.getSpamCount() >= wc.getSpamMuteThreshold()) {
-                muted = true;
-                if (!playerData.isSpamWarned()) {
-                    GriefPrevention.sendMessage(player, TextMode.WARN, wc.getSpamWarningMessage(), 10L);
-                    GriefPrevention.addLogEntry("Warned " + player.getName() + " about spam penalties.");
-                    playerData.setSpamWarned(true);
-                }
-            }
-
-            if (muted) {
-                // make a log entry
-                GriefPrevention.addLogEntry("Muted spam from " + player.getName() + ": " + message);
-
-                // send a fake message so the player doesn't realize he's muted
-                // less information for spammers = less effective spam filter dodging
-                player.sendMessage("<" + player.getName() + "> " + message);
-
-                // cancelling the event guarantees other players don't receive the message
-                return true;
-            }
-        }
-
-        // otherwise if not a spam, reset the spam counter for this player
-        else {
-            playerData.setSpamCount(0);
-            playerData.setSpamWarned(false);
-        }
-
-        // in any case, record the timestamp of this message and also its content for next time
-        playerData.setLastMessageTimestamp(new Date());
-        playerData.setLastMessage(message);
-        return false;
-    }
-
-    // if two strings are 75% identical, they're too close to follow each other in the chat
-    private boolean stringsAreSimilar(String message, String lastMessage) {
-        // determine which is shorter
-        String shorterString, longerString;
-        if (lastMessage.length() < message.length()) {
-            shorterString = lastMessage;
-            longerString = message;
-        } else {
-            shorterString = message;
-            longerString = lastMessage;
-        }
-
-        if (shorterString.length() <= 5) return shorterString.equals(longerString);
-
-        // set similarity tolerance
-        int maxIdenticalCharacters = longerString.length() - longerString.length() / 4;
-
-        // trivial check on length
-        if (shorterString.length() < maxIdenticalCharacters) return false;
-
-        // compare forward
-        int identicalCount = 0;
-        for (int i = 0; i < shorterString.length(); i++) {
-            if (shorterString.charAt(i) == longerString.charAt(i)) identicalCount++;
-            if (identicalCount > maxIdenticalCharacters) return true;
-        }
-
-        // compare backward
-        for (int i = 0; i < shorterString.length(); i++) {
-            if (shorterString.charAt(shorterString.length() - i - 1) == longerString.charAt(longerString.length() - i - 1))
-                identicalCount++;
-            if (identicalCount > maxIdenticalCharacters) return true;
-        }
-
         return false;
     }
 
@@ -351,59 +154,13 @@ public class PlayerEventHandler implements Listener {
     synchronized void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         String[] args = event.getMessage().split(" ");
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getPlayer().getWorld());
-        // if eavesdrop enabled, eavesdrop
-        List<String> WhisperCommands = wc.eavesdropWhisperCommands();
         String command = args[0].toLowerCase();
-        if (wc.getEavesDrop() && WhisperCommands.contains(command) && args.length > 1) {
-            StringBuilder logMessageBuilder = new StringBuilder();
-            logMessageBuilder.append("[[").append(event.getPlayer().getName()).append("]] ");
-
-            for (int i = 1; i < args.length; i++) {
-                logMessageBuilder.append(args[i]).append(" ");
-            }
-
-            String logMessage = logMessageBuilder.toString();
-
-            Player[] players = GriefPrevention.instance.getServer().getOnlinePlayers();
-            if (!event.getPlayer().hasPermission("griefprevention.eavesdrop")) {
-                for (int i = 0; i < players.length; i++) {
-                    Player player = players[i];
-                    if (player.hasPermission("griefprevention.eavesdrop") && !player.getName().equalsIgnoreCase(args[1])) {
-                        player.sendMessage(ChatColor.GRAY + logMessage);
-                    }
-                }
-            } else {
-                for (int i = 0; i < players.length; i++) {
-                    Player player = players[i];
-                    if (player.hasPermission("griefprevention.admineavesdrop") && !player.getName().equalsIgnoreCase(args[1])) {
-                        player.sendMessage(ChatColor.GRAY + logMessage);
-                    }
-                }
-            }
-        }
-
         // if in pvp, block any pvp-banned slash commands
         PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
         if (playerData.inPvpCombat() && wc.getPvPBlockedCommands().contains(command)) {
             event.setCancelled(true);
             GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, Messages.CommandBannedInPvP);
             return;
-        }
-
-        // if anti spam enabled, check for spam
-        if (!wc.getSpamProtectionEnabled()) return;
-
-        // if the slash command used is in the list of monitored commands, treat it like a chat message (see above)
-        boolean isMonitoredCommand = false;
-        for (String monitoredCommand : wc.getSpamMonitorSlashCommands()) {
-            if (args[0].equalsIgnoreCase(monitoredCommand)) {
-                isMonitoredCommand = true;
-                break;
-            }
-        }
-
-        if (isMonitoredCommand) {
-            event.setCancelled(this.handlePlayerChat(event.getPlayer(), event.getMessage(), event));
         }
     }
 
@@ -412,36 +169,6 @@ public class PlayerEventHandler implements Listener {
     void onPlayerLogin(PlayerLoginEvent event) {
         Player player = event.getPlayer();
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
-        // all this is anti-spam code
-        if (wc.getSpamProtectionEnabled()) {
-            // FEATURE: login cooldown to prevent login/logout spam with custom clients
-
-            // if allowed to join and login cooldown enabled
-            if (wc.getSpamLoginCooldownMinutes() > 0 && event.getResult() == Result.ALLOWED) {
-                // determine how long since last login and cooldown remaining
-                PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-                long millisecondsSinceLastLogin = (new Date()).getTime() - playerData.getLastLogin().getTime();
-                long minutesSinceLastLogin = millisecondsSinceLastLogin / 1000 / 60;
-                long cooldownRemaining = wc.getSpamLoginCooldownMinutes() - minutesSinceLastLogin;
-
-                // if cooldown remaining and player doesn't have permission to spam
-                if (cooldownRemaining > 0 && !player.hasPermission("griefprevention.loginspam")) {
-                    // DAS BOOT!
-                    event.setResult(Result.KICK_OTHER);
-                    String cooldown = GriefPrevention.instance.dataStore.getMessage(Messages.LoginSpamWait, Long.toString(cooldownRemaining));
-                    event.setKickMessage(cooldown);
-                    event.disallow(event.getResult(), event.getKickMessage());
-                    return;
-                }
-            }
-
-            // if logging-in account is banned, remember IP address for later
-            long now = Calendar.getInstance().getTimeInMillis();
-            if (wc.getSmartBan() && event.getResult() == Result.KICK_BANNED) {
-                this.tempBannedIps.add(new IpBanInfo(event.getAddress(), now + this.MILLISECONDS_IN_DAY, player.getName()));
-            }
-        }
-
         // remember the player's ip address
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
         playerData.setIpAddress(event.getAddress());
@@ -472,74 +199,11 @@ public class PlayerEventHandler implements Listener {
         // if player has never played on the server before, may need pvp protection
         if (!player.hasPlayedBefore()) {
             GriefPrevention.instance.checkPvpProtectionNeeded(player);
-            // also flip their spam
-            playerData.setSpamCount(4); // start them off at 4.
-            playerData.setSpamWarned(true); // don't give them a warning if they want to misbehave, either.
-            // start a delayed Runnable to reset this after 30 seconds.
-            Bukkit.getScheduler().runTaskLater(GriefPrevention.instance,
-                new Runnable() {
-                    public void run() {
-                        playerData.setSpamCount(0);
-                    }
-                }, 20 * 30);
         }
 
         // silence notifications when they're coming too fast
         if (event.getJoinMessage() != null && this.shouldSilenceNotification()) {
             event.setJoinMessage(null);
-        }
-
-        // FEATURE: auto-ban accounts who use an IP address which was very recently used by another banned account
-        if (wc.getSmartBan() && !player.hasPlayedBefore()) {
-            // search temporarily banned IP addresses for this one
-            for (int i = 0; i < this.tempBannedIps.size(); i++) {
-                IpBanInfo info = this.tempBannedIps.get(i);
-                String address = info.getAddress().toString();
-
-                // eliminate any expired entries
-                if (now > info.getExpirationTimestamp()) {
-                    this.tempBannedIps.remove(i--);
-                }
-
-                // if we find a match				
-                else if (address.equals(playerData.getIpAddress().toString())) {
-                    // if the account associated with the IP ban has been pardoned, remove all ip bans for that ip and we're done
-                    OfflinePlayer bannedPlayer = GriefPrevention.instance.getServer().getOfflinePlayer(info.getBannedAccountName());
-                    if (!bannedPlayer.isBanned()) {
-                        for (int j = 0; j < this.tempBannedIps.size(); j++) {
-                            IpBanInfo info2 = this.tempBannedIps.get(j);
-                            if (info2.getAddress().toString().equals(address)) {
-                                OfflinePlayer bannedAccount = GriefPrevention.instance.getServer().getOfflinePlayer(info2.getBannedAccountName());
-                                bannedAccount.setBanned(false);
-                                this.tempBannedIps.remove(j--);
-                            }
-                        }
-                        break;
-                    }
-
-                    // otherwise if that account is still banned, ban this account, too
-                    else {
-                        GriefPrevention.addLogEntry("Auto-banned " + player.getName() + " because that account is using an IP address very recently used by banned player " + info.getBannedAccountName() + " (" + info.getAddress().toString() + ").");
-
-                        // notify any online ops
-                        Player[] players = GriefPrevention.instance.getServer().getOnlinePlayers();
-                        for (int k = 0; k < players.length; k++) {
-                            if (players[k].isOp()) {
-                                GriefPrevention.sendMessage(players[k], TextMode.SUCCESS, Messages.AutoBanNotify, player.getName(), info.getBannedAccountName());
-                            }
-                        }
-
-                        // ban player
-                        PlayerKickBanTask task = new PlayerKickBanTask(player, "");
-                        GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 10L);
-
-                        // silence join message
-                        event.setJoinMessage("");
-
-                        break;
-                    }
-                }
-            }
         }
     }
 
@@ -547,12 +211,8 @@ public class PlayerEventHandler implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerDeath(PlayerDeathEvent event) {
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
-        // FEATURE: prevent death message spam by implementing a "cooldown period" for death messages
         PlayerData playerData = this.dataStore.getPlayerData(event.getEntity().getName());
         long now = Calendar.getInstance().getTimeInMillis();
-        if (now - playerData.getLastDeathTimeStamp() < wc.getSpamDeathMessageCooldownSeconds() * 1000) {
-            event.setDeathMessage("");
-        }
         playerData.setLastDeathTimeStamp(now);
     }
 
@@ -563,12 +223,6 @@ public class PlayerEventHandler implements Listener {
         Player player = event.getPlayer();
         // WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-
-        // if banned, add IP to the temporary IP ban list
-        if (player.isBanned() && playerData.getIpAddress() != null) {
-            long now = Calendar.getInstance().getTimeInMillis();
-            this.tempBannedIps.add(new IpBanInfo(playerData.getIpAddress(), now + this.MILLISECONDS_IN_DAY, player.getName()));
-        }
 
         // silence notifications when they're coming too fast
         if (event.getQuitMessage() != null && this.shouldSilenceNotification()) {
