@@ -136,7 +136,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
 
             // avoid scanning large claims, locked claims, and administrative claims
-            if (claim.isAdminClaim() || claim.isNeverdelete() || sizelimitreached) return;
+            if (claim.isAdminClaim() || claim.isNeverDelete() || sizelimitreached) return;
 
             // if creative mode or the claim owner has been away a long enough time, scan the claim content
             if (needsInvestmentScan || creativerules) {

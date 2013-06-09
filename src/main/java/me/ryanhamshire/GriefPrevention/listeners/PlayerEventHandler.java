@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import me.ryanhamshire.GriefPrevention.*;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
+import me.ryanhamshire.GriefPrevention.events.PlayerChangeClaimEvent;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.*;
@@ -458,6 +459,32 @@ public class PlayerEventHandler implements Listener {
             if (plugin.claimsEnabledForWorld(player.getWorld())) {
                 EquipShovelProcessingTask task = new EquipShovelProcessingTask(player);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 15L);  // 15L is approx. 3/4 of a second
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        // Don't do anything if there are no plugins listening
+        if (PlayerChangeClaimEvent.getHandlerList().getRegisteredListeners().length > 0) {
+            // Don't do anything if they haven't crossed a block boundary.
+            if (event.getFrom().getBlockX() != event.getTo().getBlockX() ||
+                    event.getFrom().getBlockZ() != event.getTo().getBlockZ() ||
+                    event.getFrom().getWorld().getName().equals(event.getTo().getWorld().getName())) {
+
+                PlayerData playerData = plugin.dataStore.getPlayerData(event.getPlayer().getName());
+                Claim oldClaim = plugin.dataStore.getClaimAt(event.getFrom(), true, playerData.getLastClaim());
+                Claim newClaim = plugin.dataStore.getClaimAt(event.getTo(), true, oldClaim);
+                if ((oldClaim == null) != (newClaim == null) ||
+                        oldClaim != null && !oldClaim.equals(newClaim)) {
+                    PlayerChangeClaimEvent claimChangeEvent = new PlayerChangeClaimEvent(event.getPlayer(), oldClaim, newClaim);
+                    plugin.getServer().getPluginManager().callEvent(claimChangeEvent);
+                    if (claimChangeEvent.isCancelled()) {
+                        event.setCancelled(true);
+                    } else {
+                        playerData.setLastClaim(newClaim);
+                    }
+                }
             }
         }
     }

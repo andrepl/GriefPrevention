@@ -184,7 +184,7 @@ public class GriefPrevention extends JavaPlugin {
         boolean entitycleanupEnabled = false;
         if (entitycleanupEnabled) {
             EntityCleanupTask task = new EntityCleanupTask(0);
-            this.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L);
+            this.getServer().getScheduler().scheduleSyncDelayedTask(this, task, 20L);
         }
 
         // register for events
@@ -250,14 +250,12 @@ public class GriefPrevention extends JavaPlugin {
      * @param target Player name.
      * @return number of claim blocks transferred.
      */
-    public synchronized int transferClaimBlocks(String source, String target, int DesiredAmount) {
-        // TODO Auto-generated method stub
-
+    public synchronized int transferClaimBlocks(String source, String target, int desiredAmount) {
         // transfer claim blocks from source to target, return number of claim blocks transferred.
         PlayerData playerData = this.dataStore.getPlayerData(source);
         PlayerData receiverData = this.dataStore.getPlayerData(target);
         if (playerData != null && receiverData != null) {
-            int xferamount = Math.min(playerData.getAccruedClaimBlocks(), DesiredAmount);
+            int xferamount = Math.min(playerData.getAccruedClaimBlocks(), desiredAmount);
             playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() - xferamount);
             receiverData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + xferamount);
             return xferamount;
@@ -307,7 +305,7 @@ public class GriefPrevention extends JavaPlugin {
 
     // called when a player spawns, applies protection for that player if necessary
     public void checkPvpProtectionNeeded(Player player) {
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
+        WorldConfig wc = getWorldCfg(player.getWorld());
         // if pvp is disabled, do nothing
         if (!player.getWorld().getPVP()) return;
 
@@ -354,7 +352,7 @@ public class GriefPrevention extends JavaPlugin {
         Location candidateLocation = player.getLocation();
         while (true) {
             Claim claim = null;
-            claim = GriefPrevention.instance.dataStore.getClaimAt(candidateLocation, false, null);
+            claim = this.dataStore.getClaimAt(candidateLocation, false, null);
 
             // if there's a claim here, keep looking
             if (claim != null) {
@@ -421,7 +419,7 @@ public class GriefPrevention extends JavaPlugin {
     public static void sendMessage(CommandSender player, TextMode color, String message, long delayInTicks) {
         SendPlayerMessageTask task = new SendPlayerMessageTask(player, instance.configuration.getColor(color), message);
         if (delayInTicks > 0) {
-            GriefPrevention.instance.getServer().getScheduler().runTaskLater(GriefPrevention.instance, task, delayInTicks);
+            instance.getServer().getScheduler().runTaskLater(instance, task, delayInTicks);
         } else {
             task.run();
         }
@@ -475,8 +473,8 @@ public class GriefPrevention extends JavaPlugin {
 
         // create task
         // when done processing, this task will create a main thread task to actually update the world with processing results
-        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, getWorldCfg(chunk.getWorld()).getSeaLevelOverride(), aggressiveMode, GriefPrevention.instance.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
-        GriefPrevention.instance.getServer().getScheduler().runTaskLaterAsynchronously(GriefPrevention.instance, task, delayInTicks);
+        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, getWorldCfg(chunk.getWorld()).getSeaLevelOverride(), aggressiveMode, this.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
+        this.getServer().getScheduler().runTaskLaterAsynchronously(this, task, delayInTicks);
     }
 
     public MessageManager getMessageManager() {

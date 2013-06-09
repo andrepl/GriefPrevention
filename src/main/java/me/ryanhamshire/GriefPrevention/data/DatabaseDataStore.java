@@ -29,9 +29,6 @@ import java.util.*;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.SerializationUtil;
 import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
-import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
-
-import org.bukkit.*;
 
 //manages data stored in the file system
 public class DatabaseDataStore extends DataStore {
@@ -227,7 +224,7 @@ public class DatabaseDataStore extends DataStore {
                     accessorsString + "', '" +
                     managersString + "', " +
                     parentId + ", " +
-                    claim.isNeverdelete() +
+                    claim.isNeverDelete() +
                     ");");
         } catch (SQLException e) {
             GriefPrevention.addLogEntry("Unable to save data for claim at " + SerializationUtil.locationToString(claim.lesserBoundaryCorner) + ".  Details:");

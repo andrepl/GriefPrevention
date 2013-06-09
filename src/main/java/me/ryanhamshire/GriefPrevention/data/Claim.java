@@ -87,7 +87,7 @@ public class Claim {
 
     /**
      * whether or not this claim is in the data store
-     * if a claim instance isn't in the data store, it isn't "active" - players can't interract with it
+     * if a claim instance isn't in the data store, it isn't "active" - players can't interact with it
      * why keep this?  so that claims which have been removed from the data store can be correctly
      * ignored even though they may have references floating around
      */
@@ -115,7 +115,7 @@ public class Claim {
     /**
      * This variable sets whether a claim gets deleted with the automatic cleanup.
      */
-    private boolean neverdelete = false;
+    private boolean neverDelete = false;
 
     /**
      * retrieves the index/ID of a given subclaim.
@@ -275,9 +275,9 @@ public class Claim {
      * @param accessorNames
      * @param managerNames
      * @param id
-     * @param neverdelete
+     * @param neverDelete
      */
-    public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, String ownerName, String[] builderNames, String[] containerNames, String[] accessorNames, String[] managerNames, Long id, boolean neverdelete) {
+    public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, String ownerName, String[] builderNames, String[] containerNames, String[] accessorNames, String[] managerNames, Long id, boolean neverDelete) {
         // modification date
         this.modifiedDate = Calendar.getInstance().getTime();
 
@@ -320,7 +320,7 @@ public class Claim {
             }
         }
 
-        this.neverdelete = neverdelete;
+        this.neverDelete = neverDelete;
     }
 
     /**
@@ -818,20 +818,20 @@ public class Claim {
                 contains(otherclaim.greaterBoundaryCorner, ignoreHeight, false));
     }
 
-    public static boolean contains(Location pA, Location pB, Location Target, boolean ignoreHeight) {
+    public static boolean contains(Location pA, Location pB, Location target, boolean ignoreHeight) {
 
-        int MinX = Math.min(pA.getBlockX(), pB.getBlockX());
-        int MinY = Math.min(pA.getBlockY(), pB.getBlockY());
-        int MinZ = Math.min(pA.getBlockZ(), pB.getBlockZ());
-        int MaxX = Math.max(pA.getBlockX(), pB.getBlockX());
-        int MaxY = Math.max(pA.getBlockY(), pB.getBlockY());
-        int MaxZ = Math.max(pA.getBlockZ(), pB.getBlockZ());
+        int minX = Math.min(pA.getBlockX(), pB.getBlockX());
+        int minY = Math.min(pA.getBlockY(), pB.getBlockY());
+        int minZ = Math.min(pA.getBlockZ(), pB.getBlockZ());
+        int maxX = Math.max(pA.getBlockX(), pB.getBlockX());
+        int maxY = Math.max(pA.getBlockY(), pB.getBlockY());
+        int maxZ = Math.max(pA.getBlockZ(), pB.getBlockZ());
 
-        if (Target.getBlockX() < MinX || Target.getBlockZ() > MaxX)
+        if (target.getBlockX() < minX || target.getBlockZ() > maxX) {
             return false;
-        if (Target.getBlockZ() < MinZ || Target.getBlockZ() > MaxZ)
+        } if (target.getBlockZ() < minZ || target.getBlockZ() > maxZ) {
             return false;
-        if (!ignoreHeight && (Target.getBlockY() < MinY || Target.getBlockY() > MaxY)) {
+        } if (!ignoreHeight && (target.getBlockY() < minY || target.getBlockY() > maxY)) {
             return false;
         }
         return true;
@@ -969,7 +969,6 @@ public class Claim {
                     }
                 }
             }
-
         if (totalEntities > maxEntities) {
             return GriefPrevention.instance.getMessageManager().getMessage(Messages.TooManyEntitiesInClaim);
         }
@@ -995,7 +994,6 @@ public class Claim {
         // scan the claim for player placed blocks
         double score = 0;
         boolean creativeMode = GriefPrevention.instance.creativeRulesApply(lesserBoundaryCorner);
-
         for (int x = this.lesserBoundaryCorner.getBlockX(); x <= this.greaterBoundaryCorner.getBlockX(); x++) {
             for (int z = this.lesserBoundaryCorner.getBlockZ(); z <= this.greaterBoundaryCorner.getBlockZ(); z++) {
                 int y = this.lesserBoundaryCorner.getBlockY();
@@ -1142,12 +1140,12 @@ public class Claim {
         this.parent = parent;
     }
 
-    public boolean isNeverdelete() {
-        return neverdelete;
+    public boolean isNeverDelete() {
+        return neverDelete;
     }
 
-    public void setNeverdelete(boolean neverdelete) {
-        this.neverdelete = neverdelete;
+    public void setNeverDelete(boolean neverDelete) {
+        this.neverDelete = neverDelete;
     }
 
     public boolean isExplosivesAllowed() {

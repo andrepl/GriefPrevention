@@ -29,7 +29,7 @@ public class DeleteClaim extends BaseClaimCommand {
             if (claim.getChildren().size() > 0 && !playerData.isWarnedAboutMajorDeletion()) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeletionSubdivisionWarning);
                 playerData.setWarnedAboutMajorDeletion(true);
-            } else if (claim.isNeverdelete() && !playerData.isWarnedAboutMajorDeletion()) {
+            } else if (claim.isNeverDelete() && !playerData.isWarnedAboutMajorDeletion()) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeleteLockedClaimWarning);
                 playerData.setWarnedAboutMajorDeletion(true);
             } else {

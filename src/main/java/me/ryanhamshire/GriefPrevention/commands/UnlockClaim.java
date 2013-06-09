@@ -21,7 +21,7 @@ public class UnlockClaim extends BaseClaimCommand {
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
         if (args.size() != 0) return false;
         if ((player.hasPermission("griefprevention.lock") && claim.getOwnerName().equalsIgnoreCase(player.getName())) || player.hasPermission("griefprevention.adminlock")) {
-            claim.setNeverdelete(false);
+            claim.setNeverDelete(false);
             plugin.dataStore.saveClaim(claim);
             GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ClaimUnlocked);
         } else {

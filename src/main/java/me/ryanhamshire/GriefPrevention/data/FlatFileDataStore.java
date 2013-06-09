@@ -361,7 +361,7 @@ public class FlatFileDataStore extends DataStore {
         outStream.newLine();
 
         // eighth line has the never delete variable
-        outStream.write(Boolean.toString(claim.isNeverdelete()));
+        outStream.write(Boolean.toString(claim.isNeverDelete()));
         outStream.newLine();
 
         // cap each claim with "=========="

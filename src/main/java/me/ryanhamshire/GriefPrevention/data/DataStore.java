@@ -426,11 +426,6 @@ public abstract class DataStore {
         return createClaim(world, x1, x2, y1, y2, z1, z2, ownerName, parent, id, false, null, creator, doRaiseEvent);
     }
 
-    @Deprecated
-    synchronized public CreateClaimResult createClaim(World world, int x1, int x2, int y1, int y2, int z1, int z2, String ownerName, Claim parent, Long id) {
-        return createClaim(world, x1, x2, y1, y2, z1, z2, ownerName, parent, id, false, null);
-    }
-
     synchronized private CreateClaimResult createClaim(World world, int x1, int x2, int y1, int y2, int z1, int z2, String ownerName, Claim parent, Long id, boolean neverdelete, Claim oldclaim, Player claimcreator, boolean doRaiseEvent) {
         CreateClaimResult result = new CreateClaimResult();
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(world);
@@ -565,13 +560,6 @@ public abstract class DataStore {
     }
 
     /**
-    // deletes all claims owned by a player with the exception of locked claims
-    @Deprecated
-    synchronized public void deleteClaimsForPlayer(String playerName, boolean deleteCreativeClaims) {
-        deleteClaimsForPlayer(playerName, deleteCreativeClaims, false);
-    }
-
-    /**
      * Deletes all claims owned by a player
      *
      * @param playerName           Case SeNsItIvE player name
@@ -585,7 +573,7 @@ public abstract class DataStore {
             Claim claim = this.claims.get(i);
             if (claim.getOwnerName().equals(playerName) &&
                     (deleteCreativeClaims || !GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner())) &&
-                    (!claim.isNeverdelete() || deleteLockedClaims)) {
+                    (!claim.isNeverDelete() || deleteLockedClaims)) {
                 claimsToDelete.add(claim);
             }
         }
@@ -647,7 +635,7 @@ public abstract class DataStore {
         // try to create this new claim, ignoring the original when checking for overlap
         CreateClaimResult result = this.createClaim(claim.getLesserBoundaryCorner().getWorld(),
                 newx1, newx2, newy1, newy2, newz1, newz2,
-                claim.getOwnerName(), claim.getParent(), claim.getID(), claim.isNeverdelete(), claim, claimcreator, false);
+                claim.getOwnerName(), claim.getParent(), claim.getID(), claim.isNeverDelete(), claim, claimcreator, false);
 
         // if succeeded
         if (result.succeeded == CreateClaimResult.Result.SUCCESS) {

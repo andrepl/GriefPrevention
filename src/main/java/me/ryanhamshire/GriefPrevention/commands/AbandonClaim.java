@@ -51,7 +51,7 @@ public class AbandonClaim extends BaseClaimCommand {
         }
 
         // if the claim is locked, let's warn the player and give them a chance to back out
-        else if (!playerData.isWarnedAboutMajorDeletion() && claim.isNeverdelete()) {
+        else if (!playerData.isWarnedAboutMajorDeletion() && claim.isNeverDelete()) {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.ConfirmAbandonLockedClaim);
             playerData.setWarnedAboutMajorDeletion(true);
         }
