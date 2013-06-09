@@ -47,7 +47,7 @@ public class SiegeCheckupTask implements Runnable {
             String noAccessReason = defenderClaim.allowAccess(defender);
             if (defenderClaim.canSiege(defender) && noAccessReason == null) {
                 this.siegeData.getClaims().add(defenderClaim);
-                defenderClaim.siegeData = this.siegeData;
+                defenderClaim.setSiegeData(this.siegeData);
             }
         }
 

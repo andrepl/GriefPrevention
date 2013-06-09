@@ -50,16 +50,16 @@ public class ClaimInfo extends BaseCommand {
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Position: " + lowerBoundary + "-" + upperBoundary);
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Size: " + sizeString);
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Owner: " + ClaimOwner);
-            String parentId = claim.parent == null ? "(no parent)" : String.valueOf(claim.parent.getID());
+            String parentId = claim.getParent() == null ? "(no parent)" : String.valueOf(claim.getParent().getID());
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Parent ID: " + parentId);
             String childInfo = "";
             //if no subclaims, set childinfo to indicate as such.
-            if (claim.children.size() == 0) {
+            if (claim.getChildren().size() == 0) {
                 childInfo = "No subclaims.";
             } else { //otherwise, we need to get the childclaim info by iterating through each child claim.
-                childInfo = claim.children.size() + " (";
+                childInfo = claim.getChildren().size() + " (";
 
-                for (Claim childclaim : claim.children) {
+                for (Claim childclaim : claim.getChildren()) {
                     childInfo += String.valueOf(childclaim.getSubClaimID()) + ",";
                 }
                 //remove the last character since it is a comma we do not want.

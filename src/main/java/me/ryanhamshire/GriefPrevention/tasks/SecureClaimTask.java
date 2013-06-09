@@ -35,7 +35,7 @@ public class SecureClaimTask implements Runnable {
         for (int i = 0; i < this.siegeData.getClaims().size(); i++) {
             // lock the doors
             Claim claim = this.siegeData.getClaims().get(i);
-            claim.doorsOpen = false;
+            claim.setDoorsOpen(false);
 
             // eject bad guys
             Player[] onlinePlayers = GriefPrevention.instance.getServer().getOnlinePlayers();

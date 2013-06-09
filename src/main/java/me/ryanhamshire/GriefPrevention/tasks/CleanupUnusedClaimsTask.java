@@ -72,7 +72,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
         boolean cleanupChunks = false;
 
         // get data for the player, especially last login timestamp
-        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(claim.ownerName);
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(claim.getOwnerName());
 
         // determine area of the default chest claim
         int areaOfDefaultClaim = 0;
@@ -136,7 +136,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
 
             // avoid scanning large claims, locked claims, and administrative claims
-            if (claim.isAdminClaim() || claim.neverdelete || sizelimitreached) return;
+            if (claim.isAdminClaim() || claim.isNeverdelete() || sizelimitreached) return;
 
             // if creative mode or the claim owner has been away a long enough time, scan the claim content
             if (needsInvestmentScan || creativerules) {
@@ -172,8 +172,8 @@ public class CleanupUnusedClaimsTask implements Runnable {
         }
 
         // toss that player data out of the cache, it's probably not needed in memory right now
-        if (!GriefPrevention.instance.getServer().getOfflinePlayer(claim.ownerName).isOnline()) {
-            GriefPrevention.instance.dataStore.clearCachedPlayerData(claim.ownerName);
+        if (!GriefPrevention.instance.getServer().getOfflinePlayer(claim.getOwnerName()).isOnline()) {
+            GriefPrevention.instance.dataStore.clearCachedPlayerData(claim.getOwnerName());
         }
 
         // since we're potentially loading a lot of chunks to scan parts of the world where there are no players currently playing, be mindful of memory usage

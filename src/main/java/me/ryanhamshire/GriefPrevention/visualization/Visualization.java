@@ -71,15 +71,15 @@ public class Visualization {
    // visualizationType determines the style (gold blocks, silver, red, diamond, etc)
     public static Visualization FromClaim(Claim claim, int height, VisualizationType visualizationType, Location locality) {
        // visualize only top level claims
-        if (claim.parent != null) {
-            return FromClaim(claim.parent, height, visualizationType, locality);
+        if (claim.getParent() != null) {
+            return FromClaim(claim.getParent(), height, visualizationType, locality);
         }
 
         Visualization visualization = new Visualization();
 
        // add subdivisions first
-        for (int i = 0; i < claim.children.size(); i++) {
-            visualization.addClaimElements(claim.children.get(i), height, VisualizationType.Subdivision, locality);
+        for (int i = 0; i < claim.getChildren().size(); i++) {
+            visualization.addClaimElements(claim.getChildren().get(i), height, VisualizationType.Subdivision, locality);
         }
 
        // add top level last so that it takes precedence (it shows on top when the child claim boundaries overlap with its boundaries)

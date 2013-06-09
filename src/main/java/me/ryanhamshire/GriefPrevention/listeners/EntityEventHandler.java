@@ -173,7 +173,7 @@ public class EntityEventHandler implements Listener {
             } else {
                 // it is allowed, however, if it is on a claim only allow if explosions are enabled for that claim.
                 claimpos = GriefPrevention.instance.dataStore.getClaimAt(block.getLocation(), false, claimpos);
-                if (claimpos != null && !claimpos.areExplosivesAllowed) {
+                if (claimpos != null && !claimpos.isExplosivesAllowed()) {
                     blocks.remove(i--);
                 } else if (block.getType() == Material.LOG) {
                     GriefPrevention.instance.handleLogBroken(block);
@@ -406,7 +406,7 @@ public class EntityEventHandler implements Listener {
         if (event.getEntity() instanceof Hanging) { // hanging objects are not destroyed by explosions inside claims.
             Claim claimatpos = dataStore.getClaimAt(event.getEntity().getLocation(), false, null);
             if (claimatpos != null) {
-                if (!claimatpos.areExplosivesAllowed) {
+                if (!claimatpos.isExplosivesAllowed()) {
                     event.setCancelled(true);
                 }
             }
@@ -564,9 +564,9 @@ public class EntityEventHandler implements Listener {
                             // get the claim at this position...
                             Claim mobclaim = GriefPrevention.instance.dataStore.getClaimAt(event.getEntity().getLocation(), true, null);
                             // is this claim under siege?
-                            if (mobclaim != null && mobclaim.siegeData != null) {
+                            if (mobclaim != null && mobclaim.getSiegeData() != null) {
 
-                                SiegeData sd = mobclaim.siegeData;
+                                SiegeData sd = mobclaim.getSiegeData();
                                 // get the defending player.
                                 Player defender = sd.getDefender();
                                 // if the player attacking this entity is within 15 blocks, don't cancel.

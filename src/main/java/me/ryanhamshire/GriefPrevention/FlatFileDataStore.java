@@ -217,30 +217,30 @@ public class FlatFileDataStore extends DataStore {
 
                             // otherwise, add this claim to the claims collection
                             else {
-                                topLevelClaim.modifiedDate = new Date(files[i].lastModified());
+                                topLevelClaim.setModifiedDate(new Date(files[i].lastModified()));
                                 int j = 0;
                                 while (j < this.claims.size() && !this.claims.get(j).greaterThan(topLevelClaim)) j++;
                                 if (j < this.claims.size())
                                     this.claims.add(j, topLevelClaim);
                                 else
                                     this.claims.add(this.claims.size(), topLevelClaim);
-                                topLevelClaim.inDataStore = true;
+                                topLevelClaim.setInDataStore(true);
                             }
                         } else { // otherwise there's already a top level claim, so this must be a subdivision of that top level claim
                             // if it starts with "sub:" then it is a subid.
                             if (usesubclaimid == null) {
                                 // otherwise, must be older file without subclaim ID. default to current count of children.
-                                usesubclaimid = (long) topLevelClaim.children.size();
+                                usesubclaimid = (long) topLevelClaim.getChildren().size();
                                 //	System.out.println("Older file: Assigned SubID:" + usesubid +" with Parent claim:" + topLevelClaim);
                                 // reset...
                             }
                             // as such, try to read in the subclaim ID.
                             Claim subdivision = new Claim(lesserBoundaryCorner, greaterBoundaryCorner, "--subdivision--", builderNames, containerNames, accessorNames, managerNames, null, neverdelete);
                             subdivision.subClaimid = usesubclaimid;
-                            subdivision.modifiedDate = new Date(files[i].lastModified());
-                            subdivision.parent = topLevelClaim;
-                            topLevelClaim.children.add(subdivision);
-                            subdivision.inDataStore = true;
+                            subdivision.setModifiedDate(new Date(files[i].lastModified()));
+                            subdivision.setParent(topLevelClaim);
+                            topLevelClaim.getChildren().add(subdivision);
+                            subdivision.setInDataStore(true);
                         }
                         // move up to the first line in the next subdivision
                         line = inStream.readLine();
@@ -269,7 +269,7 @@ public class FlatFileDataStore extends DataStore {
 
     @Override
     synchronized void writeClaimToStorage(Claim claim) {
-        String claimID = String.valueOf(claim.id);
+        String claimID = String.valueOf(claim.getId());
         BufferedWriter outStream = null;
         try {
             // open the claim's file						
@@ -281,11 +281,11 @@ public class FlatFileDataStore extends DataStore {
             this.writeClaimData(claim, outStream);
 
             // for each subdivision
-            for (int i = 0; i < claim.children.size(); i++) {
+            for (int i = 0; i < claim.getChildren().size(); i++) {
 
                 // write the subdivision's data to the file
                 // write it's unique ID.
-                Claim childclaim = claim.children.get(i);
+                Claim childclaim = claim.getChildren().get(i);
                 // Long childid = childclaim.getSubClaimID();
                 // childid = childid==null?childclaim.getID():childid;
                 // System.out.println("Attempting to write child claim: SubID: " + childid);
@@ -309,7 +309,7 @@ public class FlatFileDataStore extends DataStore {
 
     // actually writes claim data to an output stream
     synchronized private void writeClaimData(Claim claim, BufferedWriter outStream) throws IOException {
-        if (claim.parent != null) {
+        if (claim.getParent() != null) {
             Long ChildID = claim.getSubClaimID() == null ? claim.getID() : claim.getSubClaimID();
             outStream.write("sub:" + String.valueOf(ChildID));
             outStream.newLine();
@@ -323,7 +323,7 @@ public class FlatFileDataStore extends DataStore {
         outStream.newLine();
 
         // third line is owner name
-        outStream.write(claim.ownerName);
+        outStream.write(claim.getOwnerName());
         outStream.newLine();
 
         ArrayList<String> builders = new ArrayList<String>();
@@ -358,7 +358,7 @@ public class FlatFileDataStore extends DataStore {
         outStream.newLine();
 
         // eighth line has the never delete variable
-        outStream.write(Boolean.toString(claim.neverdelete));
+        outStream.write(Boolean.toString(claim.isNeverdelete()));
         outStream.newLine();
 
         // cap each claim with "=========="
@@ -369,7 +369,7 @@ public class FlatFileDataStore extends DataStore {
     // deletes a top level claim from the file system
     @Override
     synchronized void deleteClaimFromSecondaryStorage(Claim claim) {
-        String claimID = String.valueOf(claim.id);
+        String claimID = String.valueOf(claim.getId());
 
         // remove from disk
         File claimFile = new File(claimDataFolderPath + File.separator + claimID);

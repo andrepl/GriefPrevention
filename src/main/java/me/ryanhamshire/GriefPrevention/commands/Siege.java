@@ -95,7 +95,7 @@ public class Siege extends BaseCommand {
         }
 
         //claim can't be under siege already
-        if (defenderClaim.siegeData != null) {
+        if (defenderClaim.getSiegeData() != null) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.AlreadyUnderSiegeArea);
             return true;
         }

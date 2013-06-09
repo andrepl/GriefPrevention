@@ -20,8 +20,8 @@ public class LockClaim extends BaseClaimCommand {
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
         if (args.size() != 0) return false;
 
-        if ((player.hasPermission("griefprevention.lock") && claim.ownerName.equalsIgnoreCase(player.getName())) || player.hasPermission("griefprevention.adminlock")) {
-            claim.neverdelete = true;
+        if ((player.hasPermission("griefprevention.lock") && claim.getOwnerName().equalsIgnoreCase(player.getName())) || player.hasPermission("griefprevention.adminlock")) {
+            claim.setNeverdelete(true);
             plugin.dataStore.saveClaim(claim);
             GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ClaimLocked);
         } else {

@@ -59,12 +59,9 @@ public class Claim {
     /**
      * modification date.  this comes from the file timestamp during load, and is updated with runtime changes
      */
-    public Date modifiedDate;
+    private Date modifiedDate;
 
-    /**
-     * id number.  unique to this claim, never changes.
-     */
-    Long id = null;
+    private Long id = null;
 
     /**
      * Subclaim ID. null for top-level claims, unique among subclaims otherwise.
@@ -75,7 +72,7 @@ public class Claim {
      * ownername.  for admin claims, this is the empty string
      * use getOwnerName() to get a friendly name (will be "an administrator" for admin claims)
      */
-    public String ownerName;
+    private String ownerName;
 
     /**
      * list of players who (beyond the claim owner) have permission to grant permissions in this claim
@@ -91,46 +88,46 @@ public class Claim {
      * why keep this?  so that claims which have been removed from the data store can be correctly
      * ignored even though they may have references floating around
      */
-    public boolean inDataStore = false;
+    private boolean inDataStore = false;
 
     /**
      * self-explanatory: whether Explosives can affect this claim. This is an additional requirement in addition to
      * the world configuration allowing for Explosions within claims either above or below sea-level.
      */
-    public boolean areExplosivesAllowed = false;
+    private boolean explosivesAllowed = false;
 
 
     /**
      * parent claim
      * only used for claim subdivisions.  top level claims have null here
      */
-    public Claim parent = null;
+    private Claim parent = null;
 
     /**
      * children (subdivisions)
      * note subdivisions themselves never have children
      */
-    public ArrayList<Claim> children = new ArrayList<Claim>();
+    private ArrayList<Claim> children = new ArrayList<Claim>();
 
     /**
      * information about a siege involving this claim.  null means no siege is currently impacting this claim
      */
-    public SiegeData siegeData = null;
+    private SiegeData siegeData = null;
 
     /**
      * following a siege, buttons/levers are unlocked temporarily.  this represents that state
      */
-    public boolean doorsOpen = false;
+    private boolean doorsOpen = false;
 
     /**
      * following a siege, anybody can open containers in that claim, up to a set limit.
      */
-    public int LootedChests = 0;
+    private int LootedChests = 0;
 
     /**
      * This variable sets whether a claim gets deleted with the automatic cleanup.
      */
-    public boolean neverdelete = false;
+    private boolean neverdelete = false;
 
     /**
      * retrieves the index/ID of a given subclaim.
@@ -191,7 +188,7 @@ public class Claim {
 
     // accessor for ID
     public Long getID() {
-        return this.id;
+        return this.getId();
     }
 
     // basic constructor, just notes the creation time
@@ -309,7 +306,7 @@ public class Claim {
         this.modifiedDate = Calendar.getInstance().getTime();
 
         // id
-        this.id = id;
+        this.setId(id);
 
         // store corners
         this.lesserBoundaryCorner = lesserBoundaryCorner;
@@ -1191,5 +1188,88 @@ public class Claim {
      */
     public ArrayList<String> getManagerList() {
         return (ArrayList<String>) managers.clone();
+    }
+
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
+    }
+
+    public boolean isInDataStore() {
+        return inDataStore;
+    }
+
+    public void setInDataStore(boolean inDataStore) {
+        this.inDataStore = inDataStore;
+    }
+
+    public ArrayList<Claim> getChildren() {
+        return children;
+    }
+
+    public Claim getParent() {
+        return parent;
+    }
+
+    public void setParent(Claim parent) {
+        this.parent = parent;
+    }
+
+    public boolean isNeverdelete() {
+        return neverdelete;
+    }
+
+    public void setNeverdelete(boolean neverdelete) {
+        this.neverdelete = neverdelete;
+    }
+
+    public boolean isExplosivesAllowed() {
+        return explosivesAllowed;
+    }
+
+    public void setExplosivesAllowed(boolean isExplosivesAllowed) {
+        this.explosivesAllowed = isExplosivesAllowed;
+    }
+
+    public SiegeData getSiegeData() {
+        return siegeData;
+    }
+
+    public void setSiegeData(SiegeData siegeData) {
+        this.siegeData = siegeData;
+    }
+
+    public boolean isDoorsOpen() {
+        return doorsOpen;
+    }
+
+    public int getLootedChests() {
+        return LootedChests;
+    }
+
+    public void setLootedChests(int lootedChests) {
+        LootedChests = lootedChests;
+    }
+
+    public void setDoorsOpen(boolean doorsOpen) {
+        this.doorsOpen = doorsOpen;
+    }
+
+    /**
+     * id number.  unique to this claim, never changes.
+     */
+    public Long getId() {
+        return id;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

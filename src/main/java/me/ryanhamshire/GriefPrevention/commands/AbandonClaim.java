@@ -41,13 +41,13 @@ public class AbandonClaim extends BaseClaimCommand {
         }
 
         // warn if has children and we're not explicitly deleting a top level claim
-        else if (claim.children.size() > 0 && !deleteTopLevel) {
+        else if (claim.getChildren().size() > 0 && !deleteTopLevel) {
             GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.DeleteTopLevelClaim);
             return true;
         }
 
         // if the claim is locked, let's warn the player and give them a chance to back out
-        else if (!playerData.isWarnedAboutMajorDeletion() && claim.neverdelete) {
+        else if (!playerData.isWarnedAboutMajorDeletion() && claim.isNeverdelete()) {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.ConfirmAbandonLockedClaim);
             playerData.setWarnedAboutMajorDeletion(true);
         }
@@ -60,13 +60,13 @@ public class AbandonClaim extends BaseClaimCommand {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.AbandonCostWarning, String.valueOf(costoverhead));
         }
         // if the claim has lots of surface water or some surface lava, warn the player it will be cleaned up
-        else if (!playerData.isWarnedAboutMajorDeletion() && claim.hasSurfaceFluids() && claim.parent == null) {
+        else if (!playerData.isWarnedAboutMajorDeletion() && claim.hasSurfaceFluids() && claim.getParent() == null) {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.ConfirmFluidRemoval);
             playerData.setWarnedAboutMajorDeletion(true);
         } else {
             // delete it
             // Only do water/lava cleanup when it's a top level claim.
-            if (claim.parent == null) {
+            if (claim.getParent() == null) {
                 claim.removeSurfaceFluids(null);
             }
             // retrieve area of this claim...

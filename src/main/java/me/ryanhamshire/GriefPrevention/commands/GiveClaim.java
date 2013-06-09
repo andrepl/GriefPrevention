@@ -42,7 +42,7 @@ public class GiveClaim extends BaseClaimCommand {
                 }
             }
             //transfer ownership.
-            claimToGive.ownerName = target.getName();
+            claimToGive.setOwnerName(target.getName());
 
             String originalOwner = claimToGive.getOwnerName();
             try {

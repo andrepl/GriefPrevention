@@ -586,7 +586,7 @@ public class PlayerEventHandler implements Listener {
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
         // FEATURE: claims where players have allowed explosions will revert back to not allowing them when the owner logs out
         for (Claim claim : playerData.getClaims()) {
-            claim.areExplosivesAllowed = false;
+            claim.setExplosivesAllowed(false);
         }
 
         // FEATURE: players in pvp combat when they log out will die
@@ -682,7 +682,7 @@ public class PlayerEventHandler implements Listener {
 
         Location source = event.getFrom();
         Claim sourceClaim = this.dataStore.getClaimAt(source, false, playerData.getLastClaim());
-        if (sourceClaim != null && sourceClaim.siegeData != null) {
+        if (sourceClaim != null && sourceClaim.getSiegeData() != null) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoTeleport);
             event.setCancelled(true);
             return;
@@ -690,7 +690,7 @@ public class PlayerEventHandler implements Listener {
 
         Location destination = event.getTo();
         Claim destinationClaim = this.dataStore.getClaimAt(destination, false, null);
-        if (destinationClaim != null && destinationClaim.siegeData != null) {
+        if (destinationClaim != null && destinationClaim.getSiegeData() != null) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.BesiegedNoTeleport);
             event.setCancelled(true);
             return;
@@ -1051,14 +1051,14 @@ public class PlayerEventHandler implements Listener {
             // special Chest looting behaviour.
             Claim cc = this.dataStore.getClaimAt(clickedBlock.getLocation(), true, null);
             // if doorsOpen...
-            if (cc != null && cc.doorsOpen) {
-                if ((cc.LootedChests++) <= wc.getSeigeLootChests()) {
+            if (cc != null && cc.isDoorsOpen()) {
+                cc.setLootedChests(cc.getLootedChests()+1);
+                if ((cc.getLootedChests()) <= wc.getSeigeLootChests()) {
                     // tell the player how many more chests they can loot.
-                    player.sendMessage(ChatColor.YELLOW + " You may loot " + (wc.getSeigeLootChests() - cc.LootedChests) + " more chests");
+                    player.sendMessage(ChatColor.YELLOW + " You may loot " + (wc.getSeigeLootChests() - cc.getLootedChests()) + " more chests");
                     return;
                 }
             }
-
 
             // block container use during pvp combat, same reason
             if (playerData.inPvpCombat() && wc.getPvPBlockContainers()) {
@@ -1409,7 +1409,7 @@ public class PlayerEventHandler implements Listener {
             }
             
             // if he's resizing a claim and that claim hasn't been deleted since he started resizing it
-            if (playerData.getClaimResizing() != null && playerData.getClaimResizing().inDataStore) {
+            if (playerData.getClaimResizing() != null && playerData.getClaimResizing().isInDataStore()) {
                 if (clickedBlock.getLocation().equals(playerData.getLastShovelLocation())) return;
 
                 // figure out what the coords of his new claim would be
@@ -1442,7 +1442,7 @@ public class PlayerEventHandler implements Listener {
                 newy2 = clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance();
 
                 // for top level claims, apply size rules and claim blocks requirement
-                if (playerData.getClaimResizing().parent == null) {
+                if (playerData.getClaimResizing().getParent() == null) {
                     // measure new claim, apply size rules
                     int newWidth = (Math.abs(newx1 - newx2) + 1);
                     int newHeight = (Math.abs(newz1 - newz2) + 1);
@@ -1469,7 +1469,7 @@ public class PlayerEventHandler implements Listener {
                 // rule2: in any mode, shrinking a claim removes any surface fluids
                 Claim oldClaim = playerData.getClaimResizing();
                 boolean smaller = false;
-                if (oldClaim.parent == null) {
+                if (oldClaim.getParent() == null) {
                     // temporary claim instance, just for checking contains()
                     Claim newClaim = new Claim(
                             new Location(oldClaim.getLesserBoundaryCorner().getWorld(), newx1, newy1, newz1),
@@ -1503,7 +1503,7 @@ public class PlayerEventHandler implements Listener {
                     Visualization.Apply(player, visualization);
 
                     // if resizing someone else's claim, make a log entry
-                    if (!playerData.getClaimResizing().ownerName.equals(playerName)) {
+                    if (!playerData.getClaimResizing().getOwnerName().equals(playerName)) {
                         GriefPrevention.addLogEntry(playerName + " resized " + playerData.getClaimResizing().getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getLesserBoundaryCorner()) + ".");
                     }
 
@@ -1546,7 +1546,7 @@ public class PlayerEventHandler implements Listener {
                         // if it's the first click, he's trying to start a new subdivision
                         if (playerData.getLastShovelLocation() == null) {
                             // if the clicked claim was a subdivision, tell him he can't start a new subdivision here
-                            if (claim.parent != null) {
+                            if (claim.getParent() != null) {
                                 GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ResizeFailOverlapSubdivision);
                             }
 

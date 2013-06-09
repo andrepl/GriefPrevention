@@ -269,7 +269,7 @@ public class BlockEventHandler implements Listener {
         Claim claim = this.dataStore.getClaimAt(block.getLocation(), true, playerData.getLastClaim());
         if (claim != null) {
             // warn about TNT not destroying claimed blocks
-            if (block.getType() == Material.TNT && !claim.areExplosivesAllowed) {
+            if (block.getType() == Material.TNT && !claim.isExplosivesAllowed()) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.NoTNTDamageClaims);
                 GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.ClaimExplosivesAdvertisement);
             }
@@ -584,7 +584,7 @@ public class BlockEventHandler implements Listener {
         // who owns the spreading block, if anyone?
         OfflinePlayer fromOwner = null;
         if (fromClaim != null) {
-            fromOwner = GriefPrevention.instance.getServer().getOfflinePlayer(fromClaim.ownerName);
+            fromOwner = GriefPrevention.instance.getServer().getOfflinePlayer(fromClaim.getOwnerName());
         }
 
         // cancel unless the owner of the spreading block is allowed to build in the receiving claim
@@ -647,7 +647,7 @@ public class BlockEventHandler implements Listener {
         // who owns the spreading block, if anyone?
         if (rootClaim != null) {
             // tree growth in subdivisions is dependent on who owns the top level claim
-            if (rootClaim.parent != null) rootClaim = rootClaim.parent;
+            if (rootClaim.getParent() != null) rootClaim = rootClaim.getParent();
 
             // if an administrative claim, just let the tree grow where it wants
             if (rootClaim.isAdminClaim()) return;

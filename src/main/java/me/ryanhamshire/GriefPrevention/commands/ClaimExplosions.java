@@ -24,11 +24,11 @@ public class ClaimExplosions extends BaseClaimCommand {
             GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
             return true;
         }
-        if (claim.areExplosivesAllowed) {
-            claim.areExplosivesAllowed = false;
+        if (claim.isExplosivesAllowed()) {
+            claim.setExplosivesAllowed(false);
             GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ExplosivesDisabled);
         } else {
-            claim.areExplosivesAllowed = true;
+            claim.setExplosivesAllowed(true);
             GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ExplosivesEnabled);
         }
         return true;

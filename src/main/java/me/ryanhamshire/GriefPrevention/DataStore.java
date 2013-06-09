@@ -40,53 +40,53 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-//singleton class which manages all GriefPrevention data (except for config options)
+// singleton class which manages all GriefPrevention data (except for config options)
 public abstract class DataStore 
 {
-	//in-memory cache for player data
+	// in-memory cache for player data
 	protected ConcurrentHashMap<String, PlayerData> playerNameToPlayerDataMap = new ConcurrentHashMap<String, PlayerData>();
 	
-	//in-memory cache for group (permission-based) data
+	// in-memory cache for group (permission-based) data
 	protected ConcurrentHashMap<String, Integer> permissionToBonusBlocksMap = new ConcurrentHashMap<String, Integer>();
 	
-	//in-memory cache for claim data
+	// in-memory cache for claim data
 	ClaimArray claims = new ClaimArray();
 	
-	//in-memory cache for messages
+	// in-memory cache for messages
 	private String [] messages;
 	
-	//next claim ID
+	// next claim ID
 	Long nextClaimID = (long)0;
 	
-	//path information, for where stuff stored on disk is well...  stored
+	// path information, for where stuff stored on disk is well...  stored
 	public final static String dataLayerFolderPath = "plugins" + File.separator + "GriefPrevention";
 	public final static String configFilePath = dataLayerFolderPath + File.separator + "config.yml";
 	final static String messagesFilePath = dataLayerFolderPath + File.separator + "messages.yml";
 	
-	//initialization!
+	// initialization!
 	void initialize() throws Exception
 	{
 		GriefPrevention.addLogEntry(this.claims.size() + " total claims loaded.");
 		
-		//make a list of players who own claims
+		// make a list of players who own claims
 		Vector<String> playerNames = new Vector<String>();
 		for(int i = 0; i < this.claims.size(); i++)
 		{
 			Claim claim = this.claims.get(i);
 			
-			//ignore admin claims
+			// ignore admin claims
 			if(claim.isAdminClaim()) continue;
 			
-			if(!playerNames.contains(claim.ownerName))
-				playerNames.add(claim.ownerName);
+			if(!playerNames.contains(claim.getOwnerName()))
+				playerNames.add(claim.getOwnerName());
 		}
 		
 		GriefPrevention.addLogEntry(playerNames.size() + " players have staked claims.");
 		
-		//load up all the messages from messages.yml
+		// load up all the messages from messages.yml
 		this.loadMessages();
 		
-		//collect garbage, since lots of stuff was loaded into memory and then tossed out
+		// collect garbage, since lots of stuff was loaded into memory and then tossed out
 		
 	}
 	
@@ -136,7 +136,7 @@ public abstract class DataStore
 		currentValue += amount;
 		this.permissionToBonusBlocksMap.put(groupName, currentValue);
 		
-		//write changes to storage to ensure they don't get lost
+		// write changes to storage to ensure they don't get lost
 		this.saveGroupBonusBlocks(groupName, currentValue);
 		
 		return currentValue;		
@@ -152,34 +152,34 @@ public abstract class DataStore
 	 */
 	synchronized public void changeClaimOwner(Claim claim, String newOwnerName) throws Exception
 	{
-		//if it's a subdivision, throw an exception
-		if(claim.parent != null)
+		// if it's a subdivision, throw an exception
+		if(claim.getParent() != null)
 		{
 			throw new Exception("Subdivisions can't be transferred.  Only top-level claims may change owners.");
 		}
 		
-		//otherwise update information
+		// otherwise update information
 		
-		//determine current claim owner
+		// determine current claim owner
 		PlayerData ownerData = null;
 		if(!claim.isAdminClaim())
 		{
-			ownerData = this.getPlayerData(claim.ownerName);
+			ownerData = this.getPlayerData(claim.getOwnerName());
 		}
 		
-		//determine new owner
+		// determine new owner
 		PlayerData newOwnerData = this.getPlayerData(newOwnerName);
 		
-		//transfer
-		claim.ownerName = newOwnerName;
+		// transfer
+		claim.setOwnerName(newOwnerName);
 		this.saveClaim(claim);
 		
-		//adjust blocks and other records
+		// adjust blocks and other records
 		if(ownerData != null)
 		{
 			ownerData.getClaims().remove(claim);
 			ownerData.setBonusClaimBlocks(ownerData.getBonusClaimBlocks() - claim.getArea());
-			this.savePlayerData(claim.ownerName, ownerData);
+			this.savePlayerData(claim.getOwnerName(), ownerData);
 		}
 		
 		newOwnerData.getClaims().add(claim);
@@ -193,36 +193,36 @@ public abstract class DataStore
 	 */
 	synchronized void addClaim(Claim newClaim)
 	{
-		//subdivisions are easy
-		if(newClaim.parent != null)
+		// subdivisions are easy
+		if(newClaim.getParent() != null)
 		{
 			if(newClaim.subClaimid==null){
-				GriefPrevention.addLogEntry("Setting Subclaim ID to:" + String.valueOf(1 + newClaim.parent.children.size()));
-				newClaim.subClaimid= (long) (newClaim.parent.children.size()+1);
+				GriefPrevention.addLogEntry("Setting Subclaim ID to:" + String.valueOf(1 + newClaim.getParent().getChildren().size()));
+				newClaim.subClaimid= (long) (newClaim.getParent().getChildren().size()+1);
 			}
-			newClaim.parent.children.add(newClaim);
-			newClaim.inDataStore = true;
+			newClaim.getParent().getChildren().add(newClaim);
+			newClaim.setInDataStore(true);
 			this.saveClaim(newClaim);
 			return;
 		}
 		
-		//Get a unique identifier for the claim which will be used to name the file on disk
-		if(newClaim.id == null)
+		// Get a unique identifier for the claim which will be used to name the file on disk
+		if(newClaim.getId() == null)
 		{
-			newClaim.id = this.nextClaimID;
+			newClaim.setId(this.nextClaimID);
 			this.incrementNextClaimID();
 		}
 		
-		//add it and mark it as added
+		// add it and mark it as added
 		int j = 0;
 		while(j < this.claims.size() && !this.claims.get(j).greaterThan(newClaim)) j++;
 		if(j < this.claims.size())
 			this.claims.add(j, newClaim);
 		else
 			this.claims.add(this.claims.size(), newClaim);
-		newClaim.inDataStore = true;
+		newClaim.setInDataStore(true);
 		
-		//except for administrative claims (which have no owner), update the owner's playerData with the new claim
+		// except for administrative claims (which have no owner), update the owner's playerData with the new claim
 		if(!newClaim.isAdminClaim())
 		{
 			PlayerData ownerData = this.getPlayerData(newClaim.getOwnerName());
@@ -233,11 +233,11 @@ public abstract class DataStore
 		
 		
 		
-		//make sure the claim is saved to disk
+		// make sure the claim is saved to disk
 		this.saveClaim(newClaim);
 	}
 	
-	//turns a location into a string, useful in data storage
+	// turns a location into a string, useful in data storage
 	private String locationStringDelimiter = ";";	
 	String locationToString(Location location)
 	{
@@ -252,13 +252,13 @@ public abstract class DataStore
 		return stringBuilder.toString();
 	}
 	
-	//turns a location string back into a location
+	// turns a location string back into a location
 	public Location locationFromString(String string) throws Exception
 	{
-		//split the input string on the space
+		// split the input string on the space
 		String [] elements = string.split(locationStringDelimiter);
 	    
-		//expect four elements - world name, X, Y, and Z, respectively
+		// expect four elements - world name, X, Y, and Z, respectively
 		if(elements.length != 4)
 		{
 			throw new Exception("Expected four distinct parts to the location string:{" + string + "}");
@@ -269,18 +269,18 @@ public abstract class DataStore
 		String yString = elements[2];
 		String zString = elements[3];
 	    
-		//identify world the claim is in
+		// identify world the claim is in
 		World world = GriefPrevention.instance.getServer().getWorld(worldName);
 		if(world == null)
 		{
-			//try to load it...
+			// try to load it...
 			world = Bukkit.createWorld(new WorldCreator(worldName));
-			if(world==null){ //well... we tried!
+			if(world==null){ // well... we tried!
 				throw new WorldNotFoundException("World not found: \"" + worldName + "\"");
 			}
 		}
 		
-		//convert those numerical strings to integer values
+		// convert those numerical strings to integer values
 	    int x = Integer.parseInt(xString);
 	    int y = Integer.parseInt(yString);
 	    int z = Integer.parseInt(zString);
@@ -294,18 +294,18 @@ public abstract class DataStore
 	 */
 	synchronized public void saveClaim(Claim claim)
 	{
-		//subdivisions don't save to their own files, but instead live in their parent claim's file
-		//so any attempt to save a subdivision will save its parent (and thus the subdivision)
-		if(claim.parent != null)
+		// subdivisions don't save to their own files, but instead live in their parent claim's file
+		// so any attempt to save a subdivision will save its parent (and thus the subdivision)
+		if(claim.getParent() != null)
 		{
-			this.saveClaim(claim.parent);
+			this.saveClaim(claim.getParent());
 			return;
 		}
 		
-		//Get a unique identifier for the claim which will be used to name the file on disk
-		if(claim.id == null)
+		// Get a unique identifier for the claim which will be used to name the file on disk
+		if(claim.getId() == null)
 		{
-			claim.id = this.nextClaimID;
+			claim.setId(this.nextClaimID);
 			this.incrementNextClaimID();
 		}
 		
@@ -314,7 +314,7 @@ public abstract class DataStore
 	
 	abstract void writeClaimToStorage(Claim claim);
 	
-	//increments the claim ID and updates secondary storage to be sure it's saved
+	// increments the claim ID and updates secondary storage to be sure it's saved
 	abstract void incrementNextClaimID();
 	
 	/**
@@ -325,30 +325,30 @@ public abstract class DataStore
 	 */
 	synchronized public PlayerData getPlayerData(String playerName)
 	{
-		//first, look in memory
+		// first, look in memory
 		PlayerData playerData = this.playerNameToPlayerDataMap.get(playerName);
 		
-		//if not there, look in secondary storage
+		// if not there, look in secondary storage
 		if(playerData == null)
 		{
 			playerData = this.getPlayerDataFromStorage(playerName);
 			playerData.setPlayerName(playerName);
 			
-			//find all the claims belonging to this player and note them for future reference
+			// find all the claims belonging to this player and note them for future reference
 			for(int i = 0; i < this.claims.size(); i++)
 			{
 				Claim claim = this.claims.get(i);
-				if(claim.ownerName.equals(playerName))
+				if(claim.getOwnerName().equals(playerName))
 				{
 					playerData.getClaims().add(claim);
 				}
 			}
 			
-			//shove that new player data into the hash map cache
+			// shove that new player data into the hash map cache
 			this.playerNameToPlayerDataMap.put(playerName, playerData);
 		}
 		
-		//try the hash map again.  if it's STILL not there, we have a bug to fix
+		// try the hash map again.  if it's STILL not there, we have a bug to fix
 		return this.playerNameToPlayerDataMap.get(playerName);
 	}
 	
@@ -365,10 +365,10 @@ public abstract class DataStore
 		return deleteClaim(claim, true,p);
 	}
 	
-	//deletes a claim or subdivision
+	// deletes a claim or subdivision
 	synchronized private boolean deleteClaim(Claim claim, boolean sendevent,Player p)
 	{
-		//fire the delete Claim event.
+		// fire the delete Claim event.
 		if(sendevent){
 			ClaimDeletedEvent ev = new ClaimDeletedEvent(claim,p);
 			Bukkit.getPluginManager().callEvent(ev);
@@ -377,33 +377,32 @@ public abstract class DataStore
 			
 		}
 		
-		//subdivisions are simple - just remove them from their parent claim and save that claim
-		if(claim.parent != null)
+		// subdivisions are simple - just remove them from their parent claim and save that claim
+		if(claim.getParent() != null)
 		{
-			Claim parentClaim = claim.parent;
-			parentClaim.children.remove(claim);
+			Claim parentClaim = claim.getParent();
+			parentClaim.getChildren().remove(claim);
 			this.saveClaim(parentClaim);
 			return true;
 		}
 		
-		//remove from memory
-		claims.removeID(claim.id);
-		claim.inDataStore = false;
-		for(int j = 0; j < claim.children.size(); j++)
-		{
-			claim.children.get(j).inDataStore = false;
+		// remove from memory
+		claims.removeID(claim.getId());
+		claim.setInDataStore(false);
+		for (int j = 0; j < claim.getChildren().size(); j++) {
+			claim.getChildren().get(j).setInDataStore(false);
 		}
 		
-		//remove from secondary storage
+		// remove from secondary storage
 		this.deleteClaimFromSecondaryStorage(claim);
 		
-		//update player data, except for administrative claims, which have no owner
+		// update player data, except for administrative claims, which have no owner
 		if(!claim.isAdminClaim())
 		{
 			PlayerData ownerData = this.getPlayerData(claim.getOwnerName());
 			for(int i = 0; i < ownerData.getClaims().size(); i++)
 			{
-				if(ownerData.getClaims().get(i).id.equals(claim.id))
+				if(ownerData.getClaims().get(i).getId().equals(claim.getId()))
 				{
 					ownerData.getClaims().remove(i);
 					break;
@@ -425,41 +424,41 @@ public abstract class DataStore
 	 */
 	synchronized public Claim getClaimAt(Location location, boolean ignoreHeight, Claim cachedClaim)
 	{
-		//check cachedClaim guess first.  if it's in the datastore and the location is inside it, we're done
-		if(cachedClaim != null && cachedClaim.inDataStore && cachedClaim.contains(location, ignoreHeight, true)) 
+		// check cachedClaim guess first.  if it's in the datastore and the location is inside it, we're done
+		if(cachedClaim != null && cachedClaim.isInDataStore() && cachedClaim.contains(location, ignoreHeight, true)) 
 			return cachedClaim;
 		
 		
-		//the claims list is ordered by greater boundary corner
-		//create a temporary "fake" claim in memory for comparison purposes		
+		// the claims list is ordered by greater boundary corner
+		// create a temporary "fake" claim in memory for comparison purposes		
 		Claim tempClaim = new Claim();
 		tempClaim.lesserBoundaryCorner = location;
 		
-		//Let's get all the claims in this block's chunk
+		// Let's get all the claims in this block's chunk
 		ArrayList<Claim> aclaims = claims.chunkmap.get(getChunk(location));
 		
-		//If there are no claims here, let's return null.
+		// If there are no claims here, let's return null.
 		if(aclaims == null) {
 			return null;
 		}
 		
-		//otherwise, search all existing claims in the chunk until we find the right claim
+		// otherwise, search all existing claims in the chunk until we find the right claim
 		for(int i = 0; i < aclaims.size(); i++)
 		{
 			Claim claim = aclaims.get(i);
 			
-			//if we reach a claim which is greater than the temp claim created above, there's definitely no claim
-			//in the collection which includes our location
+			// if we reach a claim which is greater than the temp claim created above, there's definitely no claim
+			// in the collection which includes our location
 			if(claim.greaterThan(tempClaim)) return null;
 			
-			//find a top level claim
+			// find a top level claim
 			if(claim.contains(location, ignoreHeight, false))
 			{
-				//when we find a top level claim, if the location is in one of its subdivisions,
-				//return the SUBDIVISION, not the top level claim
-				for(int j = 0; j < claim.children.size(); j++)
+				// when we find a top level claim, if the location is in one of its subdivisions,
+				// return the SUBDIVISION, not the top level claim
+				for(int j = 0; j < claim.getChildren().size(); j++)
 				{
-					Claim subdivision = claim.children.get(j);
+					Claim subdivision = claim.getChildren().get(j);
 					if(subdivision.contains(location, ignoreHeight, false)) return subdivision;
 				}						
 					
@@ -467,7 +466,7 @@ public abstract class DataStore
 			}
 		}
 		
-		//if no claim found, return null
+		// if no claim found, return null
 		return null;
 	}
 	
@@ -523,15 +522,15 @@ public abstract class DataStore
 		return createClaim(world, x1, x2, y1, y2, z1, z2, ownerName, parent, id, false,null);
 	}
 	
-	//creates a claim.
-	//if the new claim would overlap an existing claim, returns a failure along with a reference to the existing claim
-	//otherwise, returns a success along with a reference to the new claim
-	//use ownerName == "" for administrative claims
-	//for top level claims, pass parent == NULL
-	//DOES adjust claim blocks available on success (players can go into negative quantity available)
-	//does NOT check a player has permission to create a claim, or enough claim blocks.
-	//does NOT check minimum claim size constraints
-	//does NOT visualize the new claim for any players	
+	// creates a claim.
+	// if the new claim would overlap an existing claim, returns a failure along with a reference to the existing claim
+	// otherwise, returns a success along with a reference to the new claim
+	// use ownerName == "" for administrative claims
+	// for top level claims, pass parent == NULL
+	// DOES adjust claim blocks available on success (players can go into negative quantity available)
+	// does NOT check a player has permission to create a claim, or enough claim blocks.
+	// does NOT check minimum claim size constraints
+	// does NOT visualize the new claim for any players	
 	synchronized private CreateClaimResult createClaim(World world, int x1, int x2, int y1, int y2, int z1, int z2, String ownerName, Claim parent, Long id, boolean neverdelete, Claim oldclaim,Player claimcreator,boolean doRaiseEvent)
 	{
 		CreateClaimResult result = new CreateClaimResult();
@@ -539,7 +538,7 @@ public abstract class DataStore
 		int smallx, bigx, smally, bigy, smallz, bigz;
 
 		Player gotplayer = Bukkit.getPlayer(ownerName);
-		//determine small versus big inputs
+		// determine small versus big inputs
 		if(x1 < x2)
 		{
 			smallx = x1;
@@ -573,13 +572,13 @@ public abstract class DataStore
 			bigz = z1;
 		}
 		
-		//creative mode claims always go to bedrock
+		// creative mode claims always go to bedrock
 		if(wc.getCreativeRules() )
 		{
 			smally = 2;
 		}
 		
-		//create a new claim instance (but don't save it, yet)
+		// create a new claim instance (but don't save it, yet)
 		Claim newClaim = new Claim(
 			new Location(world, smallx, smally, smallz),
 			new Location(world, bigx, bigy, bigz),
@@ -590,13 +589,13 @@ public abstract class DataStore
 			new String [] {},
 			id, false);
 		
-		newClaim.parent = parent;
+		newClaim.setParent(parent);
 		
-		//ensure this new claim won't overlap any existing claims
+		// ensure this new claim won't overlap any existing claims
 		ArrayList<Claim> claimsToCheck;
-		if(newClaim.parent != null)
+		if(newClaim.getParent() != null)
 		{
-			claimsToCheck = newClaim.parent.children;			
+			claimsToCheck = newClaim.getParent().getChildren();			
 		}
 		else
 		{
@@ -619,10 +618,10 @@ public abstract class DataStore
 		{
 			Claim otherClaim = claimsToCheck.get(i);
 			
-			//if we find an existing claim which will be overlapped
+			// if we find an existing claim which will be overlapped
 			if(otherClaim.overlaps(newClaim))
 			{
-				//result = fail, return conflicting claim
+				// result = fail, return conflicting claim
 				result.succeeded = CreateClaimResult.Result.ClaimOverlap;
 				result.claim = otherClaim;
 				return result;
@@ -645,10 +644,10 @@ public abstract class DataStore
 				return result;
 			}*/
 		}
-		//otherwise add this new claim to the data store to make it effective
+		// otherwise add this new claim to the data store to make it effective
 		this.addClaim(newClaim);
 		
-		//then return success along with reference to new claim
+		// then return success along with reference to new claim
 		result.succeeded = CreateClaimResult.Result.Success;
 		result.claim = newClaim;
 		return result;
@@ -674,24 +673,24 @@ public abstract class DataStore
 		
 		if(newDepth < wc.getClaimsMaxDepth()) newDepth = wc.getClaimsMaxDepth();
 		
-		if(claim.parent != null) claim = claim.parent;
+		if(claim.getParent() != null) claim = claim.getParent();
 		
-		//delete the claim
-		//this.deleteClaim(claim);
+		// delete the claim
+		// this.deleteClaim(claim);
 		
-		//re-create it at the new depth
+		// re-create it at the new depth
 		claim.lesserBoundaryCorner.setY(newDepth);
 		claim.greaterBoundaryCorner.setY(newDepth);
 		
-		//make all subdivisions reach to the same depth
-		for(int i = 0; i < claim.children.size(); i++)
+		// make all subdivisions reach to the same depth
+		for(int i = 0; i < claim.getChildren().size(); i++)
 		{
-			claim.children.get(i).lesserBoundaryCorner.setY(newDepth);
-			claim.children.get(i).greaterBoundaryCorner.setY(newDepth);
+			claim.getChildren().get(i).lesserBoundaryCorner.setY(newDepth);
+			claim.getChildren().get(i).greaterBoundaryCorner.setY(newDepth);
 		}
 		
-		//save changes
-		//this.addClaim(claim);
+		// save changes
+		// this.addClaim(claim);
 		saveClaim(claim);
 	}
 
@@ -704,22 +703,22 @@ public abstract class DataStore
 	 */
 	synchronized public boolean startSiege(Player attacker, Player defender, Claim defenderClaim)
 	{
-		//fill-in the necessary SiegeData instance
+		// fill-in the necessary SiegeData instance
 		SiegeData siegeData = new SiegeData(attacker, defender, defenderClaim);
 		PlayerData attackerData = this.getPlayerData(attacker.getName());
 		PlayerData defenderData = this.getPlayerData(defender.getName());
 		attackerData.setSiegeData(siegeData);
 		defenderData.setSiegeData(siegeData);
-		defenderClaim.siegeData = siegeData;
+		defenderClaim.setSiegeData(siegeData);
 		
-		//Raise the event, and cancel if necessary.
+		// Raise the event, and cancel if necessary.
 		SiegeStartEvent startevent = new SiegeStartEvent(siegeData);
 		Bukkit.getPluginManager().callEvent(startevent);
 		if(startevent.isCancelled()) return false;
 		
-		//start a task to monitor the siege
-		//why isn't this a "repeating" task?
-		//because depending on the status of the siege at the time the task runs, there may or may not be a reason to run the task again
+		// start a task to monitor the siege
+		// why isn't this a "repeating" task?
+		// because depending on the status of the siege at the time the task runs, there may or may not be a reason to run the task again
 		SiegeCheckupTask task = new SiegeCheckupTask(siegeData);
 		siegeData.setCheckupTaskID(GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 30));
 		return true;
@@ -737,7 +736,7 @@ public abstract class DataStore
 		boolean grantAccess = false;
 		SiegeEndEvent event = new SiegeEndEvent(siegeData);
 		Bukkit.getPluginManager().callEvent(event);
-		//determine winner and loser
+		// determine winner and loser
 		if(winnerName == null && loserName != null)
 		{
 			if(siegeData.getAttacker().getName().equals(loserName))
@@ -761,7 +760,7 @@ public abstract class DataStore
 			}
 		}
 		
-		//if the attacker won, plan to open the doors for looting
+		// if the attacker won, plan to open the doors for looting
 		if(siegeData.getAttacker().getName().equals(winnerName))
 		{
 			grantAccess = true;
@@ -773,12 +772,12 @@ public abstract class DataStore
 		PlayerData defenderData = this.getPlayerData(siegeData.getDefender().getName());
 		defenderData.setSiegeData(null);
 
-		//start a cooldown for this attacker/defender pair
+		// start a cooldown for this attacker/defender pair
 		Long now = Calendar.getInstance().getTimeInMillis();
-		Long cooldownEnd = now + 1000 * 60 * 60;  //one hour from now
+		Long cooldownEnd = now + 1000 * 60 * 60;  // one hour from now
 		this.siegeCooldownRemaining.put(siegeData.getAttacker().getName() + "_" + siegeData.getDefender().getName(), cooldownEnd);
 		
-		//if there are blocks queued up to revert, do so.
+		// if there are blocks queued up to revert, do so.
 		int revertedCount=0;
 		if(!siegeData.getSiegedBlocks().isEmpty()){
 			
@@ -789,67 +788,67 @@ public abstract class DataStore
 			GriefPrevention.addLogEntry("reverted " + revertedCount + " Sieged Blocks.");
 			
 		}
-		//start cooldowns for every attacker/involved claim pair
+		// start cooldowns for every attacker/involved claim pair
 		for(int i = 0; i < siegeData.getClaims().size(); i++)
 		{
 			Claim claim = siegeData.getClaims().get(i);
-			claim.siegeData = null;
-			this.siegeCooldownRemaining.put(siegeData.getAttacker().getName() + "_" + claim.ownerName, cooldownEnd);
+			claim.setSiegeData(null);
+			this.siegeCooldownRemaining.put(siegeData.getAttacker().getName() + "_" + claim.getOwnerName(), cooldownEnd);
 			
-			//if doors should be opened for looting, do that now
+			// if doors should be opened for looting, do that now
 			if(grantAccess)
 			{
-				claim.doorsOpen = true;
-				claim.LootedChests=0;
+				claim.setDoorsOpen(true);
+				claim.setLootedChests(0);
 			}
 		}
 
-		//cancel the siege checkup task
+		// cancel the siege checkup task
 		GriefPrevention.instance.getServer().getScheduler().cancelTask(siegeData.getCheckupTaskID());
 		
-		//notify everyone who won and lost
+		// notify everyone who won and lost
 		if(winnerName != null && loserName != null)
 		{
 			GriefPrevention.instance.getServer().broadcastMessage(winnerName + " defeated " + loserName + " in siege warfare!");
 		}
 		
-		//if the claim should be opened to looting
+		// if the claim should be opened to looting
 		if(grantAccess)
 		{
 			Player winner = GriefPrevention.instance.getServer().getPlayer(winnerName);
 			if(winner != null)
 			{
-				//notify the winner
+				// notify the winner
 				GriefPrevention.sendMessage(winner, TextMode.SUCCESS, Messages.SiegeWinDoorsOpen);
 				
-				//schedule a task to secure the claims in about 5 minutes
-				//set siegeData's LootedChests to 0, and also register it for events temporarily so it can
-				//handle Inventory Open events.
+				// schedule a task to secure the claims in about 5 minutes
+				// set siegeData's LootedChests to 0, and also register it for events temporarily so it can
+				// handle Inventory Open events.
 				siegeData.setLootedContainers(0);
 				SecureClaimTask task = new SecureClaimTask(siegeData);
 				GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 60 * 5);
 			}
 		}
 		
-		//if the siege ended due to death, transfer inventory to winner
+		// if the siege ended due to death, transfer inventory to winner
 		if(death)
 		{
 			Player winner = GriefPrevention.instance.getServer().getPlayer(winnerName);
 			Player loser = GriefPrevention.instance.getServer().getPlayer(loserName);
 			if(winner != null && loser != null)
 			{
-				//get loser's inventory, then clear it
+				// get loser's inventory, then clear it
 				ItemStack [] loserItems = loser.getInventory().getContents();
 				loser.getInventory().clear();
 				
-				//try to add it to the winner's inventory
+				// try to add it to the winner's inventory
 				for(int j = 0; j < loserItems.length; j++)
 				{
 					if(loserItems[j] == null || loserItems[j].getType() == Material.AIR || loserItems[j].getAmount() == 0) continue;
 					
 					HashMap<Integer, ItemStack> wontFitItems = winner.getInventory().addItem(loserItems[j]);
 					
-					//drop any remainder on the ground at his feet
+					// drop any remainder on the ground at his feet
 					Object [] keys = wontFitItems.keySet().toArray();
 					Location winnerLocation = winner.getLocation(); 
 					for(int i = 0; i < keys.length; i++)
@@ -862,7 +861,7 @@ public abstract class DataStore
 		}
 	}
 	
-	//timestamp for each siege cooldown to end
+	// timestamp for each siege cooldown to end
 	private HashMap<String, Long> siegeCooldownRemaining = new HashMap<String, Long>();
 
 	/**
@@ -876,7 +875,7 @@ public abstract class DataStore
 	{
 		Long cooldownEnd = null;
 		
-		//look for an attacker/defender cooldown
+		// look for an attacker/defender cooldown
 		if(this.siegeCooldownRemaining.get(attacker.getName() + "_" + defender.getName()) != null)
 		{
 			cooldownEnd = this.siegeCooldownRemaining.get(attacker.getName() + "_" + defender.getName());
@@ -886,22 +885,22 @@ public abstract class DataStore
 				return true;
 			}
 			
-			//if found but expired, remove it
+			// if found but expired, remove it
 			this.siegeCooldownRemaining.remove(attacker.getName() + "_" + defender.getName());
 		}
 		
-		//look for an attacker/claim cooldown
-		if(cooldownEnd == null && this.siegeCooldownRemaining.get(attacker.getName() + "_" + defenderClaim.ownerName) != null)
+		// look for an attacker/claim cooldown
+		if(cooldownEnd == null && this.siegeCooldownRemaining.get(attacker.getName() + "_" + defenderClaim.getOwnerName()) != null)
 		{
-			cooldownEnd = this.siegeCooldownRemaining.get(attacker.getName() + "_" + defenderClaim.ownerName);
+			cooldownEnd = this.siegeCooldownRemaining.get(attacker.getName() + "_" + defenderClaim.getOwnerName());
 			
 			if(Calendar.getInstance().getTimeInMillis() < cooldownEnd)
 			{
 				return true;
 			}
 			
-			//if found but expired, remove it
-			this.siegeCooldownRemaining.remove(attacker.getName() + "_" + defenderClaim.ownerName);			
+			// if found but expired, remove it
+			this.siegeCooldownRemaining.remove(attacker.getName() + "_" + defenderClaim.getOwnerName());			
 		}
 		
 		return false;
@@ -916,24 +915,24 @@ public abstract class DataStore
 	{
 		PlayerData playerData = this.getPlayerData(player.getName());
 		
-		//player must be sieged
+		// player must be sieged
 		if(playerData.getSiegeData() == null) return;
 		
-		//claim isn't already under the same siege
+		// claim isn't already under the same siege
 		if(playerData.getSiegeData().getClaims().contains(claim)) return;
 		
-		//admin claims can't be sieged
+		// admin claims can't be sieged
 		if(claim.isAdminClaim()) return;
 		
-		//player must have some level of permission to be sieged in a claim
+		// player must have some level of permission to be sieged in a claim
 		if(claim.allowAccess(player) != null) return;
 		
-		//otherwise extend the siege
+		// otherwise extend the siege
 		playerData.getSiegeData().getClaims().add(claim);
-		claim.siegeData = playerData.getSiegeData();
+		claim.setSiegeData(playerData.getSiegeData());
 	}		
 	
-	//deletes all claims owned by a player with the exception of locked claims
+	// deletes all claims owned by a player with the exception of locked claims
 	@Deprecated
 	synchronized public void deleteClaimsForPlayer(String playerName, boolean deleteCreativeClaims) {
 		deleteClaimsForPlayer(playerName, deleteCreativeClaims, false);
@@ -947,19 +946,19 @@ public abstract class DataStore
 	 */
 	synchronized public void deleteClaimsForPlayer(String playerName, boolean deleteCreativeClaims, boolean deleteLockedClaims)
 	{
-		//make a list of the player's claims
+		// make a list of the player's claims
 		ArrayList<Claim> claimsToDelete = new ArrayList<Claim>();
 		for(int i = 0; i < this.claims.size(); i++)
 		{
 			Claim claim = this.claims.get(i);
-			if(claim.ownerName.equals(playerName) && 
+			if(claim.getOwnerName().equals(playerName) && 
 					(deleteCreativeClaims || !GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner())) &&
-					(!claim.neverdelete || deleteLockedClaims)) {
+					(!claim.isNeverdelete() || deleteLockedClaims)) {
 				claimsToDelete.add(claim);
 			}
 		}
 		
-		//delete them one by one
+		// delete them one by one
 		for(int i = 0; i < claimsToDelete.size(); i++)
 		{
 			Claim claim = claimsToDelete.get(i); 
@@ -967,7 +966,7 @@ public abstract class DataStore
 			
 			this.deleteClaim(claim);
 			
-			//if in a creative mode world, delete the claim
+			// if in a creative mode world, delete the claim
 			if(GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner()))
 			{
 				GriefPrevention.instance.restoreClaim(claim, 0);
@@ -1019,16 +1018,18 @@ public abstract class DataStore
 		
 		
 		
-		//remove old claim. We don't raise an event for this!
+		// remove old claim. We don't raise an event for this!
 		this.deleteClaim(claim,false,claimcreator);					
 		
-		//try to create this new claim, ignoring the original when checking for overlap
-		CreateClaimResult result = this.createClaim(claim.getLesserBoundaryCorner().getWorld(), newx1, newx2, newy1, newy2, newz1, newz2, claim.ownerName, claim.parent, claim.id, claim.neverdelete, claim,claimcreator,false);
+		// try to create this new claim, ignoring the original when checking for overlap
+		CreateClaimResult result = this.createClaim(claim.getLesserBoundaryCorner().getWorld(), 
+                newx1, newx2, newy1, newy2, newz1, newz2,
+                claim.getOwnerName(), claim.getParent(), claim.getId(), claim.isNeverdelete(), claim,claimcreator,false);
 		
-		//if succeeded
+		// if succeeded
 		if(result.succeeded == CreateClaimResult.Result.Success)
 		{
-			//copy permissions from old claim
+			// copy permissions from old claim
 			ArrayList<String> builders = new ArrayList<String>();
 			ArrayList<String> containers = new ArrayList<String>();
 			ArrayList<String> accessors = new ArrayList<String>();
@@ -1047,24 +1048,24 @@ public abstract class DataStore
 			for(int i = 0; i < managers.size(); i++)
 			{
 				result.claim.addManager(managers.get(i));
-				//result.claim.managers.add(managers.get(i));
+				// result.claim.managers.add(managers.get(i));
 			}
 			
-			//copy subdivisions from old claim
-			for(int i = 0; i < claim.children.size(); i++)
+			// copy subdivisions from old claim
+			for(int i = 0; i < claim.getChildren().size(); i++)
 			{
-				Claim subdivision = claim.children.get(i);
-				subdivision.parent = result.claim;
-				result.claim.children.add(subdivision);
+				Claim subdivision = claim.getChildren().get(i);
+				subdivision.setParent(result.claim);
+				result.claim.getChildren().add(subdivision);
 			}
 			
-			//save those changes
+			// save those changes
 			this.saveClaim(result.claim);
 		}
 		
 		else
 		{
-			//put original claim back
+			// put original claim back
 			this.addClaim(claim);
 		}
 		
@@ -1078,7 +1079,7 @@ public abstract class DataStore
 		
 		HashMap<String, CustomizableMessage> defaults = new HashMap<String, CustomizableMessage>();
 		
-		//initialize defaults
+		// initialize defaults
 		this.addDefault(defaults, Messages.RespectingClaims, "Now respecting claims.", null);
 		this.addDefault(defaults, Messages.IgnoringClaims, "Now ignoring claims.", null);
 		this.addDefault(defaults, Messages.NoCreativeUnClaim, "You can't unclaim this land.  You can only make this claim larger or create additional claims.", null);
@@ -1276,24 +1277,24 @@ public abstract class DataStore
         this.addDefault(defaults, Messages.BooleanParseError, "Expected 'true' or 'false', not {0}", "0:not a bool");
         this.addDefault(defaults, Messages.UnknownCommand, "Unknown subcommand {0}", "0:subcommand");
 
-        //load the config file
+        // load the config file
 		FileConfiguration config = YamlConfiguration.loadConfiguration(new File(messagesFilePath));
 		
-		//for each message ID
+		// for each message ID
 		for(int i = 0; i < messageIDs.length; i++)
 		{
-			//get default for this message
+			// get default for this message
 			Messages messageID = messageIDs[i];
 			CustomizableMessage messageData = defaults.get(messageID.name());
 			
-			//if default is missing, log an error and use some fake data for now so that the plugin can run
+			// if default is missing, log an error and use some fake data for now so that the plugin can run
 			if(messageData == null)
 			{
 				GriefPrevention.addLogEntry("Missing message for " + messageID.name() + ".  Please contact the developer.");
 				messageData = new CustomizableMessage(messageID, "Missing message!  ID: " + messageID.name() + ".  Please contact a server admin.", null);
 			}
 			
-			//read the message from the file, use default if necessary
+			// read the message from the file, use default if necessary
 			this.messages[messageID.ordinal()] = config.getString("Messages." + messageID.name() + ".Text", messageData.text);
 			config.set("Messages." + messageID.name() + ".Text", this.messages[messageID.ordinal()]);
 			
@@ -1304,7 +1305,7 @@ public abstract class DataStore
 			}
 		}
 		
-		//save any changes
+		// save any changes
 		try
 		{
 			config.save(DataStore.messagesFilePath);

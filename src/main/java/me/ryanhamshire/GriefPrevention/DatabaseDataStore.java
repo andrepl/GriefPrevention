@@ -168,12 +168,12 @@ public class DatabaseDataStore extends DataStore {
                         this.claims.add(j, topLevelClaim);
                     else
                         this.claims.add(this.claims.size(), topLevelClaim);
-                    topLevelClaim.inDataStore = true;
+                    topLevelClaim.setInDataStore(true);
                 }
 
                 //look for any subdivisions for this claim
                 Statement statement2 = this.databaseConnection.createStatement();
-                ResultSet childResults = statement2.executeQuery("SELECT * FROM griefprevention_claimdata WHERE parentid=" + topLevelClaim.id + ";");
+                ResultSet childResults = statement2.executeQuery("SELECT * FROM griefprevention_claimdata WHERE parentid=" + topLevelClaim.getId() + ";");
 
                 while (childResults.next()) {
                     lesserCornerString = childResults.getString("lessercorner");
@@ -199,10 +199,10 @@ public class DatabaseDataStore extends DataStore {
                     Claim childClaim = new Claim(lesserBoundaryCorner, greaterBoundaryCorner, ownerName, builderNames, containerNames, accessorNames, managerNames, null, neverdelete);
 
                     //add this claim to the list of children of the current top level claim
-                    childClaim.parent = topLevelClaim;
-                    topLevelClaim.children.add(childClaim);
+                    childClaim.setParent(topLevelClaim);
+                    topLevelClaim.getChildren().add(childClaim);
                     childClaim.subClaimid = subid;
-                    childClaim.inDataStore = true;
+                    childClaim.setInDataStore(true);
                 }
             } catch (SQLException e) {
                 GriefPrevention.addLogEntry("Unable to load a claim.  Details: " + e.getMessage() + " ... " + results.toString());
@@ -233,9 +233,9 @@ public class DatabaseDataStore extends DataStore {
             this.writeClaimData(claim);
 
             //for each subdivision
-            for (int i = 0; i < claim.children.size(); i++) {
+            for (int i = 0; i < claim.getChildren().size(); i++) {
                 //write the subdivision's data to the database
-                this.writeClaimData(claim.children.get(i));
+                this.writeClaimData(claim.getChildren().get(i));
             }
         } catch (SQLException e) {
             GriefPrevention.addLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
@@ -247,7 +247,7 @@ public class DatabaseDataStore extends DataStore {
     synchronized private void writeClaimData(Claim claim) throws SQLException {
         String lesserCornerString = this.locationToString(claim.getLesserBoundaryCorner());
         String greaterCornerString = this.locationToString(claim.getGreaterBoundaryCorner());
-        String owner = claim.ownerName;
+        String owner = claim.getOwnerName();
 
         ArrayList<String> builders = new ArrayList<String>();
         ArrayList<String> containers = new ArrayList<String>();
@@ -278,18 +278,18 @@ public class DatabaseDataStore extends DataStore {
 
         long parentId;
         long id;
-        if (claim.parent == null) {
+        if (claim.getParent() == null) {
             parentId = -1;
         } else {
-            parentId = claim.parent.id;
+            parentId = claim.getParent().getId();
 
-            id = claim.getSubClaimID() != null ? claim.getSubClaimID() : claim.parent.children.indexOf(claim);
+            id = claim.getSubClaimID() != null ? claim.getSubClaimID() : claim.getParent().getChildren().indexOf(claim);
         }
 
-        if (claim.id == null) {
+        if (claim.getId() == null) {
             id = claim.getSubClaimID() != null ? claim.getSubClaimID() : -1;
         } else {
-            id = claim.id;
+            id = claim.getId();
         }
 
         try {
@@ -306,7 +306,7 @@ public class DatabaseDataStore extends DataStore {
                     accessorsString + "', '" +
                     managersString + "', " +
                     parentId + ", " +
-                    claim.neverdelete +
+                    claim.isNeverdelete() +
                     ");");
         } catch (SQLException e) {
             GriefPrevention.addLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
@@ -321,8 +321,8 @@ public class DatabaseDataStore extends DataStore {
             this.refreshDataConnection();
 
             Statement statement = this.databaseConnection.createStatement();
-            statement.execute("DELETE FROM griefprevention_claimdata WHERE id=" + claim.id + ";");
-            statement.execute("DELETE FROM griefprevention_claimdata WHERE parentid=" + claim.id + ";");
+            statement.execute("DELETE FROM griefprevention_claimdata WHERE id=" + claim.getId() + ";");
+            statement.execute("DELETE FROM griefprevention_claimdata WHERE parentid=" + claim.getId() + ";");
         } catch (SQLException e) {
             GriefPrevention.addLogEntry("Unable to delete data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
             GriefPrevention.addLogEntry(e.getMessage());

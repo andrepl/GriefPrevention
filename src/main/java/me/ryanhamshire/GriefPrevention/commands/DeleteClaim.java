@@ -22,10 +22,10 @@ public class DeleteClaim extends BaseClaimCommand {
         //deleting an admin claim additionally requires the adminclaims permission
         if (!claim.isAdminClaim() || player.hasPermission("griefprevention.adminclaims")) {
             PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-            if (claim.children.size() > 0 && !playerData.isWarnedAboutMajorDeletion()) {
+            if (claim.getChildren().size() > 0 && !playerData.isWarnedAboutMajorDeletion()) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeletionSubdivisionWarning);
                 playerData.setWarnedAboutMajorDeletion(true);
-            } else if (claim.neverdelete && !playerData.isWarnedAboutMajorDeletion()) {
+            } else if (claim.isNeverdelete() && !playerData.isWarnedAboutMajorDeletion()) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeleteLockedClaimWarning);
                 playerData.setWarnedAboutMajorDeletion(true);
             } else {
