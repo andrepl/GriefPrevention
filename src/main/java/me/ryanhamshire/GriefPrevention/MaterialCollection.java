@@ -46,7 +46,8 @@ public class MaterialCollection {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < this.materials.size(); i++) {
-            stringBuilder.append(this.materials.get(i).toString() + " ");
+            stringBuilder.append(this.materials.get(i).toString());
+            stringBuilder.append(' ');
         }
         return stringBuilder.toString();
     }

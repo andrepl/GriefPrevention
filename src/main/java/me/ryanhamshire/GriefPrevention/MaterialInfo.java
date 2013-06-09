@@ -98,4 +98,28 @@ public class MaterialInfo
     public void setTypeID(int typeID) {
         this.typeID = typeID;
     }
+
+    public byte getData() {
+        return data;
+    }
+
+    public void setData(byte data) {
+        this.data = data;
+    }
+
+    public boolean isAllDataValues() {
+        return allDataValues;
+    }
+
+    public void setAllDataValues(boolean allDataValues) {
+        this.allDataValues = allDataValues;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

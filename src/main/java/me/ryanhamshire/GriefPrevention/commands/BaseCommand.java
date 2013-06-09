@@ -42,7 +42,7 @@ public abstract class BaseCommand implements TabExecutor {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         LinkedList<String> params = new LinkedList<String>();
         params.addAll(Arrays.asList(args));
-        return onTabComplete(sender, cmd, label, args);
+        return onTabComplete(sender, cmd, label, params);
     }
 
     public abstract boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args);

@@ -90,8 +90,6 @@ public class CommandHandler implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-
-        plugin.getLogger().info(cmd.toString() + "," + commandLabel + "," + "," + args);
         LinkedList<String> params = new LinkedList<String>();
         params.addAll(Arrays.asList(args));
         if (params.size() == 0) {
