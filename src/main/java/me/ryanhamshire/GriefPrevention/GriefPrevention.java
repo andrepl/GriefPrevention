@@ -194,10 +194,10 @@ public class GriefPrevention extends JavaPlugin {
             PlayerEventHandler playerEventHandler = new PlayerEventHandler(this.dataStore, this);
             pluginManager.registerEvents(playerEventHandler, this);
             // block events
-            BlockEventHandler blockEventHandler = new BlockEventHandler(this.dataStore);
+            BlockEventHandler blockEventHandler = new BlockEventHandler(this.dataStore, this);
             pluginManager.registerEvents(blockEventHandler, this);
             // entity events
-            EntityEventHandler entityEventHandler = new EntityEventHandler(this.dataStore);
+            EntityEventHandler entityEventHandler = new EntityEventHandler(this.dataStore, this);
             pluginManager.registerEvents(entityEventHandler, this);
         }
 
@@ -619,37 +619,6 @@ public class GriefPrevention extends JavaPlugin {
         }
     }
 
-    public String allowBreak(Player player, Location location) {
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(location, false, playerData.getLastClaim());
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
-        // exception: administrators in ignore claims mode, and special player accounts created by server mods
-        if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
-
-        // wilderness rules
-        if (claim == null) {
-            // no building in the wilderness in creative mode
-            if (this.creativeRulesApply(location)) {
-                String reason = this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.CreativeBasicsDemoAdvertisement);
-                if (player.hasPermission("griefprevention.ignoreclaims"))
-                    reason += "  " + this.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
-                return reason;
-            } else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
-                return this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
-            }
-
-            // but it's fine in survival mode
-            else {
-                return null;
-            }
-        } else {
-            // cache the claim for later reference
-            playerData.setLastClaim(claim);
-
-            // if not in the wilderness, then apply claim rules (permissions, etc)
-            return claim.allowBreak(player, location.getBlock());
-        }
-    }
 
     // restores nature in multiple chunks, as described by a claim instance
     // this restores all chunks which have ANY number of claim blocks from this claim in them

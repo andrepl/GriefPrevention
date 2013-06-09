@@ -61,9 +61,11 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 public class EntityEventHandler implements Listener {
     // convenience reference for the singleton datastore
     private DataStore dataStore;
-
-    public EntityEventHandler(DataStore dataStore) {
+    GriefPrevention plugin;
+    
+    public EntityEventHandler(DataStore dataStore, GriefPrevention griefPrevention) {
         this.dataStore = dataStore;
+        this.plugin = griefPrevention;
     }
 
     private Claim ChangeBlockClaimCache = null;
@@ -71,7 +73,7 @@ public class EntityEventHandler implements Listener {
     // don't allow endermen to change blocks
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
+        WorldConfig wc = plugin.getWorldCfg(event.getEntity().getWorld());
 
         if (!wc.endermenMoveBlocks() && event.getEntityType() == EntityType.ENDERMAN) {
             event.setCancelled(true);
@@ -88,7 +90,7 @@ public class EntityEventHandler implements Listener {
     // don't allow zombies to break down doors
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onZombieBreakDoor(EntityBreakDoorEvent event) {
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
+        WorldConfig wc = plugin.getWorldCfg(event.getEntity().getWorld());
         if (!wc.getZombieDoorBreaking().allowed(event.getEntity().getLocation(), null).Allowed()) {
             event.setCancelled(true);
         }
@@ -97,7 +99,7 @@ public class EntityEventHandler implements Listener {
     // don't allow entities to trample crops
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onEntityInteract(EntityInteractEvent event) {
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
+        WorldConfig wc = plugin.getWorldCfg(event.getEntity().getWorld());
         if (!wc.creaturesTrampleCrops() && event.getBlock().getType() == Material.SOIL) {
             event.setCancelled(true);
         }
@@ -105,7 +107,7 @@ public class EntityEventHandler implements Listener {
             Arrow arrow = (Arrow) event.getEntity();
             if (arrow.getShooter() instanceof Player) {
                 Player shooter = (Player) arrow.getShooter();
-                Claim claim = GriefPrevention.instance.dataStore.getClaimAt(event.getBlock().getLocation(), false, null);
+                Claim claim = plugin.dataStore.getClaimAt(event.getBlock().getLocation(), false, null);
                 if (claim != null) {
                     String noAccessReason = claim.allowAccess(shooter);
                     if (noAccessReason != null) {
@@ -123,9 +125,9 @@ public class EntityEventHandler implements Listener {
         // System.out.println("EntityExplode:" + explodeEvent.getEntity().getClass().getName());
         List<Block> blocks = explodeEvent.blockList();
         Location location = explodeEvent.getLocation();
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(location.getWorld());
+        WorldConfig wc = plugin.getWorldCfg(location.getWorld());
 
-        Claim claimatEntity = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
+        Claim claimatEntity = plugin.dataStore.getClaimAt(location, true, null);
 
         // logic: we have Creeper and TNT Explosions currently. each one has special configuration options.
         // make sure that we are allowed to explode, first.
@@ -158,11 +160,11 @@ public class EntityEventHandler implements Listener {
                 blocks.remove(i--);
             } else {
                 // it is allowed, however, if it is on a claim only allow if explosions are enabled for that claim.
-                claimpos = GriefPrevention.instance.dataStore.getClaimAt(block.getLocation(), false, claimpos);
+                claimpos = plugin.dataStore.getClaimAt(block.getLocation(), false, claimpos);
                 if (claimpos != null && !claimpos.isExplosivesAllowed()) {
                     blocks.remove(i--);
                 } else if (block.getType() == Material.LOG) {
-                    GriefPrevention.instance.handleLogBroken(block);
+                    plugin.handleLogBroken(block);
                 }
             }
         }
@@ -191,7 +193,7 @@ public class EntityEventHandler implements Listener {
         }
 
         // if in a creative world, cancel the event (don't drop items on the ground)
-        if (GriefPrevention.instance.creativeRulesApply(event.getLocation())) {
+        if (plugin.creativeRulesApply(event.getLocation())) {
             event.setCancelled(true);
         }
     }
@@ -200,7 +202,7 @@ public class EntityEventHandler implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onExpBottle(ExpBottleEvent event) {
         // if in a creative world, cancel the event (don't drop exp on the ground)
-        if (GriefPrevention.instance.creativeRulesApply(event.getEntity().getLocation())) {
+        if (plugin.creativeRulesApply(event.getEntity().getLocation())) {
             event.setExperience(0);
         }
     }
@@ -209,7 +211,7 @@ public class EntityEventHandler implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntitySpawn(CreatureSpawnEvent event) {
         LivingEntity entity = event.getEntity();
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(entity.getWorld());
+        WorldConfig wc = plugin.getWorldCfg(entity.getWorld());
         // these rules apply only to creative worlds
 
         // chicken eggs and breeding could potentially make a mess in the wilderness, once griefers get involved
@@ -237,7 +239,7 @@ public class EntityEventHandler implements Listener {
 
 
         }
-        if (!GriefPrevention.instance.creativeRulesApply(entity.getLocation())) return;
+        if (!plugin.creativeRulesApply(entity.getLocation())) return;
 
         // otherwise, just apply the limit on total entities per claim
         Claim claim = this.dataStore.getClaimAt(event.getLocation(), false, null);
@@ -257,7 +259,7 @@ public class EntityEventHandler implements Listener {
         LivingEntity entity = event.getEntity();
 
         // special rule for creative worlds: killed entities don't drop items or experience orbs
-        if (GriefPrevention.instance.creativeRulesApply(entity.getLocation())) {
+        if (plugin.creativeRulesApply(entity.getLocation())) {
             event.setDroppedExp(0);
             event.getDrops().clear();
         }
@@ -306,7 +308,7 @@ public class EntityEventHandler implements Listener {
 
         // if the player doesn't have build permission, don't allow the breakage
         Player playerRemover = (Player) entityEvent.getRemover();
-        String noBuildReason = GriefPrevention.instance.allowBuild(playerRemover, event.getEntity().getLocation());
+        String noBuildReason = plugin.allowBuild(playerRemover, event.getEntity().getLocation());
         if (noBuildReason != null) {
             event.setCancelled(true);
             GriefPrevention.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
@@ -319,7 +321,7 @@ public class EntityEventHandler implements Listener {
         // FEATURE: similar to above, placing a painting requires build permission in the claim
 
         // if the player doesn't have permission, don't allow the placement
-        String noBuildReason = GriefPrevention.instance.allowBuild(event.getPlayer(), event.getEntity().getLocation());
+        String noBuildReason = plugin.allowBuild(event.getPlayer(), event.getEntity().getLocation());
         if (noBuildReason != null) {
             event.setCancelled(true);
             GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);
@@ -327,7 +329,7 @@ public class EntityEventHandler implements Listener {
         }
 
         // otherwise, apply entity-count limitations for creative worlds
-        else if (GriefPrevention.instance.creativeRulesApply(event.getEntity().getLocation())) {
+        else if (plugin.creativeRulesApply(event.getEntity().getLocation())) {
             PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
             Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, playerData.getLastClaim());
             if (claim == null) return;
@@ -356,7 +358,7 @@ public class EntityEventHandler implements Listener {
         }
 
         if (!(event instanceof EntityDamageByEntityEvent)) return;
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(event.getEntity().getWorld());
+        WorldConfig wc = plugin.getWorldCfg(event.getEntity().getWorld());
         // monsters are never protected
         if (event.getEntity() instanceof Monster) return;
 
