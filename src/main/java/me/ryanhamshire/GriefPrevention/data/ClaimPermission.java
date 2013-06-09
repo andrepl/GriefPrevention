@@ -20,7 +20,7 @@ package me.ryanhamshire.GriefPrevention.data;
 
 // basic enum stuff
 public enum ClaimPermission {
-	Build,
-	Inventory,
-	Access
+    BUILD,
+    INVENTORY,
+    ACCESS
 }

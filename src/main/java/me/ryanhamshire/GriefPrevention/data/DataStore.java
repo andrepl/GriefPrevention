@@ -23,8 +23,6 @@ import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.*;
 import me.ryanhamshire.GriefPrevention.exceptions.DatastoreInitializationException;
 import me.ryanhamshire.GriefPrevention.exceptions.SubdivisionException;
-import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
-import org.apache.commons.lang.SerializationException;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -661,13 +659,13 @@ public abstract class DataStore {
             claim.getPermissions(builders, containers, accessors, managers);
 
             for (int i = 0; i < builders.size(); i++)
-                result.claim.setPermission(builders.get(i), ClaimPermission.Build);
+                result.claim.setPermission(builders.get(i), ClaimPermission.BUILD);
 
             for (int i = 0; i < containers.size(); i++)
-                result.claim.setPermission(containers.get(i), ClaimPermission.Inventory);
+                result.claim.setPermission(containers.get(i), ClaimPermission.INVENTORY);
 
             for (int i = 0; i < accessors.size(); i++)
-                result.claim.setPermission(accessors.get(i), ClaimPermission.Access);
+                result.claim.setPermission(accessors.get(i), ClaimPermission.ACCESS);
 
             for (int i = 0; i < managers.size(); i++) {
                 result.claim.addManager(managers.get(i));

@@ -110,6 +110,45 @@ public class BlockEventHandler implements Listener {
             return claim.allowBreak(player, location.getBlock());
         }
     }
+
+
+    public String allowBuild(Player player, Location location, PlayerData playerData, Claim claim) {
+        WorldConfig wc = plugin.getWorldCfg(player.getWorld());
+        // exception: administrators in ignore claims mode and special player accounts created by server mods
+        if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
+        if (claim == null) {
+            claim = plugin.dataStore.getClaimAt(location, true, playerData.getLastClaim());
+        }
+        // wilderness rules
+        if (claim == null) {
+            // no building in the wilderness in creative mode
+            if (plugin.creativeRulesApply(location)) {
+                String reason = plugin.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + plugin.getMessageManager().getMessage(Messages.CreativeBasicsDemoAdvertisement);
+                if (player.hasPermission("griefprevention.ignoreclaims"))
+                    reason += "  " + plugin.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
+                return reason;
+            }
+
+            // no building in survival wilderness when that is configured
+            else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
+                if (wc.getTrashBlockPlacementBehaviour().allowed(location, player).Denied())
+                    return plugin.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + plugin.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
+                else
+                    return null;
+            } else {
+                // but it's fine in creative
+                return null;
+            }
+        }
+
+        // if not in the wilderness, then apply claim rules (permissions, etc)
+        else {
+            // cache the claim for later reference
+            playerData.setLastClaim(claim);
+            return claim.allowBuild(player);
+        }
+    }
+
     // when a block is damaged...
     @EventHandler(ignoreCancelled = true)
     public void onBlockDamaged(BlockDamageEvent event) {
@@ -286,9 +325,10 @@ public class BlockEventHandler implements Listener {
                 }
             }
         }
-
+        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim());
         // make sure the player is allowed to build at the location
-        String noBuildReason = plugin.allowBuild(player, block.getLocation());
+        String noBuildReason = allowBuild(player, block.getLocation(), playerData, claim);
         if (noBuildReason != null) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
             placeEvent.setCancelled(true);
@@ -296,8 +336,7 @@ public class BlockEventHandler implements Listener {
         }
 
         // if the block is being placed within an existing claim
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(block.getLocation(), true, playerData.getLastClaim());
+        claim = this.dataStore.getClaimAt(block.getLocation(), true, claim);
         if (claim != null) {
             // warn about TNT not destroying claimed blocks
             if (block.getType() == Material.TNT && !claim.isExplosivesAllowed()) {
@@ -814,7 +853,7 @@ public class BlockEventHandler implements Listener {
             TreeCleanupTask cleanupTask = new TreeCleanupTask(block, rootBlock, treeBlocks, rootBlock.getData());
 
             // 20L ~ 1 second, so 2 mins = 120 seconds ~ 2400L
-            GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, cleanupTask, 2400L);
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, cleanupTask, 2400L);
         }
     }
 

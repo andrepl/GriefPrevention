@@ -611,8 +611,6 @@ public class WorldConfig {
 		this(worldname,new YamlConfiguration(),ConfigData.createTargetConfiguration(worldname) );
 	}
 	public WorldConfig(World grabfor) {
-		// // construct WorldConfig with default settings.
-		// we construct a default FileConfiguration and call ourselves...
 		this(grabfor.getName());
 	}
 }

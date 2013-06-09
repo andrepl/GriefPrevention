@@ -127,41 +127,37 @@ public class EntityEventHandler implements Listener {
         Location location = explodeEvent.getLocation();
         WorldConfig wc = plugin.getWorldCfg(location.getWorld());
 
-        Claim claimatEntity = plugin.dataStore.getClaimAt(location, true, null);
-
         // logic: we have Creeper and TNT Explosions currently. each one has special configuration options.
         // make sure that we are allowed to explode, first.
         Entity explodingEntity = explodeEvent.getEntity();
         boolean isCreeper = explodingEntity != null && explodingEntity instanceof Creeper;
-        boolean isTNT = explodingEntity != null &&
-                (explodingEntity instanceof TNTPrimed || explodingEntity instanceof ExplosiveMinecart);
+        boolean isTNT = explodingEntity != null && (explodingEntity instanceof TNTPrimed || explodingEntity instanceof ExplosiveMinecart);
+        boolean isWither = explodingEntity != null && (explodingEntity instanceof WitherSkull || explodingEntity instanceof Wither);
 
-        boolean isWither = explodingEntity != null && (
-                explodingEntity instanceof WitherSkull || explodingEntity instanceof Wither);
-
-        ClaimBehaviourData usebehaviour = null;
-        if (isCreeper)
-            usebehaviour = wc.getCreeperExplosionBehaviour();
-        else if (isWither)
-            usebehaviour = wc.getWitherExplosionBehaviour();
-        else if (isTNT)
-            usebehaviour = wc.getTntExplosionBehaviour();
-        else
-            usebehaviour = wc.getOtherExplosionBehaviour();
-        Claim claimpos = null;
+        ClaimBehaviourData useBehaviour = null;
+        if (isCreeper) {
+            useBehaviour = wc.getCreeperExplosionBehaviour();
+        } else if (isWither) {
+            useBehaviour = wc.getWitherExplosionBehaviour();
+        } else if (isTNT) {
+            useBehaviour = wc.getTntExplosionBehaviour();
+        } else {
+            useBehaviour = wc.getOtherExplosionBehaviour();
+        }
+        Claim claimPos = null;
         // //go through each block that was affected...
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);
             if (wc.getModsExplodableIds().contains(new MaterialInfo(block.getTypeId(), block.getData(), null)))
                 continue;
             // creative rules stop all explosions, regardless of the other settings.
-            if (wc.getCreativeRules() || (usebehaviour != null && usebehaviour.allowed(block.getLocation(), null).Denied())) {
+            if (wc.getCreativeRules() || (useBehaviour != null && useBehaviour.allowed(block.getLocation(), null).Denied())) {
                 // if not allowed. remove it...
                 blocks.remove(i--);
             } else {
                 // it is allowed, however, if it is on a claim only allow if explosions are enabled for that claim.
-                claimpos = plugin.dataStore.getClaimAt(block.getLocation(), false, claimpos);
-                if (claimpos != null && !claimpos.isExplosivesAllowed()) {
+                claimPos = plugin.dataStore.getClaimAt(block.getLocation(), false, claimPos);
+                if (claimPos != null && !claimPos.isExplosivesAllowed()) {
                     blocks.remove(i--);
                 } else if (block.getType() == Material.LOG) {
                     plugin.getBlockEventHandler().handleLogBroken(block);
@@ -189,9 +185,7 @@ public class EntityEventHandler implements Listener {
                     }
                 }
             }
-
         }
-
         // if in a creative world, cancel the event (don't drop items on the ground)
         if (plugin.creativeRulesApply(event.getLocation())) {
             event.setCancelled(true);
@@ -213,7 +207,6 @@ public class EntityEventHandler implements Listener {
         LivingEntity entity = event.getEntity();
         WorldConfig wc = plugin.getWorldCfg(entity.getWorld());
         // these rules apply only to creative worlds
-
         // chicken eggs and breeding could potentially make a mess in the wilderness, once griefers get involved
         SpawnReason reason = event.getSpawnReason();
 
@@ -234,10 +227,7 @@ public class EntityEventHandler implements Listener {
             if (wc.getIronGolemSpawnBehaviour().allowed(entity.getLocation(), null).Denied()) {
                 event.setCancelled(true);
                 return;
-
             }
-
-
         }
         if (!plugin.creativeRulesApply(entity.getLocation())) return;
 
@@ -308,7 +298,7 @@ public class EntityEventHandler implements Listener {
 
         // if the player doesn't have build permission, don't allow the breakage
         Player playerRemover = (Player) entityEvent.getRemover();
-        String noBuildReason = plugin.allowBuild(playerRemover, event.getEntity().getLocation());
+        String noBuildReason = plugin.getBlockEventHandler().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.dataStore.getPlayerData(playerRemover.getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
             GriefPrevention.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
@@ -321,7 +311,7 @@ public class EntityEventHandler implements Listener {
         // FEATURE: similar to above, placing a painting requires build permission in the claim
 
         // if the player doesn't have permission, don't allow the placement
-        String noBuildReason = plugin.allowBuild(event.getPlayer(), event.getEntity().getLocation());
+        String noBuildReason = plugin.getBlockEventHandler().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.dataStore.getPlayerData(event.getPlayer().getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
             GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);

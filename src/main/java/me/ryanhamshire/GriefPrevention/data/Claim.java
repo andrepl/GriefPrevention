@@ -295,21 +295,21 @@ public class Claim {
         for (int i = 0; i < builderNames.length; i++) {
             String name = builderNames[i];
             if (name != null && !name.isEmpty()) {
-                this.playerNameToClaimPermissionMap.put(name, ClaimPermission.Build);
+                this.playerNameToClaimPermissionMap.put(name, ClaimPermission.BUILD);
             }
         }
 
         for (int i = 0; i < containerNames.length; i++) {
             String name = containerNames[i];
             if (name != null && !name.isEmpty()) {
-                this.playerNameToClaimPermissionMap.put(name, ClaimPermission.Inventory);
+                this.playerNameToClaimPermissionMap.put(name, ClaimPermission.INVENTORY);
             }
         }
 
         for (int i = 0; i < accessorNames.length; i++) {
             String name = accessorNames[i];
             if (name != null && !name.isEmpty()) {
-                this.playerNameToClaimPermissionMap.put(name, ClaimPermission.Access);
+                this.playerNameToClaimPermissionMap.put(name, ClaimPermission.ACCESS);
             }
         }
 
@@ -448,11 +448,11 @@ public class Claim {
             return null;
 
         // anyone with explicit build permission can make changes
-        if (this.hasExplicitPermission(player, ClaimPermission.Build)) return null;
+        if (this.hasExplicitPermission(player, ClaimPermission.BUILD)) return null;
 
         // also everyone is a member of the "public", so check for public permission
         ClaimPermission permissionLevel = this.playerNameToClaimPermissionMap.get("public");
-        if (ClaimPermission.Build == permissionLevel) return null;
+        if (ClaimPermission.BUILD == permissionLevel) return null;
 
         // subdivision permission inheritance
         if (this.parent != null)
@@ -561,13 +561,13 @@ public class Claim {
             return null;
 
         // look for explicit individual access, inventory, or build permission
-        if (this.hasExplicitPermission(player, ClaimPermission.Access)) return null;
-        if (this.hasExplicitPermission(player, ClaimPermission.Inventory)) return null;
-        if (this.hasExplicitPermission(player, ClaimPermission.Build)) return null;
+        if (this.hasExplicitPermission(player, ClaimPermission.ACCESS)) return null;
+        if (this.hasExplicitPermission(player, ClaimPermission.INVENTORY)) return null;
+        if (this.hasExplicitPermission(player, ClaimPermission.BUILD)) return null;
 
         // also check for public permission
         ClaimPermission permissionLevel = this.playerNameToClaimPermissionMap.get("public");
-        if (ClaimPermission.Build == permissionLevel || ClaimPermission.Inventory == permissionLevel || ClaimPermission.Access == permissionLevel)
+        if (ClaimPermission.BUILD == permissionLevel || ClaimPermission.INVENTORY == permissionLevel || ClaimPermission.ACCESS == permissionLevel)
             return null;
 
         // permission inheritance for subdivisions
@@ -601,12 +601,12 @@ public class Claim {
         }
 
         // check for explicit individual container or build permission 
-        if (this.hasExplicitPermission(player, ClaimPermission.Inventory)) return null;
-        if (this.hasExplicitPermission(player, ClaimPermission.Build)) return null;
+        if (this.hasExplicitPermission(player, ClaimPermission.INVENTORY)) return null;
+        if (this.hasExplicitPermission(player, ClaimPermission.BUILD)) return null;
 
         // check for public container or build permission
         ClaimPermission permissionLevel = this.playerNameToClaimPermissionMap.get("public");
-        if (ClaimPermission.Build == permissionLevel || ClaimPermission.Inventory == permissionLevel) return null;
+        if (ClaimPermission.BUILD == permissionLevel || ClaimPermission.INVENTORY == permissionLevel) return null;
 
         // permission inheritance for subdivisions
         if (this.parent != null)
@@ -668,13 +668,13 @@ public class Claim {
         if (inDataStore) {
             ClaimModifiedEvent.Type permtype;
             switch (permissionLevel) {
-                case Access:
+                case ACCESS:
                     permtype = ClaimModifiedEvent.Type.AddedAccessTrust;
                     break;
-                case Build:
+                case BUILD:
                     permtype = ClaimModifiedEvent.Type.AddedBuildTrust;
                     break;
-                case Inventory:
+                case INVENTORY:
                     permtype = ClaimModifiedEvent.Type.AddedInventoryTrust;
                     break;
                 default:
@@ -707,13 +707,13 @@ public class Claim {
             }
             ClaimModifiedEvent.Type permtype;
             switch (perm) {
-                case Access:
+                case ACCESS:
                     permtype = ClaimModifiedEvent.Type.RemovedAccessTrust;
                     break;
-                case Build:
+                case BUILD:
                     permtype = ClaimModifiedEvent.Type.RemovedBuildTrust;
                     break;
-                case Inventory:
+                case INVENTORY:
                     permtype = ClaimModifiedEvent.Type.RemovedInventoryTrust;
                     break;
                 default:
@@ -764,9 +764,9 @@ public class Claim {
             Map.Entry<String, ClaimPermission> entry = mappingsIterator.next();
 
             // build up a list for each permission level
-            if (entry.getValue() == ClaimPermission.Build) {
+            if (entry.getValue() == ClaimPermission.BUILD) {
                 builders.add(entry.getKey());
-            } else if (entry.getValue() == ClaimPermission.Inventory) {
+            } else if (entry.getValue() == ClaimPermission.INVENTORY) {
                 containers.add(entry.getKey());
             } else {
                 accessors.add(entry.getKey());

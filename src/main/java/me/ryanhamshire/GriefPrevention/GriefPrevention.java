@@ -433,43 +433,6 @@ public class GriefPrevention extends JavaPlugin {
         return configuration.getWorldConfig(location.getWorld()).getCreativeRules();
     }
 
-    public String allowBuild(Player player, Location location) {
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(location, false, playerData.getLastClaim());
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
-        // exception: administrators in ignore claims mode and special player accounts created by server mods
-        if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
-
-        // wilderness rules
-        if (claim == null) {
-            // no building in the wilderness in creative mode
-            if (this.creativeRulesApply(location)) {
-                String reason = this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.CreativeBasicsDemoAdvertisement);
-                if (player.hasPermission("griefprevention.ignoreclaims"))
-                    reason += "  " + this.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
-                return reason;
-            }
-
-            // no building in survival wilderness when that is configured
-            else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
-                if (wc.getTrashBlockPlacementBehaviour().allowed(location, player).Denied())
-                    return this.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + this.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
-                else
-                    return null;
-            } else {
-                // but it's fine in creative
-                return null;
-            }
-        }
-
-        // if not in the wilderness, then apply claim rules (permissions, etc)
-        else {
-            // cache the claim for later reference
-            playerData.setLastClaim(claim);
-            return claim.allowBuild(player);
-        }
-    }
-
 
     // restores nature in multiple chunks, as described by a claim instance
     // this restores all chunks which have ANY number of claim blocks from this claim in them

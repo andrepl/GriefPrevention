@@ -97,10 +97,10 @@ public class BaseTrustCommand extends BaseClaimCommand {
             //otherwise just use the ClaimPermission enum values
             else {
                 switch (permissionLevel) {
-                    case Access:
+                    case ACCESS:
                         errorMessage = claim.allowAccess(player);
                         break;
-                    case Inventory:
+                    case INVENTORY:
                         errorMessage = claim.allowContainers(player);
                         break;
                     default:
@@ -142,9 +142,9 @@ public class BaseTrustCommand extends BaseClaimCommand {
         String permissionDescription;
         if (permissionLevel == null) {
             permissionDescription = plugin.getMessageManager().getMessage(Messages.PermissionsPermission);
-        } else if (permissionLevel == ClaimPermission.Build) {
+        } else if (permissionLevel == ClaimPermission.BUILD) {
             permissionDescription = plugin.getMessageManager().getMessage(Messages.BuildPermission);
-        } else if (permissionLevel == ClaimPermission.Access) {
+        } else if (permissionLevel == ClaimPermission.ACCESS) {
             permissionDescription = plugin.getMessageManager().getMessage(Messages.AccessPermission);
         } else //ClaimPermission.Inventory
         {

@@ -106,7 +106,6 @@ public class PlayerEventHandler implements Listener {
         if (this.howToClaimPattern.matcher(message).matches()) {
             if (plugin.creativeRulesApply(player.getLocation())) {
                 showclaimmessage = Messages.CreativeBasicsDemoAdvertisement;
-
             } else {
                 showclaimmessage = Messages.SurvivalBasicsDemoAdvertisement;
             }
@@ -120,7 +119,7 @@ public class PlayerEventHandler implements Listener {
                 pdata.setIgnoreClaimMessage(true);
                 Bukkit.getScheduler()
                         .runTaskLater(
-                                GriefPrevention.instance,
+                                plugin,
                                 new Runnable() {
                                     public void run() {
                                         pdata.setIgnoreClaimMessage(false);
@@ -140,7 +139,7 @@ public class PlayerEventHandler implements Listener {
             // configured delay.
             if (!pdata.isIgnoreStuckMessage()) {
                 pdata.setIgnoreStuckMessage(true);
-                Bukkit.getScheduler().runTaskLater(GriefPrevention.instance, new Runnable() {
+                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
                     public void run() {
                         pdata.setIgnoreStuckMessage(true);
                     }
@@ -338,7 +337,7 @@ public class PlayerEventHandler implements Listener {
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
         // don't allow interaction with item frames in claimed areas without build permission
         if (entity instanceof Hanging) {
-            String noBuildReason = plugin.allowBuild(player, entity.getLocation());
+            String noBuildReason = plugin.getBlockEventHandler().allowBuild(player, entity.getLocation(), playerData, playerData.getLastClaim());
             if (noBuildReason != null) {
                 GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
                 event.setCancelled(true);
@@ -458,7 +457,7 @@ public class PlayerEventHandler implements Listener {
             // give the player his available claim blocks count and claiming instructions, but only if he keeps the shovel equipped for a minimum time, to avoid mouse wheel spam
             if (plugin.claimsEnabledForWorld(player.getWorld())) {
                 EquipShovelProcessingTask task = new EquipShovelProcessingTask(player);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 15L);  // 15L is approx. 3/4 of a second
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 15L);  // 15L is approx. 3/4 of a second
             }
         }
     }
@@ -505,17 +504,17 @@ public class PlayerEventHandler implements Listener {
         default:
         }
 
+        // if the bucket is being used in a claim, allow for dumping lava closer to other players
+        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim());
+
         // make sure the player is allowed to build at the location
-        String noBuildReason = plugin.allowBuild(player, block.getLocation());
+        String noBuildReason = plugin.getBlockEventHandler().allowBuild(player, block.getLocation(), playerData, claim);
         if (noBuildReason != null) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
             bucketEvent.setCancelled(true);
             return;
         }
-
-        // if the bucket is being used in a claim, allow for dumping lava closer to other players
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim());
 
         // checks for Behaviour perms.
         if (bucketEvent.getBucket() == Material.LAVA_BUCKET) {
@@ -753,7 +752,7 @@ public class PlayerEventHandler implements Listener {
                     || materialInHand == Material.HOPPER_MINECART || materialInHand == Material.EXPLOSIVE_MINECART || materialInHand == Material.BOAT) && plugin.creativeRulesApply(clickedBlock.getLocation())) {
                 // if it's a spawn egg, minecart, or boat, and this is a creative world, apply special rules
                 // player needs build permission at this location
-                String noBuildReason = plugin.allowBuild(player, clickedBlock.getLocation());
+                String noBuildReason = plugin.getBlockEventHandler().allowBuild(player, clickedBlock.getLocation(), playerData, null);
                 if (noBuildReason != null) {
                     GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
                     System.out.println("CANCELLING Container Access.");

@@ -5,6 +5,6 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 public class AccessTrust extends BaseTrustCommand {
     public AccessTrust(GriefPrevention plugin) {
-        super(plugin, "accesstrust", ClaimPermission.Access);
+        super(plugin, "accesstrust", ClaimPermission.ACCESS);
     }
 }
