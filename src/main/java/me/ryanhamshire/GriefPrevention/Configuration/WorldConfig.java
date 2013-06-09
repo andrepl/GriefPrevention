@@ -284,8 +284,6 @@ public class WorldConfig {
 			isPvP = getworld.getPVP();
 		}
 
-
-		GriefPrevention.instance.getLogger().log(Level.INFO,"Reading Configuration for World:" + pName);
 		this.configSeaLevelOverride = config.getInt("GriefPrevention.SeaLevelOverride",-1);
 
 		outConfig.set("GriefPrevention.SeaLevelOverride", configSeaLevelOverride);
@@ -376,7 +374,7 @@ public class WorldConfig {
                      configTrashBlocks.add(parsed);
 				 } catch (IllegalArgumentException iae) {
 					 // nothing special, log though.
-					 GriefPrevention.AddLogEntry("failed to parse trashmaterial Entry:" + trashmaterial.toUpperCase());
+					 GriefPrevention.addLogEntry("failed to parse trashmaterial Entry:" + trashmaterial.toUpperCase());
 				 }
 			}
 		}
@@ -689,7 +687,7 @@ public class WorldConfig {
 		this.configClaimsInvestigationTool = Material.getMaterial(investigationToolMaterialName);
 		if(this.configClaimsInvestigationTool == null)
 		{
-			GriefPrevention.AddLogEntry("ERROR: Material " + investigationToolMaterialName + " not found.  Defaulting to the stick.  Please update your config.yml.");
+			GriefPrevention.addLogEntry("ERROR: Material " + investigationToolMaterialName + " not found.  Defaulting to the stick.  Please update your config.yml.");
 			this.configClaimsInvestigationTool = Material.STICK;
 		}
 
@@ -703,7 +701,7 @@ public class WorldConfig {
 		this.configClaimsModificationTool = Material.getMaterial(modificationToolMaterialName);
 		if(this.configClaimsModificationTool == null)
 		{
-			GriefPrevention.AddLogEntry("ERROR: Material " + modificationToolMaterialName + " not found.  Defaulting to the golden shovel.  Please update your config.yml.");
+			GriefPrevention.addLogEntry("ERROR: Material " + modificationToolMaterialName + " not found.  Defaulting to the golden shovel.  Please update your config.yml.");
 			this.configClaimsModificationTool = Material.GOLD_SPADE;
 		}
 
@@ -750,7 +748,7 @@ public class WorldConfig {
 			Material material = Material.getMaterial(blockName);
 			if(material == null)
 			{
-				GriefPrevention.AddLogEntry("Siege Configuration: Material not found: " + blockName + ".");
+				GriefPrevention.addLogEntry("Siege Configuration: Material not found: " + blockName + ".");
 			}
 			else
 			{

@@ -55,15 +55,16 @@ public class DeliverClaimBlocksTask implements Runnable {
                         !player.getLocation().getBlock().isLiquid()) {
                     //if player is over accrued limit, accrued limit was probably reduced in config file AFTER he accrued
                     //in that case, leave his blocks where they are
-                    if (playerData.accruedClaimBlocks > GriefPrevention.instance.config_claims_maxAccruedBlocks)
+                    if (playerData.accruedClaimBlocks > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
                         continue;
+                    }
 
                     //add blocks
                     playerData.accruedClaimBlocks += accruedBlocks;
 
                     //respect limits
-                    if (playerData.accruedClaimBlocks > GriefPrevention.instance.config_claims_maxAccruedBlocks) {
-                        playerData.accruedClaimBlocks = GriefPrevention.instance.config_claims_maxAccruedBlocks;
+                    if (playerData.accruedClaimBlocks > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
+                        playerData.accruedClaimBlocks = GriefPrevention.instance.configuration.getMaxAccruedBlocks();
                     }
 
                     //intentionally NOT saving data here to reduce overall secondary storage access frequency

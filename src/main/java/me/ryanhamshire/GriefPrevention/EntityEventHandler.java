@@ -122,7 +122,7 @@ class EntityEventHandler implements Listener {
                 if (claim != null) {
                     String noAccessReason = claim.allowAccess(shooter);
                     if (noAccessReason != null) {
-                        GriefPrevention.sendMessage(shooter, TextMode.Err, noAccessReason);
+                        GriefPrevention.sendMessage(shooter, TextMode.ERROR, noAccessReason);
                         event.setCancelled(true);
                     }
                 }
@@ -313,7 +313,7 @@ class EntityEventHandler implements Listener {
                                     else tamedname = "Ocelot";
 
                                     Player theplayer = (Player) tamed.getOwner();
-                                    GriefPrevention.sendMessage(theplayer, TextMode.Info, Messages.TamedDeathDefend, tamedname);
+                                    GriefPrevention.sendMessage(theplayer, TextMode.INFO, Messages.TamedDeathDefend, tamedname);
                                     // theplayer.sendMessage(arg0)
                                 }
                             }
@@ -366,7 +366,7 @@ class EntityEventHandler implements Listener {
         String noBuildReason = GriefPrevention.instance.allowBuild(playerRemover, event.getEntity().getLocation());
         if (noBuildReason != null) {
             event.setCancelled(true);
-            GriefPrevention.sendMessage(playerRemover, TextMode.Err, noBuildReason);
+            GriefPrevention.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
         }
     }
 
@@ -379,7 +379,7 @@ class EntityEventHandler implements Listener {
         String noBuildReason = GriefPrevention.instance.allowBuild(event.getPlayer(), event.getEntity().getLocation());
         if (noBuildReason != null) {
             event.setCancelled(true);
-            GriefPrevention.sendMessage(event.getPlayer(), TextMode.Err, noBuildReason);
+            GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);
             return;
         }
 
@@ -391,7 +391,7 @@ class EntityEventHandler implements Listener {
 
             String noEntitiesReason = claim.allowMoreEntities();
             if (noEntitiesReason != null) {
-                GriefPrevention.sendMessage(event.getPlayer(), TextMode.Err, noEntitiesReason);
+                GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, noEntitiesReason);
                 event.setCancelled(true);
                 return;
             }
@@ -475,13 +475,13 @@ class EntityEventHandler implements Listener {
             if (wc.getProtectFreshSpawns()) {
                 if (defenderData.pvpImmune) {
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.ThatPlayerPvPImmune);
+                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.ThatPlayerPvPImmune);
                     return;
                 }
 
                 if (attackerData.pvpImmune) {
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.CantFightWhileImmune);
+                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
                     return;
                 }
             }
@@ -494,7 +494,7 @@ class EntityEventHandler implements Listener {
                                 !attackerClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
                     attackerData.lastClaim = attackerClaim;
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.CantFightWhileImmune);
+                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
                     return;
                 }
 
@@ -504,7 +504,7 @@ class EntityEventHandler implements Listener {
                                 !defenderClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
                     defenderData.lastClaim = defenderClaim;
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.PlayerInPvPSafeZone);
+                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.PlayerInPvPSafeZone);
                     return;
                 }
             }
@@ -581,7 +581,7 @@ class EntityEventHandler implements Listener {
                             event.setCancelled(true);
                             // kill the arrow to avoid infinite bounce between crowded together animals
                             if (arrow != null) arrow.remove();
-                            GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                            GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
                         }
 
                         // cache claim for later
@@ -645,7 +645,7 @@ class EntityEventHandler implements Listener {
                 String noContainersReason = claim.allowContainers(attacker);
                 if (noContainersReason != null) {
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.Err, Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
                 }
 
                 // cache claim for later

@@ -31,28 +31,28 @@ public class ClaimsList extends BaseCommand {
         } else {
             otherPlayer = plugin.resolvePlayer(args.peek());
             if (otherPlayer == null) {
-                GriefPrevention.sendMessage(sender, TextMode.Err, Messages.PlayerNotFound);
+                GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
                 return true;
             }
         }
 
         //otherwise if no permission to delve into another player's claims data
         if (!sender.hasPermission("griefprevention.deleteclaims")) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.ClaimsListNoPermission);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.ClaimsListNoPermission);
             return true;
         }
 
 
         //load the target player's data
         PlayerData playerData = plugin.dataStore.getPlayerData(otherPlayer.getName());
-        GriefPrevention.sendMessage(sender, TextMode.Instr, " " + playerData.accruedClaimBlocks + "(+" + (playerData.bonusClaimBlocks + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.accruedClaimBlocks + playerData.bonusClaimBlocks + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
+        GriefPrevention.sendMessage(sender, TextMode.INSTR, " " + playerData.accruedClaimBlocks + "(+" + (playerData.bonusClaimBlocks + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.accruedClaimBlocks + playerData.bonusClaimBlocks + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
         for (int i = 0; i < playerData.claims.size(); i++) {
             Claim claim = playerData.claims.get(i);
-            GriefPrevention.sendMessage(sender, TextMode.Instr, "  (-" + claim.getArea() + ") " + plugin.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+            GriefPrevention.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + plugin.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
         }
 
         if (playerData.claims.size() > 0)
-            GriefPrevention.sendMessage(sender, TextMode.Instr, "   =" + playerData.getRemainingClaimBlocks());
+            GriefPrevention.sendMessage(sender, TextMode.INSTR, "   =" + playerData.getRemainingClaimBlocks());
 
         //drop the data we just loaded, if the player isn't online
         if (!otherPlayer.isOnline())

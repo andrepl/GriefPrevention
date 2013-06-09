@@ -20,7 +20,7 @@ public class IgnoreClaims extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer, null);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer, null);
             return true;
         }
         Player player = (Player) sender;
@@ -30,9 +30,9 @@ public class IgnoreClaims extends BaseCommand {
 
         //toggle ignore claims mode on or off
         if (!playerData.ignoreClaims) {
-            GriefPrevention.sendMessage(player, TextMode.Success, Messages.RespectingClaims);
+            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.RespectingClaims);
         } else {
-            GriefPrevention.sendMessage(player, TextMode.Success, Messages.IgnoringClaims);
+            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.IgnoringClaims);
         }
         return true;
     }

@@ -5,7 +5,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class RestoreNature extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         //change shovel mode
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
 
@@ -48,10 +47,10 @@ public class RestoreNature extends BaseCommand {
 
         switch (newMode) {
             case RestoreNature:
-                GriefPrevention.sendMessage(player, TextMode.Instr, Messages.RestoreNatureActivate);
+                GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.RestoreNatureActivate);
                 break;
             case RestoreNatureAggressive:
-                GriefPrevention.sendMessage(player, TextMode.Warn, Messages.RestoreNatureAggressiveActivate);
+                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.RestoreNatureAggressiveActivate);
                 break;
             case RestoreNatureFill:
                 //set radius based on arguments
@@ -63,7 +62,7 @@ public class RestoreNature extends BaseCommand {
                     }
                 }
                 if (playerData.getFillRadius() < 0) playerData.setFillRadius(2);
-                GriefPrevention.sendMessage(player, TextMode.Success, Messages.FillModeActive, String.valueOf(playerData.getFillRadius()));
+                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.FillModeActive, String.valueOf(playerData.getFillRadius()));
                 break;
         }
         playerData.shovelMode = newMode;

@@ -522,7 +522,7 @@ public class Claim {
             // try to get the player (pName).
 
             // try to get this group from the GP instance PlayerGroups cfg.
-            PlayerGroup FoundGroup = GriefPrevention.instance.config_player_groups.getGroupByName(identifier);
+            PlayerGroup FoundGroup = GriefPrevention.instance.configuration.getPlayerGroups().getGroupByName(identifier);
             if (FoundGroup == null) return false; // group not found. Well THIS is awkward.
 
             return FoundGroup.MatchPlayer(pName);

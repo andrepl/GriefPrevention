@@ -75,7 +75,7 @@ public class FlatFileDataStore extends DataStore {
 
                 this.permissionToBonusBlocksMap.put(groupName, groupBonusBlocks);
             } catch (Exception e) {
-                GriefPrevention.AddLogEntry("Unable to load group bonus block data from file \"" + file.getName() + "\": " + e.getMessage());
+                GriefPrevention.addLogEntry("Unable to load group bonus block data from file \"" + file.getName() + "\": " + e.getMessage());
             }
 
             try {
@@ -254,7 +254,7 @@ public class FlatFileDataStore extends DataStore {
 
                 // if there's any problem with the file's content, log an error message and skip it
                 catch (Exception e) {
-                    GriefPrevention.AddLogEntry("Unable to load data for claim \"" + files[i].getName() + "\": " + e.getClass().getName() + " " + e.getMessage());
+                    GriefPrevention.addLogEntry("Unable to load data for claim \"" + files[i].getName() + "\": " + e.getClass().getName() + " " + e.getMessage());
                     e.printStackTrace();
                 }
 
@@ -297,7 +297,7 @@ public class FlatFileDataStore extends DataStore {
 
         // if any problem, log it
         catch (Exception e) {
-            GriefPrevention.AddLogEntry("Unexpected exception saving data for claim \"" + claimID + "\": " + e.getMessage());
+            GriefPrevention.addLogEntry("Unexpected exception saving data for claim \"" + claimID + "\": " + e.getMessage());
         }
 
         // close the file
@@ -374,7 +374,7 @@ public class FlatFileDataStore extends DataStore {
         // remove from disk
         File claimFile = new File(claimDataFolderPath + File.separator + claimID);
         if (claimFile.exists() && !claimFile.delete()) {
-            GriefPrevention.AddLogEntry("Error: Unable to delete claim file \"" + claimFile.getAbsolutePath() + "\".");
+            GriefPrevention.addLogEntry("Error: Unable to delete claim file \"" + claimFile.getAbsolutePath() + "\".");
         }
     }
 
@@ -405,7 +405,7 @@ public class FlatFileDataStore extends DataStore {
                 try {
                     playerData.lastLogin = dateFormat.parse(lastLoginTimestampString);
                 } catch (ParseException parseException) {
-                    GriefPrevention.AddLogEntry("Unable to load last login for \"" + playerFile.getName() + "\".");
+                    GriefPrevention.addLogEntry("Unable to load last login for \"" + playerFile.getName() + "\".");
                     playerData.lastLogin = null;
                 }
 
@@ -430,7 +430,7 @@ public class FlatFileDataStore extends DataStore {
 
             // if there's any problem with the file's content, log an error message
             catch (Exception e) {
-                GriefPrevention.AddLogEntry("Unable to load data for player \"" + playerName + "\": " + e.getMessage());
+                GriefPrevention.addLogEntry("Unable to load data for player \"" + playerName + "\": " + e.getMessage());
             }
 
             try {
@@ -480,7 +480,7 @@ public class FlatFileDataStore extends DataStore {
 
         // if any problem, log it
         catch (Exception e) {
-            GriefPrevention.AddLogEntry("GriefPrevention: Unexpected exception saving data for player \"" + playerName + "\": " + e.getMessage());
+            GriefPrevention.addLogEntry("GriefPrevention: Unexpected exception saving data for player \"" + playerName + "\": " + e.getMessage());
         }
 
         try {
@@ -510,7 +510,7 @@ public class FlatFileDataStore extends DataStore {
 
         // if any problem, log it
         catch (Exception e) {
-            GriefPrevention.AddLogEntry("Unexpected exception saving next claim ID: " + e.getMessage());
+            GriefPrevention.addLogEntry("Unexpected exception saving next claim ID: " + e.getMessage());
         }
 
         // close the file
@@ -538,7 +538,7 @@ public class FlatFileDataStore extends DataStore {
 
         // if any problem, log it
         catch (Exception e) {
-            GriefPrevention.AddLogEntry("Unexpected exception saving data for group \"" + groupName + "\": " + e.getMessage());
+            GriefPrevention.addLogEntry("Unexpected exception saving data for group \"" + groupName + "\": " + e.getMessage());
         }
 
         try {
@@ -605,9 +605,9 @@ public class FlatFileDataStore extends DataStore {
         claimsFolder.renameTo(claimsBackupFolder);
         playersFolder.renameTo(playersBackupFolder);
 
-        GriefPrevention.AddLogEntry("Backed your file system data up to " + claimsBackupFolder.getName() + " and " + playersBackupFolder.getName() + ".");
-        GriefPrevention.AddLogEntry("If your migration encountered any problems, you can restore those data with a quick copy/paste.");
-        GriefPrevention.AddLogEntry("When you're satisfied that all your data have been safely migrated, consider deleting those folders.");
+        GriefPrevention.addLogEntry("Backed your file system data up to " + claimsBackupFolder.getName() + " and " + playersBackupFolder.getName() + ".");
+        GriefPrevention.addLogEntry("If your migration encountered any problems, you can restore those data with a quick copy/paste.");
+        GriefPrevention.addLogEntry("When you're satisfied that all your data have been safely migrated, consider deleting those folders.");
     }
 
     @Override

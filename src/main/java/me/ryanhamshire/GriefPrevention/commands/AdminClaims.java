@@ -17,13 +17,13 @@ public class AdminClaims extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
         Player player = (Player) sender;
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
         playerData.shovelMode = ShovelMode.Admin;
-        GriefPrevention.sendMessage(player, TextMode.Success, Messages.AdminClaimsMode);
+        GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.AdminClaimsMode);
         return true;
     }
 

@@ -98,7 +98,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
                     GriefPrevention.instance.restoreClaim(claim, 0);
                 }
 
-                GriefPrevention.AddLogEntry(" " + claim.getOwnerName() + "'s new player claim expired.");
+                GriefPrevention.addLogEntry(" " + claim.getOwnerName() + "'s new player claim expired.");
             }
         }
 
@@ -116,7 +116,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
                 // delete them
                 GriefPrevention.instance.dataStore.deleteClaimsForPlayer(claim.getOwnerName(), true, false);
-                GriefPrevention.AddLogEntry(" All of " + claim.getOwnerName() + "'s claims have expired. Removing all but the locked claims.");
+                GriefPrevention.addLogEntry(" All of " + claim.getOwnerName() + "'s claims have expired. Removing all but the locked claims.");
 
                 for (int i = 0; i < claims.size(); i++) {
                     // if configured to do so, restore the land to natural
@@ -161,7 +161,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
                 if (removeClaim) {
                     GriefPrevention.instance.dataStore.deleteClaim(claim);
-                    GriefPrevention.AddLogEntry("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+                    GriefPrevention.addLogEntry("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
 
                     // if configured to do so, restore the claim area to natural state
                     if (wc.getClaimsAutoNatureRestoration()) {

@@ -22,7 +22,7 @@ public class Untrust extends BaseCommand {
         String target = args.pop();
 
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
         Player player = (Player) sender;
@@ -42,14 +42,14 @@ public class Untrust extends BaseCommand {
             if (claim == null || claim.allowEdit(player) == null) {
                 clearPermissions = true;
             } else {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.ClearPermsOwnerOnly);
+                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClearPermsOwnerOnly);
                 return true;
             }
         } else if ((!target.startsWith("[") || !target.endsWith("]"))
                 && !target.toUpperCase().startsWith("G:") && !target.startsWith("!")) {
             otherPlayer = plugin.resolvePlayer(target);
             if (!clearPermissions && otherPlayer == null && !target.equals("public")) {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
+                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.PlayerNotFound);
                 return true;
             }
 
@@ -59,8 +59,8 @@ public class Untrust extends BaseCommand {
         } else if (target.startsWith("G:")) {
             //make sure the group exists, otherwise show the message.
             String groupname = target.substring(2);
-            if (!plugin.config_player_groups.GroupExists(groupname)) {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.GroupNotFound);
+            if (!plugin.configuration.getPlayerGroups().groupExists(groupname)) {
+                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.GroupNotFound);
                 return true;
             }
         }
@@ -87,20 +87,20 @@ public class Untrust extends BaseCommand {
             }
             //confirmation message
             if (!clearPermissions) {
-                GriefPrevention.sendMessage(player, TextMode.Success, Messages.UntrustIndividualAllClaims, target);
+                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.UntrustIndividualAllClaims, target);
             } else {
-                GriefPrevention.sendMessage(player, TextMode.Success, Messages.UntrustEveryoneAllClaims);
+                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.UntrustEveryoneAllClaims);
             }
         }
 
         //otherwise, apply changes to only this claim
         else if (claim.allowGrantPermission(player) != null) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.NoPermissionTrust, claim.getOwnerName());
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
         } else {
             //if clearing all
             if (clearPermissions) {
                 claim.clearPermissions();
-                GriefPrevention.sendMessage(player, TextMode.Success, Messages.ClearPermissionsOneClaim);
+                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ClearPermissionsOneClaim);
             } else {
                 //otherwise individual permission drop
                 claim.dropPermission(target);
@@ -110,9 +110,9 @@ public class Untrust extends BaseCommand {
                     if (target.equals("public")) {
                         target = "the public";
                     }
-                    GriefPrevention.sendMessage(player, TextMode.Success, Messages.UntrustIndividualSingleClaim, target);
+                    GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.UntrustIndividualSingleClaim, target);
                 } else {
-                    GriefPrevention.sendMessage(player, TextMode.Success, Messages.UntrustOwnerOnly, claim.getOwnerName());
+                    GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.UntrustOwnerOnly, claim.getOwnerName());
                 }
             }
             //save changes

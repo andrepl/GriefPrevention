@@ -24,18 +24,18 @@ public class ClaimInfo extends BaseCommand {
             int claimid = Integer.parseInt(args.peek());
             claim = plugin.dataStore.getClaim(claimid);
             if (claim == null) {
-                GriefPrevention.sendMessage(sender, TextMode.Err, "Invalid Claim ID:" + claimid);
+                GriefPrevention.sendMessage(sender, TextMode.ERROR, "Invalid Claim ID:" + claimid);
                 return true;
             }
         } else if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         } else {
             claim = plugin.dataStore.getClaimAt(((Player) sender).getLocation(), true, null);
         }
 
         if (claim == null) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.ClaimMissing);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.ClaimMissing);
             return true;
         } else {
             //there is a claim, show all sorts of pointless info about it.
@@ -46,12 +46,12 @@ public class ClaimInfo extends BaseCommand {
             String upperBoundary = GriefPrevention.getfriendlyLocationString(claim.getGreaterBoundaryCorner());
             String sizeString = "(" + String.valueOf(claim.getWidth()) + ", " + String.valueOf(claim.getHeight()) + ")";
             String ClaimOwner = claim.getOwnerName();
-            GriefPrevention.sendMessage(sender, TextMode.Info, "ID: " + claim.getID());
-            GriefPrevention.sendMessage(sender, TextMode.Info, "Position: " + lowerBoundary + "-" + upperBoundary);
-            GriefPrevention.sendMessage(sender, TextMode.Info, "Size: " + sizeString);
-            GriefPrevention.sendMessage(sender, TextMode.Info, "Owner: " + ClaimOwner);
+            GriefPrevention.sendMessage(sender, TextMode.INFO, "ID: " + claim.getID());
+            GriefPrevention.sendMessage(sender, TextMode.INFO, "Position: " + lowerBoundary + "-" + upperBoundary);
+            GriefPrevention.sendMessage(sender, TextMode.INFO, "Size: " + sizeString);
+            GriefPrevention.sendMessage(sender, TextMode.INFO, "Owner: " + ClaimOwner);
             String parentId = claim.parent == null ? "(no parent)" : String.valueOf(claim.parent.getID());
-            GriefPrevention.sendMessage(sender, TextMode.Info, "Parent ID: " + parentId);
+            GriefPrevention.sendMessage(sender, TextMode.INFO, "Parent ID: " + parentId);
             String childInfo = "";
             //if no subclaims, set childinfo to indicate as such.
             if (claim.children.size() == 0) {
@@ -65,7 +65,7 @@ public class ClaimInfo extends BaseCommand {
                 //remove the last character since it is a comma we do not want.
                 childInfo = childInfo.substring(0, childInfo.length() - 1);
             }
-            GriefPrevention.sendMessage(sender, TextMode.Info, "Subclaims: " + childInfo);
+            GriefPrevention.sendMessage(sender, TextMode.INFO, "Subclaims: " + childInfo);
             return true;
         }
     }

@@ -99,7 +99,7 @@ public class CommandHandler implements TabExecutor {
         }
         BaseCommand bc = commandMap.get(params.peek().toLowerCase());
         if (bc == null) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.UnknownCommand, params.peek());
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.UnknownCommand, params.peek());
             return true;
         }
         String newLabel = commandLabel + " " + params.pop();

@@ -25,7 +25,7 @@ public class GiveClaim extends BaseClaimCommand {
         Player source = player;
         Player target = Bukkit.getPlayer(args.peek());
         if (target == null) {
-            GriefPrevention.sendMessage(source, TextMode.Err, Messages.PlayerNotFound, args.peek());
+            GriefPrevention.sendMessage(source, TextMode.ERROR, Messages.PlayerNotFound, args.peek());
             return true;
         }
 
@@ -37,7 +37,7 @@ public class GiveClaim extends BaseClaimCommand {
             if (!claimToGive.getOwnerName().equalsIgnoreCase(source.getName())) {
                 //if they don't have adminclaims permission, deny it.
                 if (!source.hasPermission("griefprevention.adminclaims")) {
-                    GriefPrevention.sendMessage(source, TextMode.Err, Messages.NoAdminClaimsPermission);
+                    GriefPrevention.sendMessage(source, TextMode.ERROR, Messages.NoAdminClaimsPermission);
                     return true;
                 }
             }
@@ -48,15 +48,15 @@ public class GiveClaim extends BaseClaimCommand {
             try {
                 plugin.dataStore.changeClaimOwner(claimToGive, target.getName());
                 //message both players.
-                GriefPrevention.sendMessage(source, TextMode.Success, Messages.GiveSuccessSender, originalOwner, target.getName());
+                GriefPrevention.sendMessage(source, TextMode.SUCCESS, Messages.GiveSuccessSender, originalOwner, target.getName());
                 if (target != null && target.isOnline()) {
-                    GriefPrevention.sendMessage(target, TextMode.Success, Messages.GiveSuccessTarget, originalOwner);
+                    GriefPrevention.sendMessage(target, TextMode.SUCCESS, Messages.GiveSuccessTarget, originalOwner);
                 }
             } catch (Exception exx) {
-                GriefPrevention.sendMessage(source, TextMode.Err, "Failed to transfer Claim.");
+                GriefPrevention.sendMessage(source, TextMode.ERROR, "Failed to transfer Claim.");
             }
         } else {
-            GriefPrevention.sendMessage(source, TextMode.Err, Messages.NoGiveClaimsPermission);
+            GriefPrevention.sendMessage(source, TextMode.ERROR, Messages.NoGiveClaimsPermission);
         }
         return true;
     }

@@ -34,7 +34,7 @@ public class CleanClaim extends BaseClaimCommand {
             if (attemptparse != null) {
                 source = new MaterialInfo(attemptparse.getId(), (byte) 0, args.peek());
             } else {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.UnknownMaterial, args.peek());
+                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.UnknownMaterial, args.peek());
                 return true;
             }
         }
@@ -48,7 +48,7 @@ public class CleanClaim extends BaseClaimCommand {
                 if (attemptparse != null) {
                     target = new MaterialInfo(attemptparse.getId(), (byte) 0, args.peek());
                 } else {
-                    GriefPrevention.sendMessage(player, TextMode.Err, Messages.UnknownMaterial, args.peek());
+                    GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.UnknownMaterial, args.peek());
                     return true;
                 }
             }

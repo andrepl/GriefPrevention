@@ -24,9 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import me.ryanhamshire.GriefPrevention.Configuration.ClaimMetaHandler;
 import me.ryanhamshire.GriefPrevention.Configuration.ConfigData;
 import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.commands.CommandHandler;
@@ -36,7 +34,6 @@ import me.ryanhamshire.GriefPrevention.tasks.EntityCleanupTask;
 import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 import me.ryanhamshire.GriefPrevention.tasks.SendPlayerMessageTask;
 import me.ryanhamshire.GriefPrevention.tasks.TreeCleanupTask;
-import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -64,22 +61,13 @@ public class GriefPrevention extends JavaPlugin {
     public static GriefPrevention instance;
 
     // for logging to the console and log file
-    private static Logger log = Logger.getLogger("Minecraft");
-    public ConfigData Configuration = null;
+    public ConfigData configuration = null;
+
     // this handles data storage, like player and region data
     public DataStore dataStore;
-    public PlayerGroups config_player_groups = null;
-    // configuration variables, loaded/saved from a config.yml
 
-    public int config_claims_initialBlocks;                         // the number of claim blocks a new player starts with
-    public int config_claims_maxAccruedBlocks;                      // the limit on accrued blocks (over time).  doesn't limit purchased or admin-gifted blocks
-    // start removal....
     // reference to the economy plugin, if economy integration is enabled
     public static Economy economy = null;
-
-    public double config_economy_claimBlocksPurchaseCost;            // cost to purchase a claim block.  set to zero to disable purchase.
-
-    public double config_economy_claimBlocksSellValue;               // return on a sold claim block.  set to zero to disable sale.
 
     // how far away to search from a tree trunk for its branch blocks
     public static final int TREE_RADIUS = 5;
@@ -89,9 +77,15 @@ public class GriefPrevention extends JavaPlugin {
 
     private CommandHandler commandHandler;
 
+    private static boolean eventsRegistered = false;
+
+    public DeliverClaimBlocksTask claimTask = null;
+    public CleanupUnusedClaimsTask cleanupTask = null;
+
+
     // adds a server log entry
-    public static void AddLogEntry(String entry) {
-        log.info("GriefPrevention: " + entry);
+    public static void addLogEntry(String entry) {
+        instance.getLogger().info(entry);
     }
 
     /**
@@ -104,7 +98,7 @@ public class GriefPrevention extends JavaPlugin {
      * @return WorldConfig representing the configuration of the given world.
      */
     public WorldConfig getWorldCfg(World world) {
-        return Configuration.getWorldConfig(world);
+        return configuration.getWorldConfig(world);
     }
 
     /**
@@ -116,7 +110,7 @@ public class GriefPrevention extends JavaPlugin {
      * @return WorldConfig representing the configuration of the given world.
      */
     public WorldConfig getWorldCfg(String worldname) {
-        return Configuration.getWorldConfig(worldname);
+        return configuration.getWorldConfig(worldname);
     }
 
 
@@ -124,84 +118,38 @@ public class GriefPrevention extends JavaPlugin {
         return commandHandler;
     }
 
-    private ClaimMetaHandler MetaHandler = null;
-
-    /**
-     * Retrieves the Claim Metadata handler. Unused by GP itself, this is useful for
-     * Plugins that which to create Claim-based data. A prime example is a plugin like GriefPreventionFlags, which
-     * adds Claim-based flag information to claims. Many plugins use their own special methods of indexing per-claim,
-     * so I thought it made sense to add a sort of "official" API to it, so that they are all consistent.
-     *
-     * @return ClaimMetaHandler object.
-     */
-    public ClaimMetaHandler getMetaHandler() {
-        return MetaHandler;
-    }
-
-    private static boolean eventsRegistered = false;
-
-    public DeliverClaimBlocksTask claimTask = null;
-    public CleanupUnusedClaimsTask cleanupTask = null;
-
     // initializes well...   everything
     public void onEnable() {
-        AddLogEntry("Grief Prevention enabled.");
-
         instance = this;
-        GriefPrevention.AddLogEntry(new File(DataStore.configFilePath).getAbsolutePath());
-        GriefPrevention.AddLogEntry("File Exists:" + new File(DataStore.configFilePath).exists());
         // load the config if it exists
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(DataStore.configFilePath));
         FileConfiguration outConfig = new YamlConfiguration();
-        Configuration = new ConfigData(config, outConfig);
+        configuration = new ConfigData(config, outConfig);
         // read configuration settings (note defaults)
         commandHandler = new CommandHandler(this);
         commandHandler.initialize();
 
         // load player groups.
-        this.config_player_groups = new PlayerGroups(config, "GriefPrevention.Groups");
-        this.config_player_groups.Save(outConfig, "GriefPrevention.Groups");
 
         // optional database settings
-        String databaseUrl = config.getString("GriefPrevention.Database.URL", "");
-        String databaseUserName = config.getString("GriefPrevention.Database.UserName", "");
-        String databasePassword = config.getString("GriefPrevention.Database.Password", "");
-        // sea level
-
-
-        outConfig.set("GriefPrevention.Database.URL", databaseUrl);
-        outConfig.set("GriefPrevention.Database.UserName", databaseUserName);
-        outConfig.set("GriefPrevention.Database.Password", databasePassword);
-
-        this.config_economy_claimBlocksPurchaseCost = config.getDouble("GriefPrevention.Economy.ClaimBlocksPurchaseCost", 0);
-        this.config_economy_claimBlocksSellValue = config.getDouble("GriefPrevention.Economy.ClaimBlocksSellValue", 0);
-        this.config_claims_maxAccruedBlocks = config.getInt("GriefPrevention.Claims.MaxAccruedBlocks", 5000);
-        outConfig.set("GriefPrevention.Claims.MaxAccruedBlocks", config_claims_maxAccruedBlocks);
-
-        this.config_claims_initialBlocks = config.getInt("GriefPrevention.Claims.InitialBlocks", 100);
-
-        outConfig.set("GriefPrevention.Economy.ClaimBlocksPurchaseCost", this.config_economy_claimBlocksPurchaseCost);
-        outConfig.set("GriefPrevention.Economy.ClaimBlocksSellValue", this.config_economy_claimBlocksSellValue);
-        outConfig.set("GriefPrevention.Claims.InitialBlocks", config_claims_initialBlocks);
-
 
         // when datastore initializes, it loads player and claim data, and posts some stats to the log
-        if (databaseUrl.length() > 0) {
+        if (configuration.getDatabaseUrl().length() > 0) {
             try {
-                DatabaseDataStore databaseStore = new DatabaseDataStore(databaseUrl, databaseUserName, databasePassword);
-
+                DatabaseDataStore databaseStore = new DatabaseDataStore(configuration.getDatabaseUrl(),
+                        configuration.getDatabaseUserName(), configuration.getDatabasePassword());
                 if (FlatFileDataStore.hasData()) {
-                    GriefPrevention.AddLogEntry("There appears to be some data on the hard drive.  Migrating those data to the database...");
+                    GriefPrevention.addLogEntry("There appears to be some data on the hard drive.  Migrating those data to the database...");
                     FlatFileDataStore flatFileStore = new FlatFileDataStore();
                     flatFileStore.migrateData(databaseStore);
-                    GriefPrevention.AddLogEntry("Data migration process complete.  Reloading data from the database...");
+                    GriefPrevention.addLogEntry("Data migration process complete.  Reloading data from the database...");
                     databaseStore.close();
-                    databaseStore = new DatabaseDataStore(databaseUrl, databaseUserName, databasePassword);
+                    databaseStore = new DatabaseDataStore(configuration.getDatabaseUrl(), configuration.getDatabaseUserName(),
+                            configuration.getDatabasePassword());
                 }
-
                 this.dataStore = databaseStore;
             } catch (Exception e) {
-                GriefPrevention.AddLogEntry("Because there was a problem with the database, GriefPrevention will not function properly.  Either update the database config settings resolve the issue, or delete those lines from your config.yml so that GriefPrevention can use the file system to store data.");
+                GriefPrevention.addLogEntry("Because there was a problem with the database, GriefPrevention will not function properly.  Either update the database config settings resolve the issue, or delete those lines from your config.yml so that GriefPrevention can use the file system to store data.");
                 return;
             }
         }
@@ -212,19 +160,15 @@ public class GriefPrevention extends JavaPlugin {
             try {
                 this.dataStore = new FlatFileDataStore();
             } catch (Exception e) {
-                GriefPrevention.AddLogEntry("Unable to initialize the file system data store.  Details:");
-                GriefPrevention.AddLogEntry(e.getMessage());
+                GriefPrevention.addLogEntry("Unable to initialize the file system data store.  Details:");
+                GriefPrevention.addLogEntry(e.getMessage());
             }
         }
-        // start the recurring cleanup event for entities in creative worlds, if enabled.
-
         // start recurring cleanup scan for unused claims belonging to inactive players
         // if the option is enabled.
         // look through all world configurations.
         boolean claimcleanupOn = false;
         boolean entitycleanupEnabled = false;
-
-
         if (entitycleanupEnabled) {
             EntityCleanupTask task = new EntityCleanupTask(0);
             this.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L);
@@ -249,41 +193,40 @@ public class GriefPrevention extends JavaPlugin {
         }
 
         // if economy is enabled
-        if (this.config_economy_claimBlocksPurchaseCost > 0 || this.config_economy_claimBlocksSellValue > 0) {
+        if (this.configuration.getClaimBlocksPurchaseCost() > 0 || this.configuration.getClaimBlocksSellValue() > 0) {
             // try to load Vault
-            GriefPrevention.AddLogEntry("GriefPrevention requires Vault for economy integration.");
-            GriefPrevention.AddLogEntry("Attempting to load Vault...");
+            GriefPrevention.addLogEntry("GriefPrevention requires Vault for economy integration.");
+            GriefPrevention.addLogEntry("Attempting to load Vault...");
             RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-            GriefPrevention.AddLogEntry("Vault loaded successfully!");
+            GriefPrevention.addLogEntry("Vault loaded successfully!");
 
             // ask Vault to hook into an economy plugin
-            GriefPrevention.AddLogEntry("Looking for a Vault-compatible economy plugin...");
+            GriefPrevention.addLogEntry("Looking for a Vault-compatible economy plugin...");
             if (economyProvider != null) {
                 GriefPrevention.economy = economyProvider.getProvider();
 
                 // on success, display success message
                 if (GriefPrevention.economy != null) {
-                    GriefPrevention.AddLogEntry("Hooked into economy: " + GriefPrevention.economy.getName() + ".");
-                    GriefPrevention.AddLogEntry("Ready to buy/sell claim blocks!");
+                    GriefPrevention.addLogEntry("Hooked into economy: " + GriefPrevention.economy.getName() + ".");
+                    GriefPrevention.addLogEntry("Ready to buy/sell claim blocks!");
                 }
 
                 // otherwise error message
                 else {
-                    GriefPrevention.AddLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
+                    GriefPrevention.addLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
                 }
             }
 
             // another error case
             else {
-                GriefPrevention.AddLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
+                GriefPrevention.addLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
             }
         }
-        MetaHandler = new ClaimMetaHandler();
         try {
             new File(DataStore.configFilePath).delete();
             outConfig.save(new File(DataStore.configFilePath).getAbsolutePath());
         } catch (IOException exx) {
-            this.log.log(Level.SEVERE, "Failed to save primary configuration file:" + DataStore.configFilePath);
+            this.getLogger().log(Level.SEVERE, "Failed to save primary configuration file:" + DataStore.configFilePath);
         }
     }
 
@@ -344,8 +287,6 @@ public class GriefPrevention extends JavaPlugin {
         return location.getWorld().getName() + "(" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ")";
     }
 
-
-
     // helper method to resolve a player by name
     public OfflinePlayer resolvePlayer(String name) {
         // try online players first
@@ -359,8 +300,6 @@ public class GriefPrevention extends JavaPlugin {
                 return offlinePlayers[i];
             }
         }
-
-        // if none found, return null
         return null;
     }
 
@@ -376,8 +315,6 @@ public class GriefPrevention extends JavaPlugin {
         // cancel ALL pending tasks.
         Bukkit.getScheduler().cancelTasks(this);
         this.dataStore.close();
-
-        AddLogEntry("GriefPrevention disabled.");
     }
 
     // called when a player spawns, applies protection for that player if necessary
@@ -415,7 +352,7 @@ public class GriefPrevention extends JavaPlugin {
         playerData.pvpImmune = true;
 
         // inform the player
-        GriefPrevention.sendMessage(player, TextMode.Success, Messages.PvPImmunityStart);
+        GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.PvPImmunityStart);
     }
 
     // checks whether players can create claims in a world
@@ -625,26 +562,6 @@ public class GriefPrevention extends JavaPlugin {
         }
     }
 
-    // ensures a piece of the managed world is loaded into server memory
-    // (generates the chunk if necessary)
-    private static void GuaranteeChunkLoaded(Location location) {
-        Chunk chunk = location.getChunk();
-        while (!chunk.isLoaded() || !chunk.load(true)) ;
-    }
-
-    // sends a color-coded message to a player
-    public static void sendMessage(CommandSender player, ChatColor color, Messages messageID, String... args) {
-        sendMessage(player, color, messageID, 0, args);
-    }
-
-    // sends a color-coded message to a player
-    public static void sendMessage(CommandSender player, ChatColor color, Messages messageID, long delayInTicks, String... args) {
-
-        String message = GriefPrevention.instance.dataStore.getMessage(messageID, args);
-        if (message == null || message.equals("")) return;
-        sendMessage(player, color, message, delayInTicks);
-    }
-
     private static String removeColors(String source) {
 
         for (ChatColor cc : ChatColor.values()) {
@@ -653,17 +570,45 @@ public class GriefPrevention extends JavaPlugin {
         return source;
     }
 
+    // ensures a piece of the managed world is loaded into server memory
+    // (generates the chunk if necessary)
+    private static void GuaranteeChunkLoaded(Location location) {
+        Chunk chunk = location.getChunk();
+        while (!chunk.isLoaded() || !chunk.load(true)) ;
+    }
+
+    // sends a color-coded message to a player
+    public static void sendMessage(CommandSender player, TextMode color, Messages messageID, String... args) {
+        sendMessage(player, color, messageID, 0, args);
+    }
+
+    // sends a color-coded message to a player
+    public static void sendMessage(CommandSender player, TextMode color, Messages messageID, long delayInTicks, String... args) {
+        String message = GriefPrevention.instance.dataStore.getMessage(messageID, args);
+        if (message == null || message.equals("")) return;
+        sendMessage(player, color, message, delayInTicks);
+    }
+
+    // sends a color-coded message to a player
+    public static void sendMessage(CommandSender player, TextMode color, String message) {
+        if (player == null) {
+            GriefPrevention.addLogEntry(removeColors(message));
+        } else {
+            player.sendMessage(instance.configuration.getColor(color) + message);
+        }
+    }
+
     // sends a color-coded message to a player
     public static void sendMessage(CommandSender player, ChatColor color, String message) {
         if (player == null) {
-            GriefPrevention.AddLogEntry(removeColors(message));
+            GriefPrevention.addLogEntry(removeColors(message));
         } else {
             player.sendMessage(color + message);
         }
     }
 
-    static void sendMessage(CommandSender player, ChatColor color, String message, long delayInTicks) {
-        SendPlayerMessageTask task = new SendPlayerMessageTask(player, color, message);
+    static void sendMessage(CommandSender player, TextMode color, String message, long delayInTicks) {
+        SendPlayerMessageTask task = new SendPlayerMessageTask(player, instance.configuration.getColor(color), message);
         if (delayInTicks > 0) {
             GriefPrevention.instance.getServer().getScheduler().runTaskLater(GriefPrevention.instance, task, delayInTicks);
         } else {
@@ -674,7 +619,7 @@ public class GriefPrevention extends JavaPlugin {
     // determines whether creative anti-grief rules apply at a location
     public boolean creativeRulesApply(Location location) {
         // return this.config_claims_enabledCreativeWorlds.contains(location.getWorld().getName());
-        return Configuration.getWorldConfig(location.getWorld()).getCreativeRules();
+        return configuration.getWorldConfig(location.getWorld()).getCreativeRules();
     }
 
     public String allowBuild(Player player, Location location) {
@@ -802,7 +747,7 @@ public class GriefPrevention extends JavaPlugin {
             // null value returned indicates an error parsing the string from the config file
             if (materialInfo == null) {
                 // show error in log
-                GriefPrevention.AddLogEntry("ERROR: Unable to read a material entry from the config file.  Please update your config.yml.");
+                GriefPrevention.addLogEntry("ERROR: Unable to read a material entry from the config file.  Please update your config.yml.");
 
                 // update string, which will go out to config file to help user find the error entry
                 if (!stringsToParse.get(i).contains("can't")) {

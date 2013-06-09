@@ -37,8 +37,8 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
             int newTotal = plugin.dataStore.adjustGroupBonusBlocks(permissionIdentifier, adjustment);
 
             if (sender instanceof Player) {
-                GriefPrevention.sendMessage(sender, TextMode.Success, Messages.AdjustGroupBlocksSuccess, permissionIdentifier, String.valueOf(adjustment), String.valueOf(newTotal));
-                GriefPrevention.AddLogEntry(sender.getName() + " adjusted " + permissionIdentifier + "'s bonus claim blocks by " + adjustment + ".");
+                GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustGroupBlocksSuccess, permissionIdentifier, String.valueOf(adjustment), String.valueOf(newTotal));
+                GriefPrevention.addLogEntry(sender.getName() + " adjusted " + permissionIdentifier + "'s bonus claim blocks by " + adjustment + ".");
             }
             return true;
         }
@@ -46,7 +46,7 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
         //otherwise, find the specified player
         OfflinePlayer targetPlayer = plugin.resolvePlayer(args.peek());
         if (targetPlayer == null) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.PlayerNotFound);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
             return true;
         }
 
@@ -55,9 +55,9 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
         playerData.bonusClaimBlocks += adjustment;
         plugin.dataStore.savePlayerData(targetPlayer.getName(), playerData);
 
-        GriefPrevention.sendMessage(sender, TextMode.Success, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.bonusClaimBlocks));
+        GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.bonusClaimBlocks));
         if (sender instanceof Player) {
-            GriefPrevention.AddLogEntry(sender.getName() + " adjusted " + targetPlayer.getName() + "'s bonus claim blocks by " + adjustment + ".");
+            GriefPrevention.addLogEntry(sender.getName() + " adjusted " + targetPlayer.getName() + "'s bonus claim blocks by " + adjustment + ".");
         }
         return true;
     }

@@ -23,10 +23,10 @@ public class DeleteClaim extends BaseClaimCommand {
         if (!claim.isAdminClaim() || player.hasPermission("griefprevention.adminclaims")) {
             PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
             if (claim.children.size() > 0 && !playerData.warnedAboutMajorDeletion) {
-                GriefPrevention.sendMessage(player, TextMode.Warn, Messages.DeletionSubdivisionWarning);
+                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeletionSubdivisionWarning);
                 playerData.warnedAboutMajorDeletion = true;
             } else if (claim.neverdelete && !playerData.warnedAboutMajorDeletion) {
-                GriefPrevention.sendMessage(player, TextMode.Warn, Messages.DeleteLockedClaimWarning);
+                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeleteLockedClaimWarning);
                 playerData.warnedAboutMajorDeletion = true;
             } else {
                 claim.removeSurfaceFluids(null);
@@ -36,15 +36,15 @@ public class DeleteClaim extends BaseClaimCommand {
                 if (wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
                     plugin.restoreClaim(claim, 0);
                 }
-                GriefPrevention.sendMessage(player, TextMode.Success, Messages.DeleteSuccess);
-                GriefPrevention.AddLogEntry(player.getName() + " deleted " + claim.getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.DeleteSuccess);
+                GriefPrevention.addLogEntry(player.getName() + " deleted " + claim.getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
 
                 //revert any current visualization
                 Visualization.Revert(player);
                 playerData.warnedAboutMajorDeletion = false;
             }
         } else {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.CantDeleteAdminClaim);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CantDeleteAdminClaim);
         }
         return true;
     }

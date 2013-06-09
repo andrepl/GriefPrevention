@@ -66,7 +66,7 @@ public abstract class DataStore
 	//initialization!
 	void initialize() throws Exception
 	{
-		GriefPrevention.AddLogEntry(this.claims.size() + " total claims loaded.");
+		GriefPrevention.addLogEntry(this.claims.size() + " total claims loaded.");
 		
 		//make a list of players who own claims
 		Vector<String> playerNames = new Vector<String>();
@@ -81,7 +81,7 @@ public abstract class DataStore
 				playerNames.add(claim.ownerName);
 		}
 		
-		GriefPrevention.AddLogEntry(playerNames.size() + " players have staked claims.");
+		GriefPrevention.addLogEntry(playerNames.size() + " players have staked claims.");
 		
 		//load up all the messages from messages.yml
 		this.loadMessages();
@@ -201,7 +201,7 @@ public abstract class DataStore
 		if(newClaim.parent != null)
 		{
 			if(newClaim.subClaimid==null){
-				GriefPrevention.AddLogEntry("Setting Subclaim ID to:" + String.valueOf(1+newClaim.parent.children.size()));
+				GriefPrevention.addLogEntry("Setting Subclaim ID to:" + String.valueOf(1 + newClaim.parent.children.size()));
 				newClaim.subClaimid= (long) (newClaim.parent.children.size()+1);
 			}
 			newClaim.parent.children.add(newClaim);
@@ -790,7 +790,7 @@ public abstract class DataStore
 			while(!siegeData.getSiegedBlocks().isEmpty()){
 				siegeData.getSiegedBlocks().poll().reset();
 			}
-			GriefPrevention.AddLogEntry("reverted " + revertedCount + " Sieged Blocks.");
+			GriefPrevention.addLogEntry("reverted " + revertedCount + " Sieged Blocks.");
 			
 		}
 		//start cooldowns for every attacker/involved claim pair
@@ -824,7 +824,7 @@ public abstract class DataStore
 			if(winner != null)
 			{
 				//notify the winner
-				GriefPrevention.sendMessage(winner, TextMode.Success, Messages.SiegeWinDoorsOpen);
+				GriefPrevention.sendMessage(winner, TextMode.SUCCESS, Messages.SiegeWinDoorsOpen);
 				
 				//schedule a task to secure the claims in about 5 minutes
 				//set siegeData's LootedChests to 0, and also register it for events temporarily so it can
@@ -1293,7 +1293,7 @@ public abstract class DataStore
 			//if default is missing, log an error and use some fake data for now so that the plugin can run
 			if(messageData == null)
 			{
-				GriefPrevention.AddLogEntry("Missing message for " + messageID.name() + ".  Please contact the developer.");
+				GriefPrevention.addLogEntry("Missing message for " + messageID.name() + ".  Please contact the developer.");
 				messageData = new CustomizableMessage(messageID, "Missing message!  ID: " + messageID.name() + ".  Please contact a server admin.", null);
 			}
 			
@@ -1315,7 +1315,7 @@ public abstract class DataStore
 		}
 		catch(IOException exception)
 		{
-			GriefPrevention.AddLogEntry("Unable to write to the configuration file at \"" + DataStore.messagesFilePath + "\"");
+			GriefPrevention.addLogEntry("Unable to write to the configuration file at \"" + DataStore.messagesFilePath + "\"");
 		}
 		
 		defaults.clear();

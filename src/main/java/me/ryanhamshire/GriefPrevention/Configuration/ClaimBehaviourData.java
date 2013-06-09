@@ -70,7 +70,7 @@ public class ClaimBehaviourData {
 			else if(claimBehaviour == ClaimBehaviourMode.RequireAccess){
 				if(RelevantPlayer!=null){
 					if(null!=(result =testclaim.allowAccess(RelevantPlayer))){
-						GriefPrevention.sendMessage(RelevantPlayer, TextMode.Err, result);
+						GriefPrevention.sendMessage(RelevantPlayer, TextMode.ERROR, result);
 						return ClaimAllowanceConstants.Deny;
 					}
 				}
@@ -78,7 +78,7 @@ public class ClaimBehaviourData {
 			else if(claimBehaviour == ClaimBehaviourMode.RequireContainer){
 				if(RelevantPlayer!=null){
 					if(null!=(result = testclaim.allowContainers(RelevantPlayer))){
-						GriefPrevention.sendMessage(RelevantPlayer, TextMode.Err, result);
+						GriefPrevention.sendMessage(RelevantPlayer, TextMode.ERROR, result);
 						return ClaimAllowanceConstants.Deny;
 					}
 				}

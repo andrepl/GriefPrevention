@@ -26,7 +26,7 @@ public class Deathblow extends BaseCommand {
         //try to find that player
         List<Player> matches = plugin.getServer().matchPlayer(args.pop());
         if (matches.size() != 1) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.PlayerNotFound);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
             return true;
         }
         Player targetPlayer = matches.get(0);
@@ -36,7 +36,7 @@ public class Deathblow extends BaseCommand {
         if (args.size() > 1) {
             recipientPlayer = plugin.getServer().getPlayer(args.peek());
             if (recipientPlayer == null) {
-                GriefPrevention.sendMessage(sender, TextMode.Err, Messages.PlayerNotFound);
+                GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
                 return true;
             }
         }
@@ -61,9 +61,9 @@ public class Deathblow extends BaseCommand {
 
         //log entry
         if (sender instanceof Player) {
-            GriefPrevention.AddLogEntry(sender.getName() + " used /DeathBlow to kill " + targetPlayer.getName() + ".");
+            GriefPrevention.addLogEntry(sender.getName() + " used /DeathBlow to kill " + targetPlayer.getName() + ".");
         } else {
-            GriefPrevention.AddLogEntry("Killed " + targetPlayer.getName() + ".");
+            GriefPrevention.addLogEntry("Killed " + targetPlayer.getName() + ".");
         }
         return true;
     }

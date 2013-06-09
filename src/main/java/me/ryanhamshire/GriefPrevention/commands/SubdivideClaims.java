@@ -17,15 +17,15 @@ public class SubdivideClaims extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
         Player player = (Player) sender;
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
         playerData.shovelMode = ShovelMode.Subdivide;
         playerData.claimSubdividing = null;
-        GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SubdivisionMode);
-        GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SubdivisionDemo);
+        GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.SubdivisionMode);
+        GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.SubdivisionDemo);
         return true;
     }
 

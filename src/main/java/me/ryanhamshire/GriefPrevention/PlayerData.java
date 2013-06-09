@@ -50,7 +50,7 @@ public class PlayerData {
     }
 
     // how many claim blocks the player has earned via play time
-    public int accruedClaimBlocks = GriefPrevention.instance.config_claims_initialBlocks;
+    public int accruedClaimBlocks = GriefPrevention.instance.configuration.getInitialBlocks();
 
     // where this player was the last time we checked on him for earning claim blocks
     public Location lastAfkCheckLocation = null;

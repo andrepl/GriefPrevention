@@ -23,7 +23,7 @@ public class AbandonAllClaims extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (args.size() > 1) return false;
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
         Player player = (Player) sender;
@@ -32,14 +32,14 @@ public class AbandonAllClaims extends BaseCommand {
             try {
                 deleteLocked = Boolean.parseBoolean(args.peek());
             } catch (IllegalArgumentException ex) {
-                GriefPrevention.sendMessage(sender, TextMode.Err, Messages.BooleanParseError, args.peek());
+                GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.BooleanParseError, args.peek());
             }
         }
 
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
 
         if (!wc.getAllowUnclaim()) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.NoCreativeUnClaim);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoCreativeUnClaim);
             return true;
         }
 
@@ -49,7 +49,7 @@ public class AbandonAllClaims extends BaseCommand {
 
         //check count
         if (originalClaimCount == 0) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.YouHaveNoClaims);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.YouHaveNoClaims);
             return true;
         }
 
@@ -59,9 +59,9 @@ public class AbandonAllClaims extends BaseCommand {
         //inform the player
         int remainingBlocks = playerData.getRemainingClaimBlocks();
         if (deleteLocked) {
-            GriefPrevention.sendMessage(player, TextMode.Success, Messages.SuccessfulAbandonIncludingLocked, String.valueOf(remainingBlocks));
+            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.SuccessfulAbandonIncludingLocked, String.valueOf(remainingBlocks));
         } else {
-            GriefPrevention.sendMessage(player, TextMode.Success, Messages.SuccessfulAbandonExcludingLocked, String.valueOf(remainingBlocks));
+            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.SuccessfulAbandonExcludingLocked, String.valueOf(remainingBlocks));
         }
 
         //revert any current visualization

@@ -51,14 +51,14 @@ public class DatabaseDataStore extends DataStore {
             //load the java driver for mySQL
             Class.forName("com.mysql.jdbc.Driver");
         } catch (Exception e) {
-            GriefPrevention.AddLogEntry("ERROR: Unable to load Java's mySQL database driver.  Check to make sure you've installed it properly.");
+            GriefPrevention.addLogEntry("ERROR: Unable to load Java's mySQL database driver.  Check to make sure you've installed it properly.");
             throw e;
         }
 
         try {
             this.refreshDataConnection();
         } catch (Exception e2) {
-            GriefPrevention.AddLogEntry("ERROR: Unable to connect to database.  Check your config file settings.");
+            GriefPrevention.addLogEntry("ERROR: Unable to connect to database.  Check your config file settings.");
             throw e2;
         }
 
@@ -80,8 +80,8 @@ public class DatabaseDataStore extends DataStore {
                 }
             }
         } catch (Exception e3) {
-            GriefPrevention.AddLogEntry("ERROR: Unable to create the necessary database table.  Details:");
-            GriefPrevention.AddLogEntry(e3.getMessage());
+            GriefPrevention.addLogEntry("ERROR: Unable to create the necessary database table.  Details:");
+            GriefPrevention.addLogEntry(e3.getMessage());
             throw e3;
         }
 
@@ -205,7 +205,7 @@ public class DatabaseDataStore extends DataStore {
                     childClaim.inDataStore = true;
                 }
             } catch (SQLException e) {
-                GriefPrevention.AddLogEntry("Unable to load a claim.  Details: " + e.getMessage() + " ... " + results.toString());
+                GriefPrevention.addLogEntry("Unable to load a claim.  Details: " + e.getMessage() + " ... " + results.toString());
                 e.printStackTrace();
             } catch (WorldNotFoundException e) {
                 //We don't need to worry about this exception.
@@ -238,8 +238,8 @@ public class DatabaseDataStore extends DataStore {
                 this.writeClaimData(claim.children.get(i));
             }
         } catch (SQLException e) {
-            GriefPrevention.AddLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
-            GriefPrevention.AddLogEntry(e.getMessage());
+            GriefPrevention.addLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
+            GriefPrevention.addLogEntry(e.getMessage());
         }
     }
 
@@ -309,8 +309,8 @@ public class DatabaseDataStore extends DataStore {
                     claim.neverdelete +
                     ");");
         } catch (SQLException e) {
-            GriefPrevention.AddLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
-            GriefPrevention.AddLogEntry(e.getMessage());
+            GriefPrevention.addLogEntry("Unable to save data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
+            GriefPrevention.addLogEntry(e.getMessage());
         }
     }
 
@@ -324,8 +324,8 @@ public class DatabaseDataStore extends DataStore {
             statement.execute("DELETE FROM griefprevention_claimdata WHERE id=" + claim.id + ";");
             statement.execute("DELETE FROM griefprevention_claimdata WHERE parentid=" + claim.id + ";");
         } catch (SQLException e) {
-            GriefPrevention.AddLogEntry("Unable to delete data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
-            GriefPrevention.AddLogEntry(e.getMessage());
+            GriefPrevention.addLogEntry("Unable to delete data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
+            GriefPrevention.addLogEntry(e.getMessage());
         }
     }
 
@@ -352,8 +352,8 @@ public class DatabaseDataStore extends DataStore {
                 playerData.bonusClaimBlocks = results.getInt("bonusblocks");
             }
         } catch (SQLException e) {
-            GriefPrevention.AddLogEntry("Unable to retrieve data for player " + playerName + ".  Details:");
-            GriefPrevention.AddLogEntry(e.getMessage());
+            GriefPrevention.addLogEntry("Unable to retrieve data for player " + playerName + ".  Details:");
+            GriefPrevention.addLogEntry(e.getMessage());
         }
 
         return playerData;
@@ -375,8 +375,8 @@ public class DatabaseDataStore extends DataStore {
             statement.execute("DELETE FROM griefprevention_playerdata WHERE name='" + playerName + "';");
             statement.execute("INSERT INTO griefprevention_playerdata VALUES ('" + playerName + "', '" + dateString + "', " + playerData.accruedClaimBlocks + ", " + playerData.bonusClaimBlocks + ");");
         } catch (SQLException e) {
-            GriefPrevention.AddLogEntry("Unable to save data for player " + playerName + ".  Details:");
-            GriefPrevention.AddLogEntry(e.getMessage());
+            GriefPrevention.addLogEntry("Unable to save data for player " + playerName + ".  Details:");
+            GriefPrevention.addLogEntry(e.getMessage());
         }
     }
 
@@ -395,8 +395,8 @@ public class DatabaseDataStore extends DataStore {
             statement.execute("DELETE FROM griefprevention_nextclaimid;");
             statement.execute("INSERT INTO griefprevention_nextclaimid VALUES (" + nextID + ");");
         } catch (SQLException e) {
-            GriefPrevention.AddLogEntry("Unable to set next claim ID to " + nextID + ".  Details:");
-            GriefPrevention.AddLogEntry(e.getMessage());
+            GriefPrevention.addLogEntry("Unable to set next claim ID to " + nextID + ".  Details:");
+            GriefPrevention.addLogEntry(e.getMessage());
         }
     }
 

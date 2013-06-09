@@ -20,7 +20,7 @@ public class SellClaimBlocks extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
 
@@ -28,18 +28,18 @@ public class SellClaimBlocks extends BaseCommand {
 
         //if economy is disabled, don't do anything
         if (GriefPrevention.economy == null) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.BuySellNotConfigured);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.BuySellNotConfigured);
             return true;
         }
 
         if (!player.hasPermission("griefprevention.buysellclaimblocks")) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.NoPermissionForCommand);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoPermissionForCommand);
             return true;
         }
 
         //if disabled, error message
-        if (plugin.config_economy_claimBlocksSellValue == 0) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.OnlyPurchaseBlocks);
+        if (plugin.configuration.getClaimBlocksSellValue() == 0) {
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.OnlyPurchaseBlocks);
             return true;
         }
 
@@ -49,7 +49,7 @@ public class SellClaimBlocks extends BaseCommand {
 
         //if no amount provided, just tell player value per block sold, and how many he can sell
         if (args.size() != 1) {
-            GriefPrevention.sendMessage(player, TextMode.Info, Messages.BlockSaleValue, String.valueOf(plugin.config_economy_claimBlocksSellValue), String.valueOf(availableBlocks));
+            GriefPrevention.sendMessage(player, TextMode.INFO, Messages.BlockSaleValue, String.valueOf(plugin.configuration.getClaimBlocksSellValue()), String.valueOf(availableBlocks));
             return false;
         }
 
@@ -67,10 +67,10 @@ public class SellClaimBlocks extends BaseCommand {
 
         //if he doesn't have enough blocks, tell him so
         if (blockCount > availableBlocks) {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.NotEnoughBlocksForSale);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NotEnoughBlocksForSale);
         } else {
             //compute value and deposit it
-            double totalValue = blockCount * plugin.config_economy_claimBlocksSellValue;
+            double totalValue = blockCount * plugin.configuration.getClaimBlocksSellValue();
             plugin.economy.depositPlayer(player.getName(), totalValue);
 
             //subtract blocks
@@ -78,7 +78,7 @@ public class SellClaimBlocks extends BaseCommand {
             plugin.dataStore.savePlayerData(player.getName(), playerData);
 
             //inform player
-            GriefPrevention.sendMessage(player, TextMode.Success, Messages.BlockSaleConfirmation, String.valueOf(totalValue), String.valueOf(playerData.getRemainingClaimBlocks()));
+            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.BlockSaleConfirmation, String.valueOf(totalValue), String.valueOf(playerData.getRemainingClaimBlocks()));
         }
         return true;
     }

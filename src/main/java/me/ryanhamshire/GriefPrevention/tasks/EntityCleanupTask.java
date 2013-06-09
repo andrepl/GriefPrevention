@@ -45,7 +45,7 @@ public class EntityCleanupTask implements Runnable {
 
     @Override
     public void run() {
-        List<WorldConfig> worlds = GriefPrevention.instance.Configuration.getCreativeRulesConfigs();
+        List<WorldConfig> worlds = GriefPrevention.instance.configuration.getCreativeRulesConfigs();
 
         for (WorldConfig worldconfiguration : worlds) {
             World world = Bukkit.getWorld(worldconfiguration.getWorldName());

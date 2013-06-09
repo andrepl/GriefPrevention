@@ -24,14 +24,14 @@ public abstract class BaseClaimCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.CommandRequiresPlayer);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
         Player player = (Player) sender;
 
         Claim claim = plugin.dataStore.getClaimAt(player.getLocation(), this.ignoreHeight, null);
         if (claim == null) {
-            GriefPrevention.sendMessage(player, TextMode.Err, this.noClaimMessage);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, this.noClaimMessage);
             return true;
         }
         return false;

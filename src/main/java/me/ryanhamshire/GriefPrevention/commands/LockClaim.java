@@ -23,9 +23,9 @@ public class LockClaim extends BaseClaimCommand {
         if ((player.hasPermission("griefprevention.lock") && claim.ownerName.equalsIgnoreCase(player.getName())) || player.hasPermission("griefprevention.adminlock")) {
             claim.neverdelete = true;
             plugin.dataStore.saveClaim(claim);
-            GriefPrevention.sendMessage(player, TextMode.Success, Messages.ClaimLocked);
+            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ClaimLocked);
         } else {
-            GriefPrevention.sendMessage(player, TextMode.Err, Messages.OnlyOwnersModifyClaims);
+            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.OnlyOwnersModifyClaims);
         }
         return true;
     }

@@ -20,14 +20,14 @@ public class DeleteAllAdminClaims extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (!sender.hasPermission("griefprevention.deleteclaims")) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.NoDeletePermission);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.NoDeletePermission);
             return true;
         }
         //empty string for owner name indicates an administrative claim
         plugin.dataStore.deleteClaimsForPlayer("", true, true);
-        GriefPrevention.sendMessage(sender, TextMode.Success, Messages.AllAdminDeleted);
+        GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.AllAdminDeleted);
         if (sender != null) {
-            GriefPrevention.AddLogEntry(sender.getName() + " deleted all administrative claims.");
+            GriefPrevention.addLogEntry(sender.getName() + " deleted all administrative claims.");
             if (sender instanceof Player) {
                 //revert any current visualization
                 Visualization.Revert((Player) sender);

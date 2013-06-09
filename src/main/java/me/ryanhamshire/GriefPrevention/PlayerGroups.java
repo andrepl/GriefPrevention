@@ -8,13 +8,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class PlayerGroups {
 
-	private HashMap<String,PlayerGroup> PlayerGroups = new HashMap<String,PlayerGroup>();
+	private HashMap<String,PlayerGroup> playerGroups = new HashMap<String,PlayerGroup>();
 	/**
 	 * returns a copy of the PlayerGroups of this instance.
 	 * @return
 	 */
-	public List<PlayerGroup> getPlayerGroups(){ return new ArrayList<PlayerGroup>(PlayerGroups.values());}
-	public boolean GroupExists(String testName){
+	public List<PlayerGroup> getPlayerGroups(){ return new ArrayList<PlayerGroup>(playerGroups.values());}
+	public boolean groupExists(String testName){
 		return getGroupByName(testName) !=null;
 	}
 	/**
@@ -24,9 +24,9 @@ public class PlayerGroups {
 	 */
 	public PlayerGroup getGroupByName(String groupname){
 		String capgroup = groupname.toUpperCase();
-		if(!PlayerGroups.containsKey(capgroup))
+		if(!playerGroups.containsKey(capgroup))
 			return null;
-		return PlayerGroups.get(capgroup);
+		return playerGroups.get(capgroup);
 	}
 /*
   Groups:
@@ -44,21 +44,22 @@ public class PlayerGroups {
 	public PlayerGroups(FileConfiguration Source,String SourceNode){
 		List<PlayerGroup> checklist = PlayerGroup.getGroups(Source, SourceNode);
 		for(PlayerGroup iterate:checklist){
-			PlayerGroups.put(iterate.getGroupName().toUpperCase(), iterate);
+			playerGroups.put(iterate.getGroupName().toUpperCase(), iterate);
 		}
 	}
+
 	/**
 	 * Saves this PlayerGroups list to a FileConfiguration.
 	 * @param Target
 	 * @param TargetNode
 	 */
-	void Save(FileConfiguration Target,String TargetNode){
+    public void save(FileConfiguration Target, String TargetNode){
 		ArrayList<String> groupnames = new ArrayList<String>();
-		for(PlayerGroup pg:PlayerGroups.values()){
+		for(PlayerGroup pg: playerGroups.values()){
 			groupnames.add(pg.getGroupName());
 		}
 		Target.set(TargetNode + ".Names", groupnames);
-		for(PlayerGroup iterate:PlayerGroups.values()){
+		for(PlayerGroup iterate: playerGroups.values()){
 			String usenode = TargetNode + "." + iterate.getGroupName();
 			iterate.Save(Target, usenode);
 		}
@@ -73,15 +74,11 @@ public class PlayerGroups {
 	 */
 	public List<PlayerGroup> getGroupsForPlayer(String PlayerName){
 		ArrayList<PlayerGroup> makelist = new ArrayList<PlayerGroup>();
-		for(PlayerGroup iterate:PlayerGroups.values()){
+		for(PlayerGroup iterate: playerGroups.values()){
 			if(iterate.MatchPlayer(PlayerName)){
 				makelist.add(iterate);
 			}
 		}
-		
 		return makelist;
 	}
-	
-	
-	
 }

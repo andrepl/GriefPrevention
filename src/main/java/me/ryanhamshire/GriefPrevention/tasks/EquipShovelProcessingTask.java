@@ -48,13 +48,13 @@ public class EquipShovelProcessingTask implements Runnable {
         // if in basic claims mode...
         if (playerData.shovelMode == ShovelMode.Basic) {
             // tell him how many claim blocks he has available
-            GriefPrevention.sendMessage(player, TextMode.Instr, Messages.RemainingBlocks, String.valueOf(remainingBlocks));
+            GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.RemainingBlocks, String.valueOf(remainingBlocks));
 
             // link to a video demo of land claiming, based on world type
             if (GriefPrevention.instance.creativeRulesApply(player.getLocation())) {
-                GriefPrevention.sendMessage(player, TextMode.Instr, Messages.CreativeBasicsDemoAdvertisement);
+                GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.CreativeBasicsDemoAdvertisement);
             } else {
-                GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SurvivalBasicsDemoAdvertisement);
+                GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.SurvivalBasicsDemoAdvertisement);
             }
         }
     }

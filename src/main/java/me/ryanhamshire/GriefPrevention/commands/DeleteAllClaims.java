@@ -27,7 +27,7 @@ public class DeleteAllClaims extends BaseCommand {
         //try to find that player
         OfflinePlayer otherPlayer = plugin.resolvePlayer(args.peekFirst());
         if (otherPlayer == null) {
-            GriefPrevention.sendMessage(sender, TextMode.Err, Messages.PlayerNotFound);
+            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
             return true;
         }
 
@@ -40,12 +40,12 @@ public class DeleteAllClaims extends BaseCommand {
         plugin.dataStore.deleteClaimsForPlayer(otherPlayer.getName(), true, deletelocked);
 
         if (deletelocked) {
-            GriefPrevention.sendMessage(sender, TextMode.Success, Messages.DeleteAllSuccessIncludingLocked, otherPlayer.getName());
+            GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.DeleteAllSuccessIncludingLocked, otherPlayer.getName());
         } else {
-            GriefPrevention.sendMessage(sender, TextMode.Success, Messages.DeleteAllSuccessExcludingLocked, otherPlayer.getName());
+            GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.DeleteAllSuccessExcludingLocked, otherPlayer.getName());
         }
         if (sender != null) {
-            GriefPrevention.AddLogEntry(sender.getName() + " deleted all claims belonging to " + otherPlayer.getName() + ".");
+            GriefPrevention.addLogEntry(sender.getName() + " deleted all claims belonging to " + otherPlayer.getName() + ".");
 
              if (sender instanceof Player) {
                 //revert any current visualization
