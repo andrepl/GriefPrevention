@@ -15,18 +15,19 @@ extensibility, without any immediate regard for backwards compatibility with dat
 What's Different?
 -----------------
 
-Right now not much. Siege mode is gone, because I have no use for it and it can be implemented externally.
-The source code has been thoroughly cleaned up and reformatted. Also, the command system has also seen the
-beginnings of a substantial overhaul, all commands are now available as subcommands of a main `/griefprevention`
-command (also aliased to `/gp`).  some have also been combined into multi purpose commands, for example
-`/restorenatureaggressive` is now `/restorenature aggressive`.  Tab completion is available wherever possible.
+ - Siege mode is gone, because I have no use for it and it can be implemented externally.
+ - Spam protection is gone.  spam != grief. and GP wasn't super great at it.
+ - The source code has been thoroughly cleaned up and reformatted. 
+ - The command system has also seen the beginnings of a substantial overhaul, 
+   all commands are now available as subcommands of a main `/griefprevention`
+   command (also aliased to `/gp`).  some have also been combined into multi 
+   purpose commands, for example `/restorenatureaggressive` is now 
+   `/restorenature aggressive`.  Tab completion is available wherever possible.
 
 
 What's Planned?
 ---------------
 
- - Spam control is likely to be removed.  Many servers report false positives, and spam prevention doesn't seem like
-   the job of a land protection plugin.
  - The data storage backend is going to be made to support arbitrary, persistent metadata for both players and claims.
  - Player movements will be tracked and events fired when claims are entered/left.
  - an api for new claim 'flags' to be created.
