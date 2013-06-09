@@ -188,7 +188,7 @@ public class Claim {
 
     // accessor for ID
     public Long getID() {
-        return this.getId();
+        return this.id;
     }
 
     // basic constructor, just notes the creation time
@@ -306,7 +306,7 @@ public class Claim {
         this.modifiedDate = Calendar.getInstance().getTime();
 
         // id
-        this.setId(id);
+        this.id = id;
 
         // store corners
         this.lesserBoundaryCorner = lesserBoundaryCorner;
@@ -1261,15 +1261,11 @@ public class Claim {
     /**
      * id number.  unique to this claim, never changes.
      */
-    public Long getId() {
-        return id;
-    }
-
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 }

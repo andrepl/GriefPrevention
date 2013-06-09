@@ -269,7 +269,7 @@ public class FlatFileDataStore extends DataStore {
 
     @Override
     synchronized void writeClaimToStorage(Claim claim) {
-        String claimID = String.valueOf(claim.getId());
+        String claimID = String.valueOf(claim.getID());
         BufferedWriter outStream = null;
         try {
             // open the claim's file						
@@ -369,7 +369,7 @@ public class FlatFileDataStore extends DataStore {
     // deletes a top level claim from the file system
     @Override
     synchronized void deleteClaimFromSecondaryStorage(Claim claim) {
-        String claimID = String.valueOf(claim.getId());
+        String claimID = String.valueOf(claim.getID());
 
         // remove from disk
         File claimFile = new File(claimDataFolderPath + File.separator + claimID);

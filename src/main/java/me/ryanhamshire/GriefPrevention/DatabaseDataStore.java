@@ -173,7 +173,7 @@ public class DatabaseDataStore extends DataStore {
 
                 //look for any subdivisions for this claim
                 Statement statement2 = this.databaseConnection.createStatement();
-                ResultSet childResults = statement2.executeQuery("SELECT * FROM griefprevention_claimdata WHERE parentid=" + topLevelClaim.getId() + ";");
+                ResultSet childResults = statement2.executeQuery("SELECT * FROM griefprevention_claimdata WHERE parentid=" + topLevelClaim.getID() + ";");
 
                 while (childResults.next()) {
                     lesserCornerString = childResults.getString("lessercorner");
@@ -281,15 +281,15 @@ public class DatabaseDataStore extends DataStore {
         if (claim.getParent() == null) {
             parentId = -1;
         } else {
-            parentId = claim.getParent().getId();
+            parentId = claim.getParent().getID();
 
             id = claim.getSubClaimID() != null ? claim.getSubClaimID() : claim.getParent().getChildren().indexOf(claim);
         }
 
-        if (claim.getId() == null) {
+        if (claim.getID() == null) {
             id = claim.getSubClaimID() != null ? claim.getSubClaimID() : -1;
         } else {
-            id = claim.getId();
+            id = claim.getID();
         }
 
         try {
@@ -321,8 +321,8 @@ public class DatabaseDataStore extends DataStore {
             this.refreshDataConnection();
 
             Statement statement = this.databaseConnection.createStatement();
-            statement.execute("DELETE FROM griefprevention_claimdata WHERE id=" + claim.getId() + ";");
-            statement.execute("DELETE FROM griefprevention_claimdata WHERE parentid=" + claim.getId() + ";");
+            statement.execute("DELETE FROM griefprevention_claimdata WHERE id=" + claim.getID() + ";");
+            statement.execute("DELETE FROM griefprevention_claimdata WHERE parentid=" + claim.getID() + ";");
         } catch (SQLException e) {
             GriefPrevention.addLogEntry("Unable to delete data for claim at " + this.locationToString(claim.lesserBoundaryCorner) + ".  Details:");
             GriefPrevention.addLogEntry(e.getMessage());

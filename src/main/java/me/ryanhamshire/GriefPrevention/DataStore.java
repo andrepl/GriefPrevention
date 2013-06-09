@@ -207,9 +207,9 @@ public abstract class DataStore
 		}
 		
 		// Get a unique identifier for the claim which will be used to name the file on disk
-		if(newClaim.getId() == null)
+		if(newClaim.getID() == null)
 		{
-			newClaim.setId(this.nextClaimID);
+			newClaim.setID(this.nextClaimID);
 			this.incrementNextClaimID();
 		}
 		
@@ -303,9 +303,9 @@ public abstract class DataStore
 		}
 		
 		// Get a unique identifier for the claim which will be used to name the file on disk
-		if(claim.getId() == null)
+		if(claim.getID() == null)
 		{
-			claim.setId(this.nextClaimID);
+			claim.setID(this.nextClaimID);
 			this.incrementNextClaimID();
 		}
 		
@@ -387,7 +387,7 @@ public abstract class DataStore
 		}
 		
 		// remove from memory
-		claims.removeID(claim.getId());
+		claims.removeID(claim.getID());
 		claim.setInDataStore(false);
 		for (int j = 0; j < claim.getChildren().size(); j++) {
 			claim.getChildren().get(j).setInDataStore(false);
@@ -402,7 +402,7 @@ public abstract class DataStore
 			PlayerData ownerData = this.getPlayerData(claim.getOwnerName());
 			for(int i = 0; i < ownerData.getClaims().size(); i++)
 			{
-				if(ownerData.getClaims().get(i).getId().equals(claim.getId()))
+				if(ownerData.getClaims().get(i).getID().equals(claim.getID()))
 				{
 					ownerData.getClaims().remove(i);
 					break;
@@ -1024,7 +1024,7 @@ public abstract class DataStore
 		// try to create this new claim, ignoring the original when checking for overlap
 		CreateClaimResult result = this.createClaim(claim.getLesserBoundaryCorner().getWorld(), 
                 newx1, newx2, newy1, newy2, newz1, newz2,
-                claim.getOwnerName(), claim.getParent(), claim.getId(), claim.isNeverdelete(), claim,claimcreator,false);
+                claim.getOwnerName(), claim.getParent(), claim.getID(), claim.isNeverdelete(), claim,claimcreator,false);
 		
 		// if succeeded
 		if(result.succeeded == CreateClaimResult.Result.Success)
