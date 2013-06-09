@@ -19,7 +19,7 @@
 package me.ryanhamshire.GriefPrevention.tasks;
 
 import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.Chunk;
@@ -83,10 +83,10 @@ public class CleanupUnusedClaimsTask implements Runnable {
         // if he's been gone at least a week, if he has ONLY the new player claim, it will be removed
         Calendar sevenDaysAgo = Calendar.getInstance();
         sevenDaysAgo.add(Calendar.DATE, -wc.getChestClaimExpirationDays());
-        boolean newPlayerClaimsExpired = sevenDaysAgo.getTime().after(playerData.lastLogin);
+        boolean newPlayerClaimsExpired = sevenDaysAgo.getTime().after(playerData.getLastLogin());
 
         // if only one claim, and the player hasn't played in a week
-        if (newPlayerClaimsExpired && playerData.claims.size() == 1) {
+        if (newPlayerClaimsExpired && playerData.getClaims().size() == 1) {
             // if that's a chest claim and those are set to expire
             if (claim.getArea() <= areaOfDefaultClaim && wc.getChestClaimExpirationDays() > 0) {
                 claim.removeSurfaceFluids(null);
@@ -107,11 +107,11 @@ public class CleanupUnusedClaimsTask implements Runnable {
             Calendar earliestPermissibleLastLogin = Calendar.getInstance();
             earliestPermissibleLastLogin.add(Calendar.DATE, -wc.getClaimsExpirationDays());
 
-            if (earliestPermissibleLastLogin.getTime().after(playerData.lastLogin)) {
+            if (earliestPermissibleLastLogin.getTime().after(playerData.getLastLogin())) {
                 // make a copy of this player's claim list
                 Vector<Claim> claims = new Vector<Claim>();
-                for (int i = 0; i < playerData.claims.size(); i++) {
-                    claims.add(playerData.claims.get(i));
+                for (int i = 0; i < playerData.getClaims().size(); i++) {
+                    claims.add(playerData.getClaims().get(i));
                 }
 
                 // delete them
@@ -130,7 +130,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
             // if the player has been gone two weeks, scan claim content to assess player investment
             Calendar earliestAllowedLoginDate = Calendar.getInstance();
             earliestAllowedLoginDate.add(Calendar.DATE, -wc.getUnusedClaimExpirationDays());
-            boolean needsInvestmentScan = earliestAllowedLoginDate.getTime().after(playerData.lastLogin);
+            boolean needsInvestmentScan = earliestAllowedLoginDate.getTime().after(playerData.getLastLogin());
             boolean creativerules = GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner());
             boolean sizelimitreached = (creativerules && claim.getWidth() > wc.getClaimCleanupMaximumSize());
 

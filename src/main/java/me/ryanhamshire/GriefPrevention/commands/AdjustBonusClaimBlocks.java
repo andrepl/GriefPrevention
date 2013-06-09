@@ -52,10 +52,9 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
 
         //give blocks to player
         PlayerData playerData = plugin.dataStore.getPlayerData(targetPlayer.getName());
-        playerData.bonusClaimBlocks += adjustment;
+        playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks() + adjustment);
         plugin.dataStore.savePlayerData(targetPlayer.getName(), playerData);
-
-        GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.bonusClaimBlocks));
+        GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.getBonusClaimBlocks()));
         if (sender instanceof Player) {
             GriefPrevention.addLogEntry(sender.getName() + " adjusted " + targetPlayer.getName() + "'s bonus claim blocks by " + adjustment + ".");
         }

@@ -18,7 +18,7 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.*;
 import org.bukkit.entity.Player;
 
@@ -46,7 +46,7 @@ public class EquipShovelProcessingTask implements Runnable {
         int remainingBlocks = playerData.getRemainingClaimBlocks();
 
         // if in basic claims mode...
-        if (playerData.shovelMode == ShovelMode.Basic) {
+        if (playerData.getShovelMode() == ShovelMode.Basic) {
             // tell him how many claim blocks he has available
             GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.RemainingBlocks, String.valueOf(remainingBlocks));
 

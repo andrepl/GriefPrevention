@@ -45,13 +45,13 @@ public class ClaimsList extends BaseCommand {
 
         //load the target player's data
         PlayerData playerData = plugin.dataStore.getPlayerData(otherPlayer.getName());
-        GriefPrevention.sendMessage(sender, TextMode.INSTR, " " + playerData.accruedClaimBlocks + "(+" + (playerData.bonusClaimBlocks + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.accruedClaimBlocks + playerData.bonusClaimBlocks + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
-        for (int i = 0; i < playerData.claims.size(); i++) {
-            Claim claim = playerData.claims.get(i);
+        GriefPrevention.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
+        for (int i = 0; i < playerData.getClaims().size(); i++) {
+            Claim claim = playerData.getClaims().get(i);
             GriefPrevention.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + plugin.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
         }
 
-        if (playerData.claims.size() > 0)
+        if (playerData.getClaims().size() > 0)
             GriefPrevention.sendMessage(sender, TextMode.INSTR, "   =" + playerData.getRemainingClaimBlocks());
 
         //drop the data we just loaded, if the player isn't online

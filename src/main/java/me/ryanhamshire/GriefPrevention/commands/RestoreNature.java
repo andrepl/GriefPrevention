@@ -65,7 +65,7 @@ public class RestoreNature extends BaseCommand {
                 GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.FillModeActive, String.valueOf(playerData.getFillRadius()));
                 break;
         }
-        playerData.shovelMode = newMode;
+        playerData.setShovelMode(newMode);
         return true;
     }
 

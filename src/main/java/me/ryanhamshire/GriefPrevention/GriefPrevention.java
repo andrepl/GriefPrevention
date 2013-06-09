@@ -21,13 +21,17 @@ package me.ryanhamshire.GriefPrevention;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-import me.ryanhamshire.GriefPrevention.Configuration.ConfigData;
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.commands.CommandHandler;
+import me.ryanhamshire.GriefPrevention.listeners.BlockEventHandler;
+import me.ryanhamshire.GriefPrevention.listeners.EntityEventHandler;
+import me.ryanhamshire.GriefPrevention.listeners.PlayerEventHandler;
 import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
 import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
 import me.ryanhamshire.GriefPrevention.tasks.EntityCleanupTask;
@@ -178,15 +182,12 @@ public class GriefPrevention extends JavaPlugin {
         if (!eventsRegistered) {
             eventsRegistered = true;
             PluginManager pluginManager = this.getServer().getPluginManager();
-
             // player events
             PlayerEventHandler playerEventHandler = new PlayerEventHandler(this.dataStore, this);
             pluginManager.registerEvents(playerEventHandler, this);
-
             // block events
             BlockEventHandler blockEventHandler = new BlockEventHandler(this.dataStore);
             pluginManager.registerEvents(blockEventHandler, this);
-
             // entity events
             EntityEventHandler entityEventHandler = new EntityEventHandler(this.dataStore);
             pluginManager.registerEvents(entityEventHandler, this);
@@ -195,20 +196,16 @@ public class GriefPrevention extends JavaPlugin {
         // if economy is enabled
         if (this.configuration.getClaimBlocksPurchaseCost() > 0 || this.configuration.getClaimBlocksSellValue() > 0) {
             // try to load Vault
-            GriefPrevention.addLogEntry("GriefPrevention requires Vault for economy integration.");
-            GriefPrevention.addLogEntry("Attempting to load Vault...");
             RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
             GriefPrevention.addLogEntry("Vault loaded successfully!");
 
             // ask Vault to hook into an economy plugin
-            GriefPrevention.addLogEntry("Looking for a Vault-compatible economy plugin...");
             if (economyProvider != null) {
                 GriefPrevention.economy = economyProvider.getProvider();
 
                 // on success, display success message
                 if (GriefPrevention.economy != null) {
                     GriefPrevention.addLogEntry("Hooked into economy: " + GriefPrevention.economy.getName() + ".");
-                    GriefPrevention.addLogEntry("Ready to buy/sell claim blocks!");
                 }
 
                 // otherwise error message
@@ -216,7 +213,6 @@ public class GriefPrevention extends JavaPlugin {
                     GriefPrevention.addLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
                 }
             }
-
             // another error case
             else {
                 GriefPrevention.addLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
@@ -233,8 +229,6 @@ public class GriefPrevention extends JavaPlugin {
     public void handleClaimClean(Claim c, MaterialInfo source, MaterialInfo target, Player player) {
         Location lesser = c.getLesserBoundaryCorner();
         Location upper = c.getGreaterBoundaryCorner();
-        System.out.println("handleClaimClean:" + source.getTypeID() + " to " + target.getTypeID());
-
         for (int x = lesser.getBlockX(); x <= upper.getBlockX(); x++) {
             for (int y = 0; y <= 255; y++) {
                 for (int z = lesser.getBlockZ(); z <= upper.getBlockZ(); z++) {
@@ -253,7 +247,6 @@ public class GriefPrevention extends JavaPlugin {
         return commandHandler.onCommand(sender, cmd, commandLabel, args);
     }
 
-
     /**
      * transfers a number of claim blocks from a source player to a  target player.
      *
@@ -268,9 +261,9 @@ public class GriefPrevention extends JavaPlugin {
         PlayerData playerData = this.dataStore.getPlayerData(source);
         PlayerData receiverData = this.dataStore.getPlayerData(target);
         if (playerData != null && receiverData != null) {
-            int xferamount = Math.min(playerData.accruedClaimBlocks, DesiredAmount);
-            playerData.accruedClaimBlocks -= xferamount;
-            receiverData.accruedClaimBlocks += xferamount;
+            int xferamount = Math.min(playerData.getAccruedClaimBlocks(), DesiredAmount);
+            playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() - xferamount);
+            receiverData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + xferamount);
             return xferamount;
         }
         return 0;
@@ -295,9 +288,9 @@ public class GriefPrevention extends JavaPlugin {
 
         // then search offline players
         OfflinePlayer[] offlinePlayers = this.getServer().getOfflinePlayers();
-        for (int i = 0; i < offlinePlayers.length; i++) {
-            if (offlinePlayers[i].getName().equalsIgnoreCase(name)) {
-                return offlinePlayers[i];
+        for (OfflinePlayer offlinePlayer : offlinePlayers) {
+            if (offlinePlayer.getName().equalsIgnoreCase(name)) {
+                return offlinePlayer;
             }
         }
         return null;
@@ -306,8 +299,7 @@ public class GriefPrevention extends JavaPlugin {
     public void onDisable() {
         // save data for any online players
         Player[] players = this.getServer().getOnlinePlayers();
-        for (int i = 0; i < players.length; i++) {
-            Player player = players[i];
+        for (Player player : players) {
             String playerName = player.getName();
             PlayerData playerData = this.dataStore.getPlayerData(playerName);
             this.dataStore.savePlayerData(playerName, playerData);
@@ -337,19 +329,19 @@ public class GriefPrevention extends JavaPlugin {
         ItemStack[] armorStacks = inventory.getArmorContents();
 
         // check armor slots, stop if any items are found
-        for (int i = 0; i < armorStacks.length; i++) {
-            if (!(armorStacks[i] == null || armorStacks[i].getType() == Material.AIR)) return;
+        for (ItemStack armorStack : armorStacks) {
+            if (!(armorStack == null || armorStack.getType() == Material.AIR)) return;
         }
 
         // check other slots, stop if any items are found
         ItemStack[] generalStacks = inventory.getContents();
-        for (int i = 0; i < generalStacks.length; i++) {
-            if (!(generalStacks[i] == null || generalStacks[i].getType() == Material.AIR)) return;
+        for (ItemStack generalStack : generalStacks) {
+            if (!(generalStack == null || generalStack.getType() == Material.AIR)) return;
         }
 
         // otherwise, apply immunity
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        playerData.pvpImmune = true;
+        playerData.setPvpImmune(true);
 
         // inform the player
         GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.PvPImmunityStart);
@@ -366,7 +358,7 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     // processes broken log blocks to automatically remove floating treetops
-    void handleLogBroken(Block block) {
+    public void handleLogBroken(Block block) {
         // find the lowest log in the tree trunk including this log
         Block rootBlock = this.getRootBlock(block);
 
@@ -447,9 +439,7 @@ public class GriefPrevention extends JavaPlugin {
                     currentBlock.getRelative(BlockFace.DOWN)
                 };
 
-                for (int i = 0; i < neighboringBlocks.length; i++) {
-                    Block neighboringBlock = neighboringBlocks[i];
-
+                for (Block neighboringBlock : neighboringBlocks) {
                     // if the neighboringBlock is out of bounds, skip it
                     if (neighboringBlock.getX() < min_x || neighboringBlock.getX() > max_x || neighboringBlock.getZ() < min_z || neighboringBlock.getZ() > max_z || neighboringBlock.getY() > max_y)
                         continue;
@@ -512,28 +502,9 @@ public class GriefPrevention extends JavaPlugin {
     // for sake of identifying trees ONLY, a cheap but not 100% reliable method for identifying player-placed blocks
     private boolean isPlayerBlock(Block block) {
         Material material = block.getType();
-
-        // list of natural blocks which are OK to have next to a log block in a natural tree setting
-        if (material == Material.AIR ||
-                material == Material.LEAVES ||
-                material == Material.LOG ||
-                material == Material.DIRT ||
-                material == Material.GRASS ||
-                material == Material.STATIONARY_WATER ||
-                material == Material.BROWN_MUSHROOM ||
-                material == Material.RED_MUSHROOM ||
-                material == Material.RED_ROSE ||
-                material == Material.LONG_GRASS ||
-                material == Material.SNOW ||
-                material == Material.STONE ||
-                material == Material.VINE ||
-                material == Material.WATER_LILY ||
-                material == Material.YELLOW_FLOWER ||
-                material == Material.CLAY) {
-            return false;
-        } else {
-            return true;
-        }
+        return !EnumSet.of(Material.AIR, Material.LEAVES, Material.LOG, Material.DIRT, Material.GRASS, Material.STATIONARY_WATER,
+                Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.RED_ROSE, Material.LONG_GRASS, Material.SNOW,
+                Material.STONE, Material.VINE, Material.WATER_LILY, Material.YELLOW_FLOWER, Material.CLAY).contains(material);
     }
 
     // moves a player from the claim he's in to a nearby wilderness location
@@ -563,7 +534,6 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     private static String removeColors(String source) {
-
         for (ChatColor cc : ChatColor.values()) {
             source = source.replace(cc.toString(), "");
         }
@@ -607,7 +577,7 @@ public class GriefPrevention extends JavaPlugin {
         }
     }
 
-    static void sendMessage(CommandSender player, TextMode color, String message, long delayInTicks) {
+    public static void sendMessage(CommandSender player, TextMode color, String message, long delayInTicks) {
         SendPlayerMessageTask task = new SendPlayerMessageTask(player, instance.configuration.getColor(color), message);
         if (delayInTicks > 0) {
             GriefPrevention.instance.getServer().getScheduler().runTaskLater(GriefPrevention.instance, task, delayInTicks);
@@ -624,10 +594,10 @@ public class GriefPrevention extends JavaPlugin {
 
     public String allowBuild(Player player, Location location) {
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(location, false, playerData.lastClaim);
+        Claim claim = this.dataStore.getClaimAt(location, false, playerData.getLastClaim());
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
         // exception: administrators in ignore claims mode and special player accounts created by server mods
-        if (playerData.ignoreClaims || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
+        if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
 
         // wilderness rules
         if (claim == null) {
@@ -654,17 +624,17 @@ public class GriefPrevention extends JavaPlugin {
         // if not in the wilderness, then apply claim rules (permissions, etc)
         else {
             // cache the claim for later reference
-            playerData.lastClaim = claim;
+            playerData.setLastClaim(claim);
             return claim.allowBuild(player);
         }
     }
 
     public String allowBreak(Player player, Location location) {
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(location, false, playerData.lastClaim);
+        Claim claim = this.dataStore.getClaimAt(location, false, playerData.getLastClaim());
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
         // exception: administrators in ignore claims mode, and special player accounts created by server mods
-        if (playerData.ignoreClaims || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
+        if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
 
         // wilderness rules
         if (claim == null) {
@@ -684,7 +654,7 @@ public class GriefPrevention extends JavaPlugin {
             }
         } else {
             // cache the claim for later reference
-            playerData.lastClaim = claim;
+            playerData.setLastClaim(claim);
 
             // if not in the wilderness, then apply claim rules (permissions, etc)
             return claim.allowBreak(player, location.getBlock());

@@ -36,13 +36,13 @@ public class Siege extends BaseCommand {
         //can't start a siege when you're already involved in one
         Player attacker = player;
         PlayerData attackerData = plugin.dataStore.getPlayerData(attacker.getName());
-        if (attackerData.siegeData != null) {
+        if (attackerData.getSiegeData() != null) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.AlreadySieging);
             return true;
         }
 
         //can't start a siege when you're protected from pvp combat
-        if (attackerData.pvpImmune) {
+        if (attackerData.isPvpImmune()) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CantFightWhileImmune);
             return true;
         }
@@ -58,8 +58,8 @@ public class Siege extends BaseCommand {
         }
 
         //otherwise use the last player this player was in pvp combat with
-        else if (attackerData.lastPvpPlayer.length() > 0) {
-            defender = plugin.getServer().getPlayer(attackerData.lastPvpPlayer);
+        else if (attackerData.getLastPvpPlayer().length() > 0) {
+            defender = plugin.getServer().getPlayer(attackerData.getLastPvpPlayer());
             if (defender == null) {
                 return false;
             }
@@ -69,13 +69,13 @@ public class Siege extends BaseCommand {
 
         //victim must not be under siege already
         PlayerData defenderData = plugin.dataStore.getPlayerData(defender.getName());
-        if (defenderData.siegeData != null) {
+        if (defenderData.getSiegeData() != null) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.AlreadyUnderSiegePlayer);
             return true;
         }
 
         //victim must not be pvp immune
-        if (defenderData.pvpImmune) {
+        if (defenderData.isPvpImmune()) {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoSiegeDefenseless);
             return true;
         }

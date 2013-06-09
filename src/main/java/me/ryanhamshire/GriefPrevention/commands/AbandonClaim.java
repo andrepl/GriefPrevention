@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
 import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -47,22 +47,22 @@ public class AbandonClaim extends BaseClaimCommand {
         }
 
         // if the claim is locked, let's warn the player and give them a chance to back out
-        else if (!playerData.warnedAboutMajorDeletion && claim.neverdelete) {
+        else if (!playerData.isWarnedAboutMajorDeletion() && claim.neverdelete) {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.ConfirmAbandonLockedClaim);
-            playerData.warnedAboutMajorDeletion = true;
+            playerData.setWarnedAboutMajorDeletion(true);
         }
         // if auto-restoration is enabled,
-        else if (!playerData.warnedAboutMajorDeletion && wc.getClaimsAbandonNatureRestoration()) {
+        else if (!playerData.isWarnedAboutMajorDeletion() && wc.getClaimsAbandonNatureRestoration()) {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.AbandonClaimRestoreWarning);
-            playerData.warnedAboutMajorDeletion = true;
-        } else if (!playerData.warnedAboutMajorDeletion && costoverhead != claimarea) {
-            playerData.warnedAboutMajorDeletion = true;
+            playerData.setWarnedAboutMajorDeletion(true);
+        } else if (!playerData.isWarnedAboutMajorDeletion() && costoverhead != claimarea) {
+            playerData.setWarnedAboutMajorDeletion(true);
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.AbandonCostWarning, String.valueOf(costoverhead));
         }
         // if the claim has lots of surface water or some surface lava, warn the player it will be cleaned up
-        else if (!playerData.warnedAboutMajorDeletion && claim.hasSurfaceFluids() && claim.parent == null) {
+        else if (!playerData.isWarnedAboutMajorDeletion() && claim.hasSurfaceFluids() && claim.parent == null) {
             GriefPrevention.sendMessage(player, TextMode.WARN, Messages.ConfirmFluidRemoval);
-            playerData.warnedAboutMajorDeletion = true;
+            playerData.setWarnedAboutMajorDeletion(true);
         } else {
             // delete it
             // Only do water/lava cleanup when it's a top level claim.
@@ -91,7 +91,7 @@ public class AbandonClaim extends BaseClaimCommand {
             }
             // remove the interest cost, and message the player.
             if (costoverhead > 0) {
-                playerData.accruedClaimBlocks -= costoverhead;
+                playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() - costoverhead);
 
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.AbandonCost, 0, String.valueOf(costoverhead));
             }
@@ -102,7 +102,7 @@ public class AbandonClaim extends BaseClaimCommand {
             // revert any current visualization
             Visualization.Revert(player);
 
-            playerData.warnedAboutMajorDeletion = false;
+            playerData.setWarnedAboutMajorDeletion(false);
         }
         return true;
     }

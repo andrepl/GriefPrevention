@@ -43,6 +43,6 @@ class VisualizationApplicationTask implements Runnable {
         }
 
        // remember the visualization applied to this player for later (so it can be inexpensively reverted)
-        playerData.currentVisualization = visualization;
+        playerData.setCurrentVisualization(visualization);
     }
 }

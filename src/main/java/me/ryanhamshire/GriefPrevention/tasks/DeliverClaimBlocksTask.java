@@ -18,7 +18,7 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
@@ -45,7 +45,7 @@ public class DeliverClaimBlocksTask implements Runnable {
             DataStore dataStore = GriefPrevention.instance.dataStore;
             PlayerData playerData = dataStore.getPlayerData(player.getName());
 
-            Location lastLocation = playerData.lastAfkCheckLocation;
+            Location lastLocation = playerData.getLastAfkCheckLocation();
             try  //distance squared will throw an exception if the player has changed worlds
             {
                 //if he's not in a vehicle and has moved at least three blocks since the last check
@@ -55,16 +55,16 @@ public class DeliverClaimBlocksTask implements Runnable {
                         !player.getLocation().getBlock().isLiquid()) {
                     //if player is over accrued limit, accrued limit was probably reduced in config file AFTER he accrued
                     //in that case, leave his blocks where they are
-                    if (playerData.accruedClaimBlocks > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
+                    if (playerData.getAccruedClaimBlocks() > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
                         continue;
                     }
 
                     //add blocks
-                    playerData.accruedClaimBlocks += accruedBlocks;
+                    playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + accruedBlocks);
 
                     //respect limits
-                    if (playerData.accruedClaimBlocks > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
-                        playerData.accruedClaimBlocks = GriefPrevention.instance.configuration.getMaxAccruedBlocks();
+                    if (playerData.getAccruedClaimBlocks() > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
+                        playerData.setAccruedClaimBlocks(GriefPrevention.instance.configuration.getMaxAccruedBlocks());
                     }
 
                     //intentionally NOT saving data here to reduce overall secondary storage access frequency
@@ -75,7 +75,7 @@ public class DeliverClaimBlocksTask implements Runnable {
             }
 
             //remember current location for next time
-            playerData.lastAfkCheckLocation = player.getLocation();
+            playerData.setLastAfkCheckLocation(player.getLocation());
         }
     }
 }

@@ -16,13 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.listeners;
 
 import java.util.Calendar;
 import java.util.List;
 
-import me.ryanhamshire.GriefPrevention.Configuration.ClaimBehaviourData;
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.*;
+import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -71,7 +72,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 
 // handles events related to entities
-class EntityEventHandler implements Listener {
+public class EntityEventHandler implements Listener {
     // convenience reference for the singleton datastore
     private DataStore dataStore;
 
@@ -163,7 +164,7 @@ class EntityEventHandler implements Listener {
         // //go through each block that was affected...
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);
-            if (wc.getModsExplodableIds().Contains(new MaterialInfo(block.getTypeId(), block.getData(), null)))
+            if (wc.getModsExplodableIds().contains(new MaterialInfo(block.getTypeId(), block.getData(), null)))
                 continue;
             // creative rules stop all explosions, regardless of the other settings.
             if (wc.getCreativeRules() || (usebehaviour != null && usebehaviour.Allowed(block.getLocation(), null).Denied())) {
@@ -284,12 +285,12 @@ class EntityEventHandler implements Listener {
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
 
         // if involved in a siege
-        if (playerData.siegeData != null) {
+        if (playerData.getSiegeData() != null) {
             // don't drop items as usual, they will be sent to the siege winner
             event.getDrops().clear();
 
             // end it, with the dieing player being the loser
-            this.dataStore.endSiege(playerData.siegeData, null, player.getName(), true /*ended due to death*/);
+            this.dataStore.endSiege(playerData.getSiegeData(), null, player.getName(), true /*ended due to death*/);
         }
 
         // if it is an ocelot or wolf, and the owner is under seige,
@@ -303,9 +304,9 @@ class EntityEventHandler implements Listener {
                     String ownername = tamed.getOwner().getName();
                     PlayerData ownerdata = GriefPrevention.instance.dataStore.getPlayerData(ownername);
                     if (ownerdata != null) {
-                        if (ownerdata.siegeData != null) {
+                        if (ownerdata.getSiegeData() != null) {
                             // if the owner is the Defender...
-                            if (ownerdata.siegeData.getDefender() == tamed.getOwner()) {
+                            if (ownerdata.getSiegeData().getDefender() == tamed.getOwner()) {
                                 // inform them of the loss to their great cause.
                                 if (tamed.getOwner() instanceof Player) {
                                     String tamedname = "";
@@ -386,7 +387,7 @@ class EntityEventHandler implements Listener {
         // otherwise, apply entity-count limitations for creative worlds
         else if (GriefPrevention.instance.creativeRulesApply(event.getEntity().getLocation())) {
             PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
-            Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, playerData.lastClaim);
+            Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, playerData.getLastClaim());
             if (claim == null) return;
 
             String noEntitiesReason = claim.allowMoreEntities();
@@ -473,13 +474,13 @@ class EntityEventHandler implements Listener {
 
             // otherwise if protecting spawning players
             if (wc.getProtectFreshSpawns()) {
-                if (defenderData.pvpImmune) {
+                if (defenderData.isPvpImmune()) {
                     event.setCancelled(true);
                     GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.ThatPlayerPvPImmune);
                     return;
                 }
 
-                if (attackerData.pvpImmune) {
+                if (attackerData.isPvpImmune()) {
                     event.setCancelled(true);
                     GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
                     return;
@@ -488,21 +489,21 @@ class EntityEventHandler implements Listener {
 
             // FEATURE: prevent players from engaging in PvP combat inside land claims (when it's disabled)
             if (wc.getPvPNoCombatInPlayerClaims() || wc.getNoPvPCombatInAdminClaims()) {
-                Claim attackerClaim = this.dataStore.getClaimAt(attacker.getLocation(), false, attackerData.lastClaim);
+                Claim attackerClaim = this.dataStore.getClaimAt(attacker.getLocation(), false, attackerData.getLastClaim());
                 if (attackerClaim != null &&
                         (attackerClaim.isAdminClaim() && wc.getNoPvPCombatInAdminClaims() ||
                                 !attackerClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
-                    attackerData.lastClaim = attackerClaim;
+                    attackerData.setLastClaim(attackerClaim);
                     event.setCancelled(true);
                     GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
                     return;
                 }
 
-                Claim defenderClaim = this.dataStore.getClaimAt(defender.getLocation(), false, defenderData.lastClaim);
+                Claim defenderClaim = this.dataStore.getClaimAt(defender.getLocation(), false, defenderData.getLastClaim());
                 if (defenderClaim != null &&
                         (defenderClaim.isAdminClaim() && wc.getNoPvPCombatInAdminClaims() ||
                                 !defenderClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
-                    defenderData.lastClaim = defenderClaim;
+                    defenderData.setLastClaim(defenderClaim);
                     event.setCancelled(true);
                     GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.PlayerInPvPSafeZone);
                     return;
@@ -513,10 +514,10 @@ class EntityEventHandler implements Listener {
             // FEATURE: prevent players who are in pvp combat from logging out to avoid being defeated
 
             long now = Calendar.getInstance().getTimeInMillis();
-            defenderData.lastPvpTimestamp = now;
-            defenderData.lastPvpPlayer = attacker.getName();
-            attackerData.lastPvpTimestamp = now;
-            attackerData.lastPvpPlayer = defender.getName();
+            defenderData.setLastPvpTimestamp(now);
+            defenderData.setLastPvpPlayer(attacker.getName());
+            attackerData.setLastPvpTimestamp(now);
+            attackerData.setLastPvpPlayer(defender.getName());
         }
 
         // FEATURE: protect claimed animals, boats, minecarts
@@ -533,7 +534,7 @@ class EntityEventHandler implements Listener {
                 PlayerData playerData = null;
                 if (attacker != null) {
                     playerData = this.dataStore.getPlayerData(attacker.getName());
-                    cachedClaim = playerData.lastClaim;
+                    cachedClaim = playerData.getLastClaim();
                 }
 
                 Claim claim = this.dataStore.getClaimAt(event.getEntity().getLocation(), false, cachedClaim);
@@ -586,7 +587,7 @@ class EntityEventHandler implements Listener {
 
                         // cache claim for later
                         if (playerData != null) {
-                            playerData.lastClaim = claim;
+                            playerData.setLastClaim(claim);
                         }
                     }
                 }
@@ -628,7 +629,7 @@ class EntityEventHandler implements Listener {
         PlayerData playerData = null;
         if (attacker != null) {
             playerData = this.dataStore.getPlayerData(attacker.getName());
-            cachedClaim = playerData.lastClaim;
+            cachedClaim = playerData.getLastClaim();
         }
 
         Claim claim = this.dataStore.getClaimAt(event.getVehicle().getLocation(), false, cachedClaim);
@@ -650,7 +651,7 @@ class EntityEventHandler implements Listener {
 
                 // cache claim for later
                 if (playerData != null) {
-                    playerData.lastClaim = claim;
+                    playerData.setLastClaim(claim);
                 }
             }
         }

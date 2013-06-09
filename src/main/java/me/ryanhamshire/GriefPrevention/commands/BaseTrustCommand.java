@@ -68,8 +68,8 @@ public class BaseTrustCommand extends BaseClaimCommand {
         ArrayList<Claim> targetClaims = new ArrayList<Claim>();
         if (claim == null) {
             PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-            for (int i = 0; i < playerData.claims.size(); i++) {
-                targetClaims.add(playerData.claims.get(i));
+            for (int i = 0; i < playerData.getClaims().size(); i++) {
+                targetClaims.add(playerData.getClaims().get(i));
             }
         } else {
             //check permission here

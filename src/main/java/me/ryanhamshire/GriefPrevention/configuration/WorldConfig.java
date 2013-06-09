@@ -1,9 +1,8 @@
-package me.ryanhamshire.GriefPrevention.Configuration;
+package me.ryanhamshire.GriefPrevention.configuration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.MaterialCollection;

@@ -25,9 +25,33 @@ public class IpBanInfo {
     long expirationTimestamp;
     String bannedAccountName;
 
-    IpBanInfo(InetAddress address, long expirationTimestamp, String bannedAccountName) {
+    public IpBanInfo(InetAddress address, long expirationTimestamp, String bannedAccountName) {
         this.address = address;
         this.expirationTimestamp = expirationTimestamp;
+        this.bannedAccountName = bannedAccountName;
+    }
+
+    public InetAddress getAddress() {
+        return address;
+    }
+
+    public void setAddress(InetAddress address) {
+        this.address = address;
+    }
+
+    public long getExpirationTimestamp() {
+        return expirationTimestamp;
+    }
+
+    public void setExpirationTimestamp(long expirationTimestamp) {
+        this.expirationTimestamp = expirationTimestamp;
+    }
+
+    public String getBannedAccountName() {
+        return bannedAccountName;
+    }
+
+    public void setBannedAccountName(String bannedAccountName) {
         this.bannedAccountName = bannedAccountName;
     }
 }

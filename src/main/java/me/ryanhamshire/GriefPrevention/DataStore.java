@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.ClaimCreatedEvent;
 import me.ryanhamshire.GriefPrevention.events.ClaimDeletedEvent;
 import me.ryanhamshire.GriefPrevention.events.ClaimResizeEvent;
@@ -177,13 +177,13 @@ public abstract class DataStore
 		//adjust blocks and other records
 		if(ownerData != null)
 		{
-			ownerData.claims.remove(claim);
-			ownerData.bonusClaimBlocks -= claim.getArea();
+			ownerData.getClaims().remove(claim);
+			ownerData.setBonusClaimBlocks(ownerData.getBonusClaimBlocks() - claim.getArea());
 			this.savePlayerData(claim.ownerName, ownerData);
 		}
 		
-		newOwnerData.claims.add(claim);
-		newOwnerData.bonusClaimBlocks += claim.getArea();
+		newOwnerData.getClaims().add(claim);
+		newOwnerData.setBonusClaimBlocks(newOwnerData.getBonusClaimBlocks() + claim.getArea());
 		this.savePlayerData(newOwnerName, newOwnerData);
 	}
 
@@ -193,10 +193,6 @@ public abstract class DataStore
 	 */
 	synchronized void addClaim(Claim newClaim)
 	{
-		//ClaimCreatedEvent createevent = new ClaimCreatedEvent();
-		//ClaimCreatedEvent ev 
-		
-		
 		//subdivisions are easy
 		if(newClaim.parent != null)
 		{
@@ -230,7 +226,7 @@ public abstract class DataStore
 		if(!newClaim.isAdminClaim())
 		{
 			PlayerData ownerData = this.getPlayerData(newClaim.getOwnerName());
-			ownerData.claims.add(newClaim);
+			ownerData.getClaims().add(newClaim);
 			this.savePlayerData(newClaim.getOwnerName(), ownerData);
 		}
 		
@@ -336,7 +332,7 @@ public abstract class DataStore
 		if(playerData == null)
 		{
 			playerData = this.getPlayerDataFromStorage(playerName);
-			playerData.playerName = playerName;
+			playerData.setPlayerName(playerName);
 			
 			//find all the claims belonging to this player and note them for future reference
 			for(int i = 0; i < this.claims.size(); i++)
@@ -344,7 +340,7 @@ public abstract class DataStore
 				Claim claim = this.claims.get(i);
 				if(claim.ownerName.equals(playerName))
 				{
-					playerData.claims.add(claim);
+					playerData.getClaims().add(claim);
 				}
 			}
 			
@@ -405,11 +401,11 @@ public abstract class DataStore
 		if(!claim.isAdminClaim())
 		{
 			PlayerData ownerData = this.getPlayerData(claim.getOwnerName());
-			for(int i = 0; i < ownerData.claims.size(); i++)
+			for(int i = 0; i < ownerData.getClaims().size(); i++)
 			{
-				if(ownerData.claims.get(i).id.equals(claim.id))
+				if(ownerData.getClaims().get(i).id.equals(claim.id))
 				{
-					ownerData.claims.remove(i);
+					ownerData.getClaims().remove(i);
 					break;
 				}
 			}
@@ -712,8 +708,8 @@ public abstract class DataStore
 		SiegeData siegeData = new SiegeData(attacker, defender, defenderClaim);
 		PlayerData attackerData = this.getPlayerData(attacker.getName());
 		PlayerData defenderData = this.getPlayerData(defender.getName());
-		attackerData.siegeData = siegeData;
-		defenderData.siegeData = siegeData;
+		attackerData.setSiegeData(siegeData);
+		defenderData.setSiegeData(siegeData);
 		defenderClaim.siegeData = siegeData;
 		
 		//Raise the event, and cancel if necessary.
@@ -772,10 +768,10 @@ public abstract class DataStore
 		}
 		
 		PlayerData attackerData = this.getPlayerData(siegeData.getAttacker().getName());
-		attackerData.siegeData = null;
+		attackerData.setSiegeData(null);
 		
 		PlayerData defenderData = this.getPlayerData(siegeData.getDefender().getName());
-		defenderData.siegeData = null;
+		defenderData.setSiegeData(null);
 
 		//start a cooldown for this attacker/defender pair
 		Long now = Calendar.getInstance().getTimeInMillis();
@@ -921,10 +917,10 @@ public abstract class DataStore
 		PlayerData playerData = this.getPlayerData(player.getName());
 		
 		//player must be sieged
-		if(playerData.siegeData == null) return;
+		if(playerData.getSiegeData() == null) return;
 		
 		//claim isn't already under the same siege
-		if(playerData.siegeData.getClaims().contains(claim)) return;
+		if(playerData.getSiegeData().getClaims().contains(claim)) return;
 		
 		//admin claims can't be sieged
 		if(claim.isAdminClaim()) return;
@@ -933,8 +929,8 @@ public abstract class DataStore
 		if(claim.allowAccess(player) != null) return;
 		
 		//otherwise extend the siege
-		playerData.siegeData.getClaims().add(claim);
-		claim.siegeData = playerData.siegeData;
+		playerData.getSiegeData().getClaims().add(claim);
+		claim.siegeData = playerData.getSiegeData();
 	}		
 	
 	//deletes all claims owned by a player with the exception of locked claims

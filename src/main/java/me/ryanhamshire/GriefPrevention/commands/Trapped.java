@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
 import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.tasks.PlayerRescueTask;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -32,7 +32,7 @@ public class Trapped extends BaseClaimCommand {
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         //if another /trapped is pending, ignore this slash command
-        if (playerData.pendingTrapped) {
+        if (playerData.isPendingTrapped()) {
             return true;
         }
 
@@ -55,7 +55,7 @@ public class Trapped extends BaseClaimCommand {
         }
 
         //check cooldown
-        long lastTrappedUsage = playerData.lastTrappedUsage.getTime();
+        long lastTrappedUsage = playerData.getLastTrappedUsage().getTime();
         long nextTrappedUsage = lastTrappedUsage + 1000 * 60 * 60 * wc.getClaimsTrappedCooldownHours();
         long now = Calendar.getInstance().getTimeInMillis();
         if (now < nextTrappedUsage) {

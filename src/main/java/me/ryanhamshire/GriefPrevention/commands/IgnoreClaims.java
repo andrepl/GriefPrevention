@@ -26,10 +26,10 @@ public class IgnoreClaims extends BaseCommand {
         Player player = (Player) sender;
 
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-        playerData.ignoreClaims = !playerData.ignoreClaims;
+        playerData.setIgnoreClaims(!playerData.isIgnoreClaims());
 
         //toggle ignore claims mode on or off
-        if (!playerData.ignoreClaims) {
+        if (!playerData.isIgnoreClaims()) {
             GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.RespectingClaims);
         } else {
             GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.IgnoringClaims);

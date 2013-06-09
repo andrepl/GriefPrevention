@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.Configuration;
+package me.ryanhamshire.GriefPrevention.configuration;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.util.Vector;
 
 /**
  * holds configuration data global to GP as well as 

@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
 import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -22,12 +22,12 @@ public class DeleteClaim extends BaseClaimCommand {
         //deleting an admin claim additionally requires the adminclaims permission
         if (!claim.isAdminClaim() || player.hasPermission("griefprevention.adminclaims")) {
             PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-            if (claim.children.size() > 0 && !playerData.warnedAboutMajorDeletion) {
+            if (claim.children.size() > 0 && !playerData.isWarnedAboutMajorDeletion()) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeletionSubdivisionWarning);
-                playerData.warnedAboutMajorDeletion = true;
-            } else if (claim.neverdelete && !playerData.warnedAboutMajorDeletion) {
+                playerData.setWarnedAboutMajorDeletion(true);
+            } else if (claim.neverdelete && !playerData.isWarnedAboutMajorDeletion()) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeleteLockedClaimWarning);
-                playerData.warnedAboutMajorDeletion = true;
+                playerData.setWarnedAboutMajorDeletion(true);
             } else {
                 claim.removeSurfaceFluids(null);
                 plugin.dataStore.deleteClaim(claim);
@@ -41,7 +41,7 @@ public class DeleteClaim extends BaseClaimCommand {
 
                 //revert any current visualization
                 Visualization.Revert(player);
-                playerData.warnedAboutMajorDeletion = false;
+                playerData.setWarnedAboutMajorDeletion(false);
             }
         } else {
             GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CantDeleteAdminClaim);

@@ -56,7 +56,7 @@ public class CleanClaim extends BaseClaimCommand {
         args.pop();
 
         PlayerData pd = plugin.dataStore.getPlayerData(player.getName());
-        if (pd.ignoreClaims || claim.ownerName.equalsIgnoreCase(player.getName())) {
+        if (pd.isIgnoreClaims() || claim.ownerName.equalsIgnoreCase(player.getName())) {
             plugin.handleClaimClean(claim, source, target, player);
             return true;
         }

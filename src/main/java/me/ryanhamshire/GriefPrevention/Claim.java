@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.ClaimModifiedEvent;
 import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 
@@ -485,7 +485,7 @@ public class Claim {
         }
 
         // owners can make changes, or admins with ignore claims mode enabled
-        if (this.ownerName.equals(player.getName()) || GriefPrevention.instance.dataStore.getPlayerData(player.getName()).ignoreClaims)
+        if (this.ownerName.equals(player.getName()) || GriefPrevention.instance.dataStore.getPlayerData(player.getName()).isIgnoreClaims())
             return null;
 
         // anyone with explicit build permission can make changes
@@ -628,7 +628,7 @@ public class Claim {
         }
 
         // claim owner and admins in ignoreclaims mode have access
-        if (this.ownerName.equals(player.getName()) || GriefPrevention.instance.dataStore.getPlayerData(player.getName()).ignoreClaims)
+        if (this.ownerName.equals(player.getName()) || GriefPrevention.instance.dataStore.getPlayerData(player.getName()).isIgnoreClaims())
             return null;
 
         // look for explicit individual access, inventory, or build permission
@@ -671,7 +671,7 @@ public class Claim {
         }
 
         // owner and administrators in ignoreclaims mode have access
-        if (this.ownerName.equals(player.getName()) || GriefPrevention.instance.dataStore.getPlayerData(player.getName()).ignoreClaims)
+        if (this.ownerName.equals(player.getName()) || GriefPrevention.instance.dataStore.getPlayerData(player.getName()).isIgnoreClaims())
             return null;
 
         // admin claims need adminclaims permission only.

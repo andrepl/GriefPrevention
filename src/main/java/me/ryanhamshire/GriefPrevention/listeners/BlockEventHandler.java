@@ -16,11 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.listeners;
 
 import java.util.List;
 
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.*;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 
@@ -101,7 +102,7 @@ public class BlockEventHandler implements Listener {
 
             // if the player is under siege, he can't give away items
             PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
-            if (playerData.siegeData != null) {
+            if (playerData.getSiegeData() != null) {
                 GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.SiegeNoDrop);
                 event.setCancelled(true);
                 return;
@@ -114,9 +115,9 @@ public class BlockEventHandler implements Listener {
             // subsequent hits donate item to the chest
 
             // if first time damaging this chest, show confirmation message
-            if (playerData.lastChestDamageLocation == null || !block.getLocation().equals(playerData.lastChestDamageLocation)) {
+            if (playerData.getLastChestDamageLocation() == null || !block.getLocation().equals(playerData.getLastChestDamageLocation())) {
                 // remember this location
-                playerData.lastChestDamageLocation = block.getLocation();
+                playerData.setLastChestDamageLocation(block.getLocation());
 
                 // give the player instructions
                 GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.DonateItemsInstruction);
@@ -169,12 +170,12 @@ public class BlockEventHandler implements Listener {
         }
 
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(block.getLocation(), true, playerData.lastClaim);
+        Claim claim = this.dataStore.getClaimAt(block.getLocation(), true, playerData.getLastClaim());
 
         // if there's a claim here
         if (claim != null) {
             // if breaking UNDER the claim and the player has permission to build in the claim
-            if (block.getY() < claim.lesserBoundaryCorner.getBlockY() && claim.allowBuild(player) == null) {
+            if (block.getY() < claim.getLesserBoundaryCorner().getBlockY() && claim.allowBuild(player) == null) {
                 // extend the claim downward beyond the breakage point
                 this.dataStore.extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
             }
@@ -205,9 +206,9 @@ public class BlockEventHandler implements Listener {
 
         // if not empty and wasn't the same as the last sign, log it and remember it for later
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        if (notEmpty && playerData.lastMessage != null && !playerData.lastMessage.equals(signMessage)) {
+        if (notEmpty && playerData.getLastMessage() != null && !playerData.getLastMessage().equals(signMessage)) {
             GriefPrevention.addLogEntry("[Sign Placement] <" + player.getName() + "> " + lines.toString() + " @ " + GriefPrevention.getfriendlyLocationString(event.getBlock().getLocation()));
-            playerData.lastMessage = signMessage;
+            playerData.setLastMessage(signMessage);
 
             if (!player.hasPermission("griefprevention.eavesdrop") && wc.getSignEavesdrop()) {
                 Player[] players = GriefPrevention.instance.getServer().getOnlinePlayers();
@@ -265,7 +266,7 @@ public class BlockEventHandler implements Listener {
 
         // if the block is being placed within an existing claim
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(block.getLocation(), true, playerData.lastClaim);
+        Claim claim = this.dataStore.getClaimAt(block.getLocation(), true, playerData.getLastClaim());
         if (claim != null) {
             // warn about TNT not destroying claimed blocks
             if (block.getType() == Material.TNT && !claim.areExplosivesAllowed) {
@@ -274,13 +275,13 @@ public class BlockEventHandler implements Listener {
             }
 
             // if the player has permission for the claim and he's placing UNDER the claim
-            if (block.getY() < claim.lesserBoundaryCorner.getBlockY() && claim.allowBuild(player) == null) {
+            if (block.getY() < claim.getLesserBoundaryCorner().getBlockY() && claim.allowBuild(player) == null) {
                 // extend the claim downward
                 this.dataStore.extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
             }
 
             // reset the counter for warning the player when he places outside his claims
-            playerData.unclaimedBlockPlacementsUntilWarning = 1;
+            playerData.setUnclaimedBlockPlacementsUntilWarning(1);
         } else if (block.getType() == Material.CHEST &&                     // otherwise if there's no claim, the player is placing a chest, and new player automatic claims are enabled
                 wc.getAutomaticClaimsForNewPlayerRadius() > -1 &&
                 GriefPrevention.instance.claimsEnabledForWorld(block.getWorld())) {
@@ -292,7 +293,7 @@ public class BlockEventHandler implements Listener {
             }
             int radius = wc.getAutomaticClaimsForNewPlayerRadius();
             // if the player doesn't have any claims yet, automatically create a claim centered at the chest
-            if (playerData.claims.size() == 0) {
+            if (playerData.getClaims().size() == 0) {
                 // radius == 0 means protect ONLY the chest
                 if (wc.getAutomaticClaimsForNewPlayerRadius() == 0) {
                     this.dataStore.createClaim(block.getWorld(), block.getX(), block.getX(), block.getY(), block.getY(), block.getZ(), block.getZ(), player.getName(), null, null, false, player);
@@ -327,7 +328,7 @@ public class BlockEventHandler implements Listener {
             }
 
             // check to see if this chest is in a claim, and warn when it isn't
-            if (GriefPrevention.instance.getWorldCfg(player.getWorld()).getClaimsPreventTheft() && this.dataStore.getClaimAt(block.getLocation(), false, playerData.lastClaim) == null) {
+            if (GriefPrevention.instance.getWorldCfg(player.getWorld()).getClaimsPreventTheft() && this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim()) == null) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.UnprotectedChestWarning);
             }
         } else if (block.getType() == Material.SAPLING &&
@@ -341,14 +342,15 @@ public class BlockEventHandler implements Listener {
                     placeEvent.setCancelled(true);
                 }
             }
-        } else if (wc.claims_warnOnBuildOutside() && !wc.getTrashBlocks().contains(block.getType()) && wc.getClaimsEnabled() && playerData.claims.size() > 0) {
+        } else if (wc.claims_warnOnBuildOutside() && !wc.getTrashBlocks().contains(block.getType()) && wc.getClaimsEnabled() && playerData.getClaims().size() > 0) {
             // FEATURE: warn players when they're placing non-trash blocks outside of their claimed areas
-            if (--playerData.unclaimedBlockPlacementsUntilWarning <= 0 && wc.getClaimsWildernessBlocksDelay() != 0) {
+            playerData.setUnclaimedBlockPlacementsUntilWarning(playerData.getUnclaimedBlockPlacementsUntilWarning()-1);
+            if (playerData.getUnclaimedBlockPlacementsUntilWarning() <= 0 && wc.getClaimsWildernessBlocksDelay() != 0) {
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.BuildingOutsideClaims);
-                playerData.unclaimedBlockPlacementsUntilWarning = wc.getClaimsWildernessBlocksDelay();
+                playerData.setUnclaimedBlockPlacementsUntilWarning(wc.getClaimsWildernessBlocksDelay());
 
-                if (playerData.lastClaim != null && playerData.lastClaim.allowBuild(player) == null) {
-                    Visualization visualization = Visualization.FromClaim(playerData.lastClaim, block.getY(), VisualizationType.Claim, player.getLocation());
+                if (playerData.getLastClaim() != null && playerData.getLastClaim().allowBuild(player) == null) {
+                    Visualization visualization = Visualization.FromClaim(playerData.getLastClaim(), block.getY(), VisualizationType.Claim, player.getLocation());
                     Visualization.Apply(player, visualization);
                 }
             }
@@ -579,19 +581,17 @@ public class BlockEventHandler implements Listener {
             return;
         }
 
-        // if spreading into a claim
-        else if (toClaim != null) {
-            // who owns the spreading block, if anyone?
-            OfflinePlayer fromOwner = null;
-            if (fromClaim != null) {
-                fromOwner = GriefPrevention.instance.getServer().getOfflinePlayer(fromClaim.ownerName);
-            }
-
-            // cancel unless the owner of the spreading block is allowed to build in the receiving claim
-            if (fromOwner == null || fromOwner.getPlayer() == null || toClaim.allowBuild(fromOwner.getPlayer()) != null) {
-                spreadEvent.setCancelled(true);
-            }
+        // who owns the spreading block, if anyone?
+        OfflinePlayer fromOwner = null;
+        if (fromClaim != null) {
+            fromOwner = GriefPrevention.instance.getServer().getOfflinePlayer(fromClaim.ownerName);
         }
+
+        // cancel unless the owner of the spreading block is allowed to build in the receiving claim
+        if (fromOwner == null || fromOwner.getPlayer() == null || toClaim.allowBuild(fromOwner.getPlayer()) != null) {
+            spreadEvent.setCancelled(true);
+        }
+
     }
 
     // ensures dispensers can't be used to dispense a block(like water or lava) or item across a claim boundary

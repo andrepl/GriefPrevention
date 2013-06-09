@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.Configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.Messages;
 import me.ryanhamshire.GriefPrevention.PlayerData;
@@ -45,7 +45,7 @@ public class AbandonAllClaims extends BaseCommand {
 
         //count claims
         PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-        int originalClaimCount = playerData.claims.size();
+        int originalClaimCount = playerData.getClaims().size();
 
         //check count
         if (originalClaimCount == 0) {

@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.Configuration;
+package me.ryanhamshire.GriefPrevention.configuration;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 

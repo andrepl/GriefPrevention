@@ -68,8 +68,8 @@ public class Untrust extends BaseCommand {
         //if no claim here, apply changes to all his claims
         if (claim == null) {
             PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
-            for (int i = 0; i < playerData.claims.size(); i++) {
-                claim = playerData.claims.get(i);
+            for (int i = 0; i < playerData.getClaims().size(); i++) {
+                claim = playerData.getClaims().get(i);
                 //if untrusting "all" drop all permissions
                 if (clearPermissions) {
                     claim.clearPermissions();

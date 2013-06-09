@@ -74,7 +74,7 @@ public class SellClaimBlocks extends BaseCommand {
             plugin.economy.depositPlayer(player.getName(), totalValue);
 
             //subtract blocks
-            playerData.accruedClaimBlocks -= blockCount;
+            playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks()-blockCount);
             plugin.dataStore.savePlayerData(player.getName(), playerData);
 
             //inform player

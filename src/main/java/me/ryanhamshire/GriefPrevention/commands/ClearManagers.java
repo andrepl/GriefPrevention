@@ -22,7 +22,7 @@ public class ClearManagers extends BaseClaimCommand {
                 GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotAdmin);
                 return true;
             }
-            if (pdata.ignoreClaims || claim.ownerName.equalsIgnoreCase(player.getName())) {
+            if (pdata.isIgnoreClaims() || claim.ownerName.equalsIgnoreCase(player.getName())) {
                 for (String currmanager : claim.getManagerList()) {
                     claim.removeManager(currmanager);
                 }

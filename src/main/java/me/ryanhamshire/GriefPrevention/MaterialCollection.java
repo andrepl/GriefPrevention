@@ -30,7 +30,7 @@ public class MaterialCollection {
         this.materials.add(i, material);
     }
 
-    boolean Contains(MaterialInfo material) {
+    public boolean contains(MaterialInfo material) {
         for (int i = 0; i < this.materials.size(); i++) {
             MaterialInfo thisMaterial = this.materials.get(i);
             if (material.getTypeID() == thisMaterial.getTypeID() && (thisMaterial.allDataValues || material.data == thisMaterial.data)) {
