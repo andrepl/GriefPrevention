@@ -182,14 +182,26 @@ public class ClaimBehaviourData {
         return wildernessResult;
 	}
 
+    /**
+     * retrieves the placement rules for this Behaviour outside claims (in the 'wilderness')
+     * @return PlacementRules instance encapsulating applicable placement rules.
+     */
 	public PlacementRules getWildernessRules() {
         return wilderness;
     }
 
+    /**
+     * retrieves the placement rules for this Behaviour inside claims.
+     * @return PlacementRules instance encapsulating applicable placement rules.
+     */
 	public PlacementRules getClaimsRules() {
         return claims;
     }
 
+    /**
+     * retrieves the name for this Behaviour. This will be used in any applicable messages.
+     * @return Name for this behaviour.
+     */
 	public String getBehaviourName() {
         return behaviourName;
     }
@@ -219,10 +231,27 @@ public class ClaimBehaviourData {
 		behaviourName = pName;
 	}
 
-	public static ClaimBehaviourData getOutsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.BOTH,PlacementRules.NEITHER,ClaimBehaviourMode.REQUIRE_NONE); }
-	public static ClaimBehaviourData getInsideClaims(String pName) { return new ClaimBehaviourData(pName,PlacementRules.NEITHER,PlacementRules.NEITHER,ClaimBehaviourMode.REQUIRE_NONE); }
-	public static ClaimBehaviourData getAboveSeaLevel(String pName) { return new ClaimBehaviourData(pName,PlacementRules.ABOVE_ONLY,PlacementRules.ABOVE_ONLY,ClaimBehaviourMode.REQUIRE_NONE); }
-	public static ClaimBehaviourData getBelowSeaLevel(String pName) { return new ClaimBehaviourData(pName,PlacementRules.BELOW_ONLY,PlacementRules.BELOW_ONLY,ClaimBehaviourMode.REQUIRE_NONE); }
-	public static ClaimBehaviourData getNone(String pName) { return new ClaimBehaviourData(pName,PlacementRules.NEITHER,PlacementRules.NEITHER,ClaimBehaviourMode.REQUIRE_NONE); }
-	public static ClaimBehaviourData getAll(String pName) { return new ClaimBehaviourData(pName,PlacementRules.BOTH,PlacementRules.BOTH,ClaimBehaviourMode.REQUIRE_NONE); }
+	public static ClaimBehaviourData getOutsideClaims(String pName) {
+        return new ClaimBehaviourData(pName, PlacementRules.BOTH, PlacementRules.NEITHER, ClaimBehaviourMode.REQUIRE_NONE);
+    }
+
+    public static ClaimBehaviourData getInsideClaims(String pName) {
+        return new ClaimBehaviourData(pName, PlacementRules.NEITHER, PlacementRules.NEITHER, ClaimBehaviourMode.REQUIRE_NONE);
+    }
+
+    public static ClaimBehaviourData getAboveSeaLevel(String pName) {
+        return new ClaimBehaviourData(pName, PlacementRules.ABOVE_ONLY, PlacementRules.ABOVE_ONLY, ClaimBehaviourMode.REQUIRE_NONE);
+    }
+
+    public static ClaimBehaviourData getBelowSeaLevel(String pName) {
+        return new ClaimBehaviourData(pName, PlacementRules.BELOW_ONLY, PlacementRules.BELOW_ONLY, ClaimBehaviourMode.REQUIRE_NONE);
+    }
+
+    public static ClaimBehaviourData getNone(String pName) {
+        return new ClaimBehaviourData(pName, PlacementRules.NEITHER, PlacementRules.NEITHER, ClaimBehaviourMode.REQUIRE_NONE);
+    }
+
+    public static ClaimBehaviourData getAll(String pName) {
+        return new ClaimBehaviourData(pName, PlacementRules.BOTH, PlacementRules.BOTH, ClaimBehaviourMode.REQUIRE_NONE);
+    }
 }
