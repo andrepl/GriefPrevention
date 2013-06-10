@@ -138,6 +138,7 @@ public class GriefPrevention extends JavaPlugin {
 
         try {
             this.dataStore = new DataStore(this);
+            this.dataStore.onEnable();
         } catch (Exception e) {
             GriefPrevention.addLogEntry("Unable to initialize the file system data store.  Details:");
             GriefPrevention.addLogEntry(e.getMessage());

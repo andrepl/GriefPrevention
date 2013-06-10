@@ -62,7 +62,6 @@ public enum Messages {
     NotTrappedHere,
     TrappedOnCooldown,
     RescuePending,
-    AlreadySieging,
     NotSiegableThere,
     AbandonClaimMissing,
     NotYourClaim,
@@ -190,9 +189,6 @@ public enum Messages {
     PluginReloaded,
     TransferBlocksLessThanOne,
     TransferBlocksError,
-    TransferBlocksSuccess,
     BooleanParseError,
     UnknownCommand;
-
-
 }

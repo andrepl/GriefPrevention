@@ -15,6 +15,7 @@ public class ClaimMap {
         byId = new HashMap<UUID, Claim>();
         byChunk = new HashMap<String, HashMap<Long, ArrayList<Claim>>>();
         childrenById = new HashMap<UUID, Claim>();
+        byOwner = new HashMap<String, HashSet<UUID>>();
     }
 
     public void add(Claim claim) {

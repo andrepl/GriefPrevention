@@ -49,8 +49,12 @@ public class DataStore {
         persistence = new FileSystemPersistence(this);
         persistence.onEnable();
 
-        Collection<PlayerData> loadedPlayers = persistence.loadPlayerData();
-        for (PlayerData pd: loadedPlayers) {
+        playerData = new HashMap<String, PlayerData>();
+        dirtyPlayerNames = new HashSet<String>();
+        claims = new ClaimMap();
+        dirtyClaimIds = new HashSet<UUID>();
+
+        for (PlayerData pd: persistence.loadPlayerData()) {
             playerData.put(pd.getPlayerName(), pd);
         }
 
@@ -71,6 +75,7 @@ public class DataStore {
         Claim[] dirtyClaims = new Claim[dirtyClaimIds.size()];
         int i = 0;
         for (UUID uuid: dirtyClaimIds) {
+            plugin.getLogger().info("Saving dirty claim[" + uuid + ": " + claims.get(uuid));
             dirtyClaims[i++] = (claims.get(uuid));
         }
         persistence.writeClaimDataSync(dirtyClaims);
@@ -84,13 +89,18 @@ public class DataStore {
     };
 
     public PlayerData getPlayerData(String playerName) {
+        if (playerName == null) {
+            return null;
+        }
         if (playerData.containsKey(playerName)) {
             return playerData.get(playerName);
         }
         PlayerData pd = persistence.loadOrCreatePlayerData(playerName);
         playerData.put(playerName, pd);
         Collection<Claim> playerClaims = claims.getForPlayer(pd.getPlayerName());
-        pd.getClaims().addAll(playerClaims);
+        if (playerClaims != null) {
+            pd.getClaims().addAll(playerClaims);
+        }
         return pd;
     };
 
@@ -144,6 +154,12 @@ public class DataStore {
     }
 
     public void saveClaim(Claim claim) {
+        if (claim.getId() == null) {
+            claim.setId(UUID.randomUUID());
+        }
+        if (!claims.contains(claim.getId())) {
+            claims.add(claim);
+        }
         this.dirtyClaimIds.add(claim.getId());
     }
 

@@ -142,16 +142,17 @@ public class FileSystemPersistence implements IPersistence {
 
     @Override
     public PlayerData loadOrCreatePlayerData(String playerName) {
+        datastore.plugin.getLogger().info("loadOrCreatePlayerData: " + playerName);
         PlayerData playerData;
         YamlConfiguration cfg;
         File playerFile = null;
         try {
-            playerFile = getPlayerDataFile(playerName, true);
+            playerFile = getPlayerDataFile(playerName, false);
         } catch (DatastoreException e) {
             e.printStackTrace();
         }
         playerData = new PlayerData();
-        if (playerFile == null) {
+        if (!playerFile.exists()) {
             playerData.setPlayerName(playerName);
         } else {
             cfg = YamlConfiguration.loadConfiguration(playerFile);
@@ -179,6 +180,7 @@ public class FileSystemPersistence implements IPersistence {
     public void writePlayerDataSync(PlayerData... players) {
         File playerFile;
         for (PlayerData pd: players) {
+            datastore.plugin.getLogger().info("Saving player data: "+ pd.getPlayerName());
             YamlConfiguration cfg = new YamlConfiguration();
             cfg.set("accruedClaimBlocks", pd.getAccruedClaimBlocks());
             cfg.set("bonusClaimBlocks", pd.getBonusClaimBlocks());
@@ -199,6 +201,7 @@ public class FileSystemPersistence implements IPersistence {
     public void writeClaimDataSync(Claim... claims) {
         File claimFile;
         for (Claim c: claims) {
+            datastore.plugin.getLogger().info("Saving Claim: " + c);
             YamlConfiguration cfg = new YamlConfiguration();
             cfg.set("minimumPoint", SerializationUtil.locationToString(c.getLesserBoundaryCorner()));
             cfg.set("maximumPoint", SerializationUtil.locationToString(c.getGreaterBoundaryCorner()));
@@ -237,7 +240,6 @@ public class FileSystemPersistence implements IPersistence {
      * @throws DatastoreException if any IO errors occur
      */
     File getPlayerDataFile(String name, boolean create) throws DatastoreException {
-        File playerFolder = new File(datastore.plugin.getDataFolder(), "data");
         if (!playerFolder.isDirectory()) {
             if (!playerFolder.mkdir()) {
                 throw new DatastoreException("The player data folder disappeared.");
@@ -263,7 +265,6 @@ public class FileSystemPersistence implements IPersistence {
      * @throws DatastoreException if any IO errors occur
      */
     File getClaimDataFile(String name, boolean create) throws DatastoreException {
-        File claimFolder = new File(datastore.plugin.getDataFolder(), "data");
         if (!claimFolder.isDirectory()) {
             if (!claimFolder.mkdir()) {
                 throw new DatastoreException("The claim data folder disappeared.");
