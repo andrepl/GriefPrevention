@@ -21,6 +21,8 @@ package me.ryanhamshire.GriefPrevention.data;
 import me.ryanhamshire.GriefPrevention.*;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.data.persistence.FileSystemPersistence;
+import me.ryanhamshire.GriefPrevention.data.persistence.IPersistence;
 import me.ryanhamshire.GriefPrevention.events.*;
 import me.ryanhamshire.GriefPrevention.exceptions.ClaimOwnershipException;
 import org.bukkit.*;
@@ -45,8 +47,8 @@ public class DataStore {
     }
 
     public void onEnable() {
-        // TODO Implement Database Persistence
-        persistence = new FileSystemPersistence(this);
+        // TODO Implement Configurable Persistence
+        persistence = new FileSystemPersistence(plugin);
         persistence.onEnable();
 
         playerData = new HashMap<String, PlayerData>();
@@ -75,7 +77,7 @@ public class DataStore {
         Claim[] dirtyClaims = new Claim[dirtyClaimIds.size()];
         int i = 0;
         for (UUID uuid: dirtyClaimIds) {
-            plugin.getLogger().info("Saving dirty claim[" + uuid + ": " + claims.get(uuid));
+            GriefPrevention.debug("Saving dirty claim[" + uuid + "]: " + claims.get(uuid));
             dirtyClaims[i++] = (claims.get(uuid));
         }
         persistence.writeClaimDataSync(dirtyClaims);

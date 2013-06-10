@@ -1,10 +1,15 @@
-package me.ryanhamshire.GriefPrevention.data;
+package me.ryanhamshire.GriefPrevention.data.persistence;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.SerializationUtil;
+import me.ryanhamshire.GriefPrevention.data.Claim;
+import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.data.PluginClaimMeta;
 import me.ryanhamshire.GriefPrevention.exceptions.DatastoreException;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.persistence.PersistenceException;
@@ -15,7 +20,7 @@ import java.util.*;
 
 public class FileSystemPersistence implements IPersistence {
 
-    private DataStore datastore;
+    private GriefPrevention plugin;
     private File dataFolder;
     private File playerFolder;
     private File claimFolder;
@@ -32,8 +37,8 @@ public class FileSystemPersistence implements IPersistence {
         }
     };
 
-    public FileSystemPersistence(DataStore datastore) {
-        this.datastore = datastore;
+    public FileSystemPersistence(GriefPrevention plugin) {
+        this.plugin = plugin;
     }
 
     @Override
@@ -48,7 +53,7 @@ public class FileSystemPersistence implements IPersistence {
     }
 
     private void verifyDirectoryStructure() throws IOException {
-        dataFolder = new File(datastore.plugin.getDataFolder(), "data");
+        dataFolder = new File(plugin.getDataFolder(), "data");
         playerFolder = new File(dataFolder, "players");
         if (!playerFolder.isDirectory()) {
             if (!playerFolder.mkdirs()) {
@@ -92,6 +97,13 @@ public class FileSystemPersistence implements IPersistence {
             String[] managers = cfg.getStringList("managers").toArray(new String[0]);
             boolean neverDelete = cfg.getBoolean("neverDelete", false);
             claim = new Claim(min, max, ownerName, builders, containers, accessors, managers, id, neverDelete);
+            if (cfg.contains("flags")) {
+                ConfigurationSection flagSec = cfg.getConfigurationSection("flags");
+                claim.loadFlags(flagSec.getValues(false));
+            }
+            if (cfg.contains("meta")) {
+                claim.loadClaimMeta(cfg.getConfigurationSection("meta"));
+            }
             if (cfg.contains("parentId")) {
                 UUID parentId = UUID.fromString(cfg.getString("parentId"));
                 if (claims.containsKey(parentId)) {
@@ -142,7 +154,7 @@ public class FileSystemPersistence implements IPersistence {
 
     @Override
     public PlayerData loadOrCreatePlayerData(String playerName) {
-        datastore.plugin.getLogger().info("loadOrCreatePlayerData: " + playerName);
+        GriefPrevention.debug("loadOrCreatePlayerData: " + playerName);
         PlayerData playerData;
         YamlConfiguration cfg;
         File playerFile = null;
@@ -180,7 +192,7 @@ public class FileSystemPersistence implements IPersistence {
     public void writePlayerDataSync(PlayerData... players) {
         File playerFile;
         for (PlayerData pd: players) {
-            datastore.plugin.getLogger().info("Saving player data: "+ pd.getPlayerName());
+            GriefPrevention.debug("Saving player data: " + pd.getPlayerName());
             YamlConfiguration cfg = new YamlConfiguration();
             cfg.set("accruedClaimBlocks", pd.getAccruedClaimBlocks());
             cfg.set("bonusClaimBlocks", pd.getBonusClaimBlocks());
@@ -201,12 +213,19 @@ public class FileSystemPersistence implements IPersistence {
     public void writeClaimDataSync(Claim... claims) {
         File claimFile;
         for (Claim c: claims) {
-            datastore.plugin.getLogger().info("Saving Claim: " + c);
+            GriefPrevention.debug("Saving Claim: " + c);
             YamlConfiguration cfg = new YamlConfiguration();
             cfg.set("minimumPoint", SerializationUtil.locationToString(c.getLesserBoundaryCorner()));
             cfg.set("maximumPoint", SerializationUtil.locationToString(c.getGreaterBoundaryCorner()));
             cfg.set("ownerName", c.getOwnerName());
             cfg.set("neverDelete", c.isNeverDelete());
+            ConfigurationSection flagSec = cfg.getConfigurationSection("flags");
+            if (flagSec == null) {
+                flagSec = cfg.createSection("flags");
+            }
+            for (Map.Entry<String, String> entry: c.getFlags().entrySet()) {
+                flagSec.set(entry.getKey(), entry.getValue());
+            }
             if (c.getParent() != null) {
                 cfg.set("parentId", c.getParent().getId());
             }
@@ -219,6 +238,10 @@ public class FileSystemPersistence implements IPersistence {
             cfg.set("containers", containers);
             cfg.set("accessors", accessors);
             cfg.set("managers", managers);
+            HashMap<String, PluginClaimMeta> claimMeta = c.getAllClaimMeta();
+            if (claimMeta != null) {
+                cfg.set("meta", claimMeta);
+            }
             try {
                 claimFile = getClaimDataFile(c.getId().toString(), true);
                 cfg.save(claimFile);

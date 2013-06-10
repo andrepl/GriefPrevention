@@ -34,7 +34,6 @@ public class ClaimBehaviourData {
         DISABLED,
         REQUIRE_BUILD;
 
-
 		public static ClaimBehaviourMode parseMode(String name){
 			for(ClaimBehaviourMode cb:ClaimBehaviourMode.values()){
 				if(cb.name().equalsIgnoreCase(name))

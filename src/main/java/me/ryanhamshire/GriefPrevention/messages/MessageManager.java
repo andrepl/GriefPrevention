@@ -73,7 +73,6 @@ public class MessageManager {
         this.addDefault(defaults, Messages.NotTrappedHere, "You can build here.  Save yourself.", null);
         this.addDefault(defaults, Messages.TrappedOnCooldown, "You used /trapped within the last {0} hours.  You have to wait about {1} more minutes before using it again.", "0: default cooldown hours; 1: remaining minutes");
         this.addDefault(defaults, Messages.RescuePending, "If you stay put for 10 seconds, you'll be teleported out.  Please wait.", null);
-        this.addDefault(defaults, Messages.NotSiegableThere, "{0} isn't protected there.", "0: defending player");
         this.addDefault(defaults, Messages.AbandonClaimMissing, "Stand in the claim you want to delete, or consider /AbandonAllClaims.", null);
         this.addDefault(defaults, Messages.NotYourClaim, "This isn't your claim.", null);
         this.addDefault(defaults, Messages.DeleteTopLevelClaim, "To delete a subdivision, stand inside it.  Otherwise, use /AbandonTopLevelClaim to delete this claim and all subdivisions.", null);
@@ -199,6 +198,11 @@ public class MessageManager {
         this.addDefault(defaults, Messages.TransferBlocksError, "There was a problem attempting to transfer claimblocks, Check the server log for errors.", null);
         this.addDefault(defaults, Messages.BooleanParseError, "Expected 'true' or 'false', not {0}", "0:not a bool");
         this.addDefault(defaults, Messages.UnknownCommand, "Unknown subcommand {0}", "0:subcommand");
+        this.addDefault(defaults, Messages.TransferBlocksSuccess, "Successfully transferred {1} claim blocks to {0}", "0:targetPlayer;1:amount");
+        this.addDefault(defaults, Messages.UnknownFlag, "Unknown Claim Flag: {0}", "0:flag name");
+        this.addDefault(defaults, Messages.InvalidFlagValue, "Invalid Flag Value: {0}", "0:flag value");
+        this.addDefault(defaults, Messages.FlagSet, "Flag {0} successfully set to {1}", "0:flag name;1:flag value");
+
 
         // load the config file
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));

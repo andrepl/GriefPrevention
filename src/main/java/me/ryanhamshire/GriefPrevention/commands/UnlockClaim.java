@@ -19,7 +19,10 @@ public class UnlockClaim extends BaseClaimCommand {
 
     @Override
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
-        if (args.size() != 0) return false;
+        if (args.size() != 0) {
+            GriefPrevention.debug("too many args?");
+            return false;
+        }
         if ((player.hasPermission("griefprevention.lock") && claim.getOwnerName().equalsIgnoreCase(player.getName())) || player.hasPermission("griefprevention.adminlock")) {
             claim.setNeverDelete(false);
             plugin.dataStore.saveClaim(claim);

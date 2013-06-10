@@ -47,6 +47,7 @@ public class CommandHandler implements TabExecutor {
     DeleteAllAdminClaims cmdDeleteAllAdminClaims;
     AdjustBonusClaimBlocks cmdAdjustBonusClaimBlocks;
     Trapped cmdTrapped;
+    Flag cmdFlag;
 
     public CommandHandler(GriefPrevention plugin) {
         this.plugin = plugin;
@@ -86,6 +87,7 @@ public class CommandHandler implements TabExecutor {
         cmdDeleteAllAdminClaims = new DeleteAllAdminClaims(plugin);
         cmdAdjustBonusClaimBlocks = new AdjustBonusClaimBlocks(plugin);
         cmdTrapped = new Trapped(plugin);
+        cmdFlag = new Flag(plugin);
     }
 
     @Override
@@ -127,10 +129,11 @@ public class CommandHandler implements TabExecutor {
             }
             return results;
         } else {
-            BaseCommand bc = commandMap.get(params.peek());
+            String command = params.pop();
+            BaseCommand bc = commandMap.get(command);
             if (bc == null) return null;
             if (sender.hasPermission(bc.getPermissionNode())) {
-                return bc.onTabComplete(sender, bc.getPluginCommand(), label + " " + params.peek(), params);
+                return bc.onTabComplete(sender, bc.getPluginCommand(), label + " " + command, params);
             }
         }
         return null;

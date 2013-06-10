@@ -1,4 +1,7 @@
-package me.ryanhamshire.GriefPrevention.data;
+package me.ryanhamshire.GriefPrevention.data.persistence;
+
+import me.ryanhamshire.GriefPrevention.data.Claim;
+import me.ryanhamshire.GriefPrevention.data.PlayerData;
 
 import java.util.Collection;
 

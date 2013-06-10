@@ -41,7 +41,7 @@ public class ClaimsList extends BaseCommand {
         }
 
         //otherwise if no permission to delve into another player's claims data
-        if (!sender.hasPermission("griefprevention.deleteclaims")) {
+        if (!sender.getName().equals(otherPlayer.getName()) && !sender.hasPermission("griefprevention.deleteclaims")) {
             GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.ClaimsListNoPermission);
             return true;
         }

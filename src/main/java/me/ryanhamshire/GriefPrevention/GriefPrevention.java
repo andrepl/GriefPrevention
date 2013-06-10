@@ -20,10 +20,14 @@ package me.ryanhamshire.GriefPrevention;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
 import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
+import me.ryanhamshire.GriefPrevention.flags.BaseFlag;
+import me.ryanhamshire.GriefPrevention.flags.FlagManager;
+import me.ryanhamshire.GriefPrevention.flags.FlagMobSpawns;
 import me.ryanhamshire.GriefPrevention.messages.MessageManager;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
@@ -40,6 +44,7 @@ import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 import me.ryanhamshire.GriefPrevention.tasks.SendPlayerMessageTask;
 import net.milkbowl.vault.economy.Economy;
 
+import net.minecraft.server.v1_5_R3.MobSpawnerAbstract;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -52,6 +57,8 @@ import org.bukkit.block.Block;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -66,7 +73,9 @@ public class GriefPrevention extends JavaPlugin {
     // for logging to the console and log file
     public ConfigData configuration = null;
 
-    
+    private FlagManager flagManager = null;
+
+
     // this handles data storage, like player and region data
     public DataStore dataStore;
 
@@ -127,14 +136,17 @@ public class GriefPrevention extends JavaPlugin {
     // initializes well...   everything
     public void onEnable() {
         instance = this;
+        ConfigurationSerialization.registerClass(PluginClaimMeta.class);
         // load the config if it exists
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
         FileConfiguration outConfig = new YamlConfiguration();
         configuration = new ConfigData(config, outConfig);
+        getLogger().info("Configuration loaded, DebugMode: " + configuration.isDebugMode());
         // read configuration settings (note defaults)
         commandHandler = new CommandHandler(this);
         commandHandler.initialize();
         messageManager = new MessageManager(this);
+        flagManager = new FlagManager(this);
 
         try {
             this.dataStore = new DataStore(this);
@@ -183,6 +195,9 @@ public class GriefPrevention extends JavaPlugin {
         } catch (IOException exx) {
             this.getLogger().log(Level.SEVERE, "Failed to save primary configuration file:" + new File(getDataFolder(), "config.yml"));
         }
+        // TODO: Remove this, its just a test flag.
+        FlagMobSpawns mobSpawnsFlag = new FlagMobSpawns(this);
+        getFlagManager().registerFlag(mobSpawnsFlag);
     }
 
     public void handleClaimClean(Claim c, MaterialInfo source, MaterialInfo target, Player player) {
@@ -438,5 +453,15 @@ public class GriefPrevention extends JavaPlugin {
 
     public BlockEventHandler getBlockEventHandler() {
         return blockEventHandler;
+    }
+
+    public static void debug(String s) {
+        if (instance.configuration.isDebugMode()) {
+            instance.getLogger().info(s);
+        }
+    }
+
+    public FlagManager getFlagManager() {
+        return flagManager;
     }
 }

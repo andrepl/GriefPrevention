@@ -28,6 +28,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class ConfigData {
 
     private String templateFile;
+    private boolean debugMode;
+
 	private HashMap<String, WorldConfig> WorldCfg = new HashMap<String, WorldConfig>();
     private HashMap<TextMode, ChatColor> colors = new HashMap<TextMode, ChatColor>();
 
@@ -49,6 +51,9 @@ public class ConfigData {
      */
     public ConfigData(FileConfiguration coreConfig, FileConfiguration outConfig) {
         // core configuration is configuration that is Global.
+
+        this.debugMode = coreConfig.getBoolean("GriefPrevention.DebugMode", false);
+        outConfig.set("GriefPrevention.DebugMode", this.debugMode);
 
         this.playerGroups = new PlayerGroups(coreConfig, "GriefPrevention.Groups");
         this.playerGroups.save(outConfig, "GriefPrevention.Groups");
@@ -268,5 +273,9 @@ public class ConfigData {
 
     public String getDatabaseUserName() {
         return databaseUserName;
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
     }
 }

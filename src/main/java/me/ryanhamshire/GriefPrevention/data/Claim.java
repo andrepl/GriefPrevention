@@ -22,7 +22,10 @@ import java.util.*;
 
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
+import me.ryanhamshire.GriefPrevention.exceptions.InvalidFlagValueException;
+import me.ryanhamshire.GriefPrevention.flags.BaseFlag;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.PlayerGroup;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
@@ -32,8 +35,10 @@ import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 // represents a player claim
 // creating an instance doesn't make an effective claim
@@ -47,6 +52,8 @@ public class Claim {
     private String LesserCorner;
     private String GreaterCorner;
     private boolean WasDeferred = false;
+    private HashMap<String, PluginClaimMeta> claimMeta = new HashMap<String, PluginClaimMeta>();
+    private HashMap<String, String> flags = new HashMap<String, String>();
 
     // two locations, which together define the boundaries of the claim
     // note that the upper Y value is always ignored, because claims ALWAYS extend up to the sky
@@ -57,7 +64,6 @@ public class Claim {
      * modification date.  this comes from the file timestamp during load, and is updated with runtime changes
      */
     private Date modifiedDate;
-
     private UUID id = null;
 
     /**
@@ -104,6 +110,7 @@ public class Claim {
      * This variable sets whether a claim gets deleted with the automatic cleanup.
      */
     private boolean neverDelete = false;
+    private Map<String, Object> rawFlags;
 
     public Claim getChildAt(Location testlocation) {
 
@@ -1112,5 +1119,58 @@ public class Claim {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public PluginClaimMeta getClaimMeta(Plugin plugin, boolean create) {
+        if (!claimMeta.containsKey(plugin.getName())) {
+            if (!create) {
+                return null;
+            }
+            claimMeta.put(plugin.getName(), new PluginClaimMeta(plugin));
+        }
+        return claimMeta.get(plugin.getName());
+    }
+
+    public HashMap<String, PluginClaimMeta> getAllClaimMeta() {
+        return claimMeta;
+    }
+
+    public void loadClaimMeta(ConfigurationSection cfg) {
+        claimMeta.clear();
+        for (String key: cfg.getKeys(false)) {
+            PluginClaimMeta meta = PluginClaimMeta.deserialize(cfg.getValues(true));
+            meta.pluginName = cfg.getName();
+            claimMeta.put(key, meta);
+        }
+    }
+
+    public String getFlag(BaseFlag flag) {
+        if (GriefPrevention.instance.getFlagManager().isFlagRegistered(flag)) {
+            if (!flags.containsKey(flag.getKey().toLowerCase())) {
+                flags.put(flag.getKey().toLowerCase(), flag.getDefaultValue());
+            }
+            return flags.get(flag.getKey().toLowerCase());
+        }
+        return null;
+    }
+
+    public void setFlag(BaseFlag flag, String value) throws InvalidFlagValueException {
+        for (String v: flag.getValidOptions()) {
+            if (v.equalsIgnoreCase(value)) {
+                flags.put(flag.getKey().toLowerCase(), v);
+                return;
+            }
+        }
+        throw new InvalidFlagValueException(value + " is not a valid value for " + flag.getKey());
+    }
+
+    public HashMap<String, String> getFlags() {
+        return flags;
+    }
+
+    public void loadFlags(Map<String, Object> rawFlags) {
+        for (Map.Entry<String, Object> entry: rawFlags.entrySet()) {
+             flags.put(entry.getKey(), (String) entry.getValue());
+        }
     }
 }
