@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.ryanhamshire.GriefPrevention</groupId>
-    <artifactId>GriefPrevention</artifactId>
-    <version>7.8-SNAPSHOT</version>
+    <artifactId>GriefPreventionTNG</artifactId>
+    <version>0.9-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.authors>bigscary, Tux2</project.authors>
+        <project.authors>metalhedd</project.authors>
         <project.main>me.ryanhamshire.GriefPrevention.GriefPrevention</project.main>
         <project.devurl>http://dev.bukkit.org/server-mods/grief-prevention</project.devurl>
         <project.softdepends>[Vault, Multiverse-Core, My Worlds, MystCraft, Transporter]</project.softdepends>

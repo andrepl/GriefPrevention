@@ -20,14 +20,11 @@ package me.ryanhamshire.GriefPrevention;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.logging.Level;
 
 import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
 import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
-import me.ryanhamshire.GriefPrevention.flags.BaseFlag;
 import me.ryanhamshire.GriefPrevention.flags.FlagManager;
-import me.ryanhamshire.GriefPrevention.flags.FlagMobSpawns;
 import me.ryanhamshire.GriefPrevention.messages.MessageManager;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
@@ -44,7 +41,6 @@ import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 import me.ryanhamshire.GriefPrevention.tasks.SendPlayerMessageTask;
 import net.milkbowl.vault.economy.Economy;
 
-import net.minecraft.server.v1_5_R3.MobSpawnerAbstract;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -57,7 +53,6 @@ import org.bukkit.block.Block;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -195,9 +190,6 @@ public class GriefPrevention extends JavaPlugin {
         } catch (IOException exx) {
             this.getLogger().log(Level.SEVERE, "Failed to save primary configuration file:" + new File(getDataFolder(), "config.yml"));
         }
-        // TODO: Remove this, its just a test flag.
-        FlagMobSpawns mobSpawnsFlag = new FlagMobSpawns(this);
-        getFlagManager().registerFlag(mobSpawnsFlag);
     }
 
     public void handleClaimClean(Claim c, MaterialInfo source, MaterialInfo target, Player player) {

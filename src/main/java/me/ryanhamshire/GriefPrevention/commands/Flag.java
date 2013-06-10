@@ -74,6 +74,7 @@ public class Flag extends BaseClaimCommand {
                 }
                 GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.FlagSet, flag.getDisplayName(), claim.getFlag(flag));
                 flag.onSet(player, claim, value);
+                GriefPrevention.instance.dataStore.saveClaim(claim);
                 return true;
             }
             return false;

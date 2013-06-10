@@ -1,5 +1,6 @@
 package me.ryanhamshire.GriefPrevention.flags;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData.ClaimBehaviourMode;
 import me.ryanhamshire.GriefPrevention.data.Claim;
@@ -22,8 +23,9 @@ public abstract class BaseFlag {
         this.key = key;
     }
 
-    public abstract String getRequiredPermission();
-    public abstract void onSet(Player player, Claim claim, String value);
+    public String getRequiredPermission() {
+        return requiredPermission == null ? "griefprevention.claims" : requiredPermission;
+    }
 
     public String getKey() {
         return key;
@@ -63,6 +65,10 @@ public abstract class BaseFlag {
 
     public void setRequiredPermission(String requiredPermission) {
         this.requiredPermission = requiredPermission;
+    }
+
+    public void onSet(Player player, Claim claim, String value) {
+
     }
 
     @Override
