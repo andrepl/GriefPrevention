@@ -103,10 +103,9 @@ public class ClaimBehaviourData {
         }
 	}
 
-
     private String behaviourName;
     private PlacementRules wilderness;
-	private PlacementRules claims;
+    private PlacementRules claims;
     private ClaimBehaviourMode claimBehaviour;
 
     public Object clone() {
