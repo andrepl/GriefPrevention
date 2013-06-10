@@ -4,6 +4,7 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 /**
  * represents the placement rules for a particular Claim Behaviour 'packet'. This is designed to allow for unneeded
@@ -76,6 +77,11 @@ public class PlacementRules {
         return "Nowhere";
     }
 
+    public PlacementRules(PlacementRules copySource) {
+        this.aboveSeaLevel = copySource.aboveSeaLevel;
+        this.belowSeaLevel = copySource.belowSeaLevel;
+    }
+
     public PlacementRules(boolean above, boolean below) {
         aboveSeaLevel = BasicPermissionConstants.fromBoolean(above);
         belowSeaLevel = BasicPermissionConstants.fromBoolean(below);
@@ -113,10 +119,15 @@ public class PlacementRules {
      * @param target
      * @return
      */
-    public boolean allow(Location target) {
+    public boolean allow(Location target, Player player, boolean showMessages) {
+        // TODO player and showMessages args were added upstream but do nothing. investigate
         int seaLevelofWorld = GriefPrevention.instance.getWorldCfg(target.getWorld()).getSeaLevelOverride();
         boolean result = (aboveSeaLevel.allowed() && (target.getBlockY() >= seaLevelofWorld)) ||
                 (belowSeaLevel.allowed() && (target.getBlockY() < seaLevelofWorld));
         return result;
+    }
+
+    public Object clone() {
+        return new PlacementRules(this);
     }
 }

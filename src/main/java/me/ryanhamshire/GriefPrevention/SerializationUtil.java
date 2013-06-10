@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention;
 
-import me.ryanhamshire.GriefPrevention.data.MaterialCollection;
-import me.ryanhamshire.GriefPrevention.data.MaterialInfo;
+import me.ryanhamshire.GriefPrevention.configuration.MaterialCollection;
+import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 import org.apache.commons.lang.SerializationException;
 import org.bukkit.Bukkit;

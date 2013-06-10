@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import me.ryanhamshire.GriefPrevention.*;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
+import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.events.PlayerChangeClaimEvent;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;

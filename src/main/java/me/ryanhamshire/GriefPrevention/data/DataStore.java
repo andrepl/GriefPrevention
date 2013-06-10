@@ -19,6 +19,7 @@
 package me.ryanhamshire.GriefPrevention.data;
 
 import me.ryanhamshire.GriefPrevention.*;
+import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.*;
 import me.ryanhamshire.GriefPrevention.exceptions.ClaimOwnershipException;
@@ -83,7 +84,14 @@ public class DataStore {
     };
 
     public PlayerData getPlayerData(String playerName) {
-        return playerData.get(playerName);
+        if (playerData.containsKey(playerName)) {
+            return playerData.get(playerName);
+        }
+        PlayerData pd = persistence.loadOrCreatePlayerData(playerName);
+        playerData.put(playerName, pd);
+        Collection<Claim> playerClaims = claims.getForPlayer(pd.getPlayerName());
+        pd.getClaims().addAll(playerClaims);
+        return pd;
     };
 
     public void savePlayerData(String playerName, PlayerData playerData) {
@@ -96,40 +104,35 @@ public class DataStore {
     }
 
     public Claim getClaimAt(Location location, boolean ignoreHeight, Claim cachedClaim) {
-
         if (cachedClaim != null && cachedClaim.isInDataStore() && cachedClaim.contains(location, ignoreHeight, true)) {
             return cachedClaim;
         }
 
-        //the claims list is ordered by greater boundary corner
-        //create a temporary "fake" claim in memory for comparison purposes
+        // the claims list is ordered by greater boundary corner
+        // create a temporary "fake" claim in memory for comparison purposes
         Claim tempClaim = new Claim();
         tempClaim.lesserBoundaryCorner = location;
-
-        //Let's get all the claims in this block's chunk
+        // Let's get all the claims in this block's chunk
         ArrayList<Claim> aclaims = claims.getForChunk(location.getChunk());
 
-        //If there are no claims here, let's return null.
-        if(aclaims == null) {
+        // If there are no claims here, let's return null.
+        if (aclaims == null) {
             return null;
         }
 
-        //otherwise, search all existing claims in the chunk until we find the right claim
-        for(int i = 0; i < aclaims.size(); i++)
-        {
+        // otherwise, search all existing claims in the chunk until we find the right claim
+        for(int i = 0; i < aclaims.size(); i++) {
             Claim claim = aclaims.get(i);
 
             //if we reach a claim which is greater than the temp claim created above, there's definitely no claim
             //in the collection which includes our location
-            if(claim.greaterThan(tempClaim)) return null;
+            if (claim.greaterThan(tempClaim)) return null;
 
             //find a top level claim
-            if(claim.contains(location, ignoreHeight, false))
-            {
+            if(claim.contains(location, ignoreHeight, false)) {
                 //when we find a top level claim, if the location is in one of its subdivisions,
                 //return the SUBDIVISION, not the top level claim
-                for(int j = 0; j < claim.getChildren().size(); j++)
-                {
+                for(int j = 0; j < claim.getChildren().size(); j++) {
                     Claim subdivision = claim.getChildren().get(j);
                     if(subdivision.contains(location, ignoreHeight, false)) return subdivision;
                 }
@@ -215,10 +218,10 @@ public class DataStore {
                 new Location(world, smallx, smally, smallz),
                 new Location(world, bigx, bigy, bigz),
                 ownerName,
-                new String [] {},
-                new String [] {},
-                new String [] {},
-                new String [] {},
+                new String[] {},
+                new String[] {},
+                new String[] {},
+                new String[] {},
                 id, false);
 
         newClaim.setParent(parent);
@@ -230,12 +233,12 @@ public class DataStore {
         } else {
             Long[] claimchunks = ClaimMap.getChunks(newClaim);
             claimsToCheck = new ArrayList<Claim>();
-            for (Long chunk : claimchunks) {
+            for (Long chunk: claimchunks) {
                 ArrayList<Claim> chunkclaims = this.claims.getForChunk(world.getName(), chunk);
-                if(chunkclaims == null) {
+                if (chunkclaims == null) {
                     continue;
                 }
-                for(Claim claim : chunkclaims) {
+                for (Claim claim: chunkclaims) {
                     if(!claimsToCheck.contains(claim)) {
                         claimsToCheck.add(claim);
                     }
@@ -243,24 +246,21 @@ public class DataStore {
             }
         }
 
-        for(int i = 0; i < claimsToCheck.size(); i++)
-        {
+        for (int i=0; i<claimsToCheck.size(); i++) {
             Claim otherClaim = claimsToCheck.get(i);
-
             //if we find an existing claim which will be overlapped
-            if(otherClaim.overlaps(newClaim))
-            {
+            if (otherClaim.overlaps(newClaim)) {
                 //result = fail, return conflicting claim
                 result.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
                 result.claim = otherClaim;
                 return result;
             }
         }
-        if(oldclaim == null) {
-            if(doRaiseEvent){
-                ClaimCreatedEvent claimevent = new ClaimCreatedEvent(newClaim,claimcreator);
+        if (oldclaim == null) {
+            if (doRaiseEvent) {
+                ClaimCreatedEvent claimevent = new ClaimCreatedEvent(newClaim, claimcreator);
                 Bukkit.getServer().getPluginManager().callEvent(claimevent);
-                if(claimevent.isCancelled()) {
+                if (claimevent.isCancelled()) {
                     result.succeeded = CreateClaimResult.Result.CANCELED;
                     return result;
                 }
@@ -397,8 +397,7 @@ public class DataStore {
 
         //determine current claim owner
         PlayerData ownerData = null;
-        if(!claimToGive.isAdminClaim())
-        {
+        if (!claimToGive.isAdminClaim()) {
             ownerData = this.getPlayerData(claimToGive.getOwnerName());
         }
 

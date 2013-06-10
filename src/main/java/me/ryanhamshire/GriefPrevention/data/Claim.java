@@ -22,6 +22,7 @@ import java.util.*;
 
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.PlayerGroup;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
@@ -31,7 +32,6 @@ import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 

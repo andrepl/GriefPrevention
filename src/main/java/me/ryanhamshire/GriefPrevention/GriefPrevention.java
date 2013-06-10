@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
+import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.messages.MessageManager;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;

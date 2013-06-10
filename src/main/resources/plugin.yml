@@ -9,7 +9,6 @@ commands:
       description: The main GriefPrevention command.
       aliases: [gp, grief, gprev]
       usage: /griefprevention <subcommand>
-
    setclaimblocks:
       description: sets the claim blocks for a player to a specific value.
       usage: /SetClaimBlocks <player> <amount>
@@ -77,11 +76,6 @@ commands:
       description: transfers claim blocks from one player to another.
       usage: /TransferClaimBlocks <sourceplayer> <targetplayer> <amount>
       permission: griefprevention.transferclaimblocks
-   setblockbank:
-      description: Set the player's accrued blocks bank to the specified amount.
-      usage: /SetBlockBank <player> <amount>
-      permission: griefprevention.setblockbank
-      aliases: sbb
    deleteclaim:
       description: Deletes the claim you're standing in, even if it's not your claim.
       usage: /DeleteClaim
@@ -209,6 +203,7 @@ permissions:
             griefprevention.deathblow: true
             griefprevention.adminlock: true
             griefprevention.lock: true
+            griefprevention.buysellclaimblocks: true
     griefprevention.restorenature:
         description: Grants permission to use /RestoreNature.
         default: op

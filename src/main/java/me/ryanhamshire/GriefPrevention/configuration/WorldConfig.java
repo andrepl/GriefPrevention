@@ -1,13 +1,10 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.SerializationUtil;
-import me.ryanhamshire.GriefPrevention.data.MaterialCollection;
-import me.ryanhamshire.GriefPrevention.data.MaterialInfo;
 
 import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
 import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;

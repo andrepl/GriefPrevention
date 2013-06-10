@@ -36,7 +36,6 @@ public class FileSystemPersistence implements IPersistence {
         this.datastore = datastore;
     }
 
-
     @Override
     public void onEnable() throws PersistenceException {
         // Make sure the directories are there.
@@ -123,6 +122,7 @@ public class FileSystemPersistence implements IPersistence {
         PlayerData playerData;
         YamlConfiguration cfg;
         List<PlayerData> results = new LinkedList<PlayerData>();
+        Date now = new Date();
         for (File file: playerFolder.listFiles()) {
             if (file.isDirectory()) continue;
             cfg = YamlConfiguration.loadConfiguration(file);
@@ -131,9 +131,36 @@ public class FileSystemPersistence implements IPersistence {
             playerData.setBonusClaimBlocks(cfg.getInt("bonusClaimBlocks"));
             playerData.setLastLogin(new Date(cfg.getLong("lastLogin")));
             playerData.setPlayerName(cfg.getString("playerName"));
-            results.add(playerData);
+            // TODO Make this configurable.
+            // Only load players into memory if they've logged in this week.
+            if (now.getTime() - playerData.getLastLogin().getTime() < 1000*60*60*24*7) {
+                results.add(playerData);
+            }
         }
         return results;
+    }
+
+    @Override
+    public PlayerData loadOrCreatePlayerData(String playerName) {
+        PlayerData playerData;
+        YamlConfiguration cfg;
+        File playerFile = null;
+        try {
+            playerFile = getPlayerDataFile(playerName, true);
+        } catch (DatastoreException e) {
+            e.printStackTrace();
+        }
+        playerData = new PlayerData();
+        if (playerFile == null) {
+            playerData.setPlayerName(playerName);
+        } else {
+            cfg = YamlConfiguration.loadConfiguration(playerFile);
+            playerData.setAccruedClaimBlocks(cfg.getInt("accruedClaimBlocks"));
+            playerData.setBonusClaimBlocks(cfg.getInt("bonusClaimBlocks"));
+            playerData.setLastLogin(new Date(cfg.getLong("lastLogin")));
+            playerData.setPlayerName(cfg.getString("playerName"));
+        }
+        return playerData;
     }
 
     @Override
@@ -150,12 +177,54 @@ public class FileSystemPersistence implements IPersistence {
 
     @Override
     public void writePlayerDataSync(PlayerData... players) {
-        // To change body of implemented methods use File | Settings | File Templates.
+        File playerFile;
+        for (PlayerData pd: players) {
+            YamlConfiguration cfg = new YamlConfiguration();
+            cfg.set("accruedClaimBlocks", pd.getAccruedClaimBlocks());
+            cfg.set("bonusClaimBlocks", pd.getBonusClaimBlocks());
+            cfg.set("lastLogin", pd.getLastLogin().getTime());
+            cfg.set("playerName", pd.getPlayerName());
+            try {
+                playerFile = getPlayerDataFile(pd.getPlayerName(), true);
+                cfg.save(playerFile);
+            } catch (DatastoreException ex) {
+                ex.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void writeClaimDataSync(Claim... claims) {
-        // To change body of implemented methods use File | Settings | File Templates.
+        File claimFile;
+        for (Claim c: claims) {
+            YamlConfiguration cfg = new YamlConfiguration();
+            cfg.set("minimumPoint", SerializationUtil.locationToString(c.getLesserBoundaryCorner()));
+            cfg.set("maximumPoint", SerializationUtil.locationToString(c.getGreaterBoundaryCorner()));
+            cfg.set("ownerName", c.getOwnerName());
+            cfg.set("neverDelete", c.isNeverDelete());
+            if (c.getParent() != null) {
+                cfg.set("parentId", c.getParent().getId());
+            }
+            ArrayList<String> builders = new ArrayList<String>();
+            ArrayList<String> containers = new ArrayList<String>();
+            ArrayList<String> accessors = new ArrayList<String>();
+            ArrayList<String> managers = new ArrayList<String>();
+            c.getPermissions(builders, containers, accessors, managers);
+            cfg.set("builders", builders);
+            cfg.set("containers", containers);
+            cfg.set("accessors", accessors);
+            cfg.set("managers", managers);
+            try {
+                claimFile = getClaimDataFile(c.getId().toString(), true);
+                cfg.save(claimFile);
+            } catch (DatastoreException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

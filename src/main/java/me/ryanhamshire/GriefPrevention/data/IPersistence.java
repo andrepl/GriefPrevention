@@ -23,6 +23,10 @@ public interface IPersistence {
     public Collection<Claim> loadClaimData();
     public Collection<PlayerData> loadPlayerData();
 
+    // load a single player from persistence if it exists, otherwise
+    // create a new playerdata for them and save it
+    public PlayerData loadOrCreatePlayerData(String playerName);
+
     // These methods are called periodically with only unsaved data
     // If possible, a persistence engine should do as little
     // on the main thread and schedule actual disk writes async

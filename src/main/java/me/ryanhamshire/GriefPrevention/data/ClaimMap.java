@@ -5,9 +5,11 @@ import org.bukkit.Chunk;
 import java.util.*;
 
 public class ClaimMap {
+
     private HashMap<UUID, Claim> byId;
     private HashMap<String, HashMap<Long, ArrayList<Claim>>> byChunk;
     private HashMap<UUID, Claim> childrenById;
+    private HashMap<String, HashSet<UUID>> byOwner;
 
     public ClaimMap() {
         byId = new HashMap<UUID, Claim>();
@@ -21,6 +23,18 @@ public class ClaimMap {
             childrenById.put(claim.getId(), claim);
             return;
         }
+
+        if (!claim.getOwnerName().equals("")) {
+            HashSet<UUID> ownerCollection;
+            if (byOwner.containsKey(claim.getOwnerName())) {
+                ownerCollection = byOwner.get(claim.getOwnerName());
+            } else {
+                ownerCollection = new HashSet<UUID>();
+                byOwner.put(claim.getOwnerName(), ownerCollection);
+            }
+            ownerCollection.add(claim.getId());
+        }
+
         byId.put(claim.getId(), claim);
         Long[] chunkKeys = getChunks(claim);
         String worldName = claim.getLesserBoundaryCorner().getWorld().getName();
@@ -129,6 +143,17 @@ public class ClaimMap {
             return null;
         }
         return byChunk.get(worldName).get(chunkPoint);
+    }
+
+    public Collection<Claim> getForPlayer(String playerName) {
+        if (!byOwner.containsKey(playerName)) {
+            return null;
+        }
+        List<Claim> playerClaims = new ArrayList<Claim>(byOwner.get(playerName).size());
+        for (UUID id: byOwner.get(playerName)) {
+            playerClaims.add(byId.get(id));
+        }
+        return playerClaims;
     }
 
     public Collection<Claim> getPossiblyOverlappingClaims(Claim claim) {
