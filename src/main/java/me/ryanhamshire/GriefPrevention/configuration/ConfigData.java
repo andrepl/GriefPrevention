@@ -85,13 +85,14 @@ public class ConfigData {
 
         // we try to avoid these now. Normally the primary interest is the
         // GriefPrevention.WorldConfigFolder setting.
-        String defaultConfigFolder = DataStore.dataLayerFolderPath + File.separator + "WorldConfigs" + File.separator;
-        String defaultTemplateFile = defaultConfigFolder + "_template.cfg";
+        File defaultConfigFolder = new File(GriefPrevention.instance.getDataFolder(), "WorldConfigs");
+        File defaultTemplateFile = new File(defaultConfigFolder, "_template.cfg");
 
         // Configurable template file.
-        templateFile = coreConfig.getString("GriefPrevention.WorldConfig.TemplateFile", defaultTemplateFile);
+        templateFile = coreConfig.getString("GriefPrevention.WorldConfig.TemplateFile", defaultTemplateFile.getPath());
+
         if (!(new File(templateFile).exists())) {
-            templateFile = defaultTemplateFile;
+            templateFile = defaultTemplateFile.getPath();
         }
         outConfig.set("GriefPrevention.WorldConfig.TemplateFile", templateFile);
 
@@ -101,7 +102,7 @@ public class ConfigData {
         String configFolder = coreConfig.getString("GriefPrevention.WorldConfigFolder");
 
         if (configFolder == null || configFolder.length() == 0) {
-            configFolder = defaultConfigFolder;
+            configFolder = defaultConfigFolder.getPath();
         }
 
         File configLocation = new File(configFolder);
@@ -177,8 +178,9 @@ public class ConfigData {
 		// if it's not in the hashmap...
 		if(!WorldCfg.containsKey(worldName)) {
 			// special code: it's possible a configuration might already exist for this file, so we'll
-			// check 
-			String checkyamlfile = DataStore.dataLayerFolderPath + File.separator + "WorldConfigs/" + worldName + ".cfg";
+			// check
+            File defaultConfigFolder = new File(GriefPrevention.instance.getDataFolder(), "WorldConfigs");
+			String checkyamlfile = new File(defaultConfigFolder, worldName + ".cfg").getPath();
 			// if it exists...
 			if (new File(checkyamlfile).exists()) {
 				// attempt to load the configuration from the given file.
@@ -225,7 +227,8 @@ public class ConfigData {
 	 * @return the path name at which this configuration file will be found if it exists.
 	 */
 	public static String getWorldConfigLocation(String sName) {
-		return DataStore.dataLayerFolderPath + File.separator + "WorldConfigs/" + sName + ".cfg";
+		File cfgDir = new File(GriefPrevention.instance.getDataFolder(), "WorldConfigs");
+        return new File(cfgDir, sName + ".cfg").getPath();
 	}
 
     public ChatColor getColor(TextMode color) {

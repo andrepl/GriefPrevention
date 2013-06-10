@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 public class ClaimInfo extends BaseCommand {
 
@@ -21,7 +22,7 @@ public class ClaimInfo extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         Claim claim = null;
         if (args.size() == 1) {
-            int claimid = Integer.parseInt(args.peek());
+            UUID claimid = UUID.fromString(args.peek());
             claim = plugin.dataStore.getClaim(claimid);
             if (claim == null) {
                 GriefPrevention.sendMessage(sender, TextMode.ERROR, "Invalid Claim ID:" + claimid);
@@ -46,11 +47,11 @@ public class ClaimInfo extends BaseCommand {
             String upperBoundary = GriefPrevention.getfriendlyLocationString(claim.getGreaterBoundaryCorner());
             String sizeString = "(" + String.valueOf(claim.getWidth()) + ", " + String.valueOf(claim.getHeight()) + ")";
             String ClaimOwner = claim.getOwnerName();
-            GriefPrevention.sendMessage(sender, TextMode.INFO, "ID: " + claim.getID());
+            GriefPrevention.sendMessage(sender, TextMode.INFO, "ID: " + claim.getId());
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Position: " + lowerBoundary + "-" + upperBoundary);
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Size: " + sizeString);
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Owner: " + ClaimOwner);
-            String parentId = claim.getParent() == null ? "(no parent)" : String.valueOf(claim.getParent().getID());
+            String parentId = claim.getParent() == null ? "(no parent)" : String.valueOf(claim.getParent().getId());
             GriefPrevention.sendMessage(sender, TextMode.INFO, "Parent ID: " + parentId);
             String childInfo = "";
             //if no subclaims, set childinfo to indicate as such.
@@ -60,7 +61,7 @@ public class ClaimInfo extends BaseCommand {
                 childInfo = claim.getChildren().size() + " (";
 
                 for (Claim childclaim : claim.getChildren()) {
-                    childInfo += String.valueOf(childclaim.getSubClaimID()) + ",";
+                    childInfo += String.valueOf(childclaim.getId()) + ",";
                 }
                 //remove the last character since it is a comma we do not want.
                 childInfo = childInfo.substring(0, childInfo.length() - 1);

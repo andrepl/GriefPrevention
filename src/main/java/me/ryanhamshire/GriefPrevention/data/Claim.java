@@ -18,14 +18,7 @@
 
 package me.ryanhamshire.GriefPrevention.data;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -38,6 +31,7 @@ import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -64,12 +58,7 @@ public class Claim {
      */
     private Date modifiedDate;
 
-    private Long id = null;
-
-    /**
-     * Subclaim ID. null for top-level claims, unique among subclaims otherwise.
-     */
-    Long subClaimid = null;
+    private UUID id = null;
 
     /**
      * ownername.  for admin claims, this is the empty string
@@ -99,7 +88,6 @@ public class Claim {
      */
     private boolean explosivesAllowed = false;
 
-
     /**
      * parent claim
      * only used for claim subdivisions.  top level claims have null here
@@ -117,20 +105,6 @@ public class Claim {
      */
     private boolean neverDelete = false;
 
-    /**
-     * retrieves the index/ID of a given subclaim.
-     *
-     * @param childclaim Claim to get the index of.
-     * @return -1 if the given claim is not a subdivided claim of this claim. otherwise, the index of the claim
-     */
-    public int getChildIndex(Claim childclaim) {
-        for (int i = 0; i < children.size(); i++) {
-            if (childclaim == children.get(i))
-                return i;
-        }
-        return -1;
-    }
-
     public Claim getChildAt(Location testlocation) {
 
         for (Claim iterate : children) {
@@ -138,13 +112,6 @@ public class Claim {
                 return iterate;
         }
         return null;
-
-    }
-
-    public Claim getChildAt(int Index) {
-        if (Index > children.size() - 1 || Index < 0)
-            return null;
-        return children.get(Index);
     }
 
     /**
@@ -157,25 +124,8 @@ public class Claim {
         return (this.ownerName == null || this.ownerName.isEmpty());
     }
 
-    /**
-     * retrieves a Subclaim by the Subclaim's unique index.
-     *
-     * @param pID
-     * @return
-     */
-    public Claim getSubClaim(long pID) {
-        for (Claim subclaim : children) {
-            if (subclaim.getSubClaimID() == pID) return subclaim;
-        }
-        return null;
-    }
-
-    public Long getSubClaimID() {
-        return this.subClaimid;
-    }
-
     // accessor for ID
-    public Long getID() {
+    public UUID getId() {
         return this.id;
     }
 
@@ -277,7 +227,7 @@ public class Claim {
      * @param id
      * @param neverDelete
      */
-    public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, String ownerName, String[] builderNames, String[] containerNames, String[] accessorNames, String[] managerNames, Long id, boolean neverDelete) {
+    public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, String ownerName, String[] builderNames, String[] containerNames, String[] accessorNames, String[] managerNames, UUID id, boolean neverDelete) {
         // modification date
         this.modifiedDate = Calendar.getInstance().getTime();
 
@@ -1156,14 +1106,11 @@ public class Claim {
         this.explosivesAllowed = isExplosivesAllowed;
     }
 
-    /**
-     * id number.  unique to this claim, never changes.
-     */
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
     }
 
-    public void setID(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 }

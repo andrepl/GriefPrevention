@@ -161,7 +161,7 @@ public class PlayerData {
             remainingBlocks -= claim.getArea();
         }
         // add any blocks this player might have based on group membership (permissions)
-        remainingBlocks += GriefPrevention.instance.dataStore.getGroupBonusBlocks(this.playerName);
+        // remainingBlocks += GriefPrevention.instance.dataStore.getGroupBonusBlocks(this.playerName);
         return remainingBlocks;
     }
 

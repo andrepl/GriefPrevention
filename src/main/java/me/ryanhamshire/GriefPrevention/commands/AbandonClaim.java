@@ -76,7 +76,7 @@ public class AbandonClaim extends BaseClaimCommand {
             // retrieve area of this claim...
 
 
-            if (!plugin.dataStore.deleteClaim(claim, player)) {
+            if (!plugin.dataStore.deleteClaim(claim, player, true)) {
                 // cancelled!
                 // assume the event called will show an appropriate message...
                 return false;
@@ -88,7 +88,6 @@ public class AbandonClaim extends BaseClaimCommand {
             // or if we are in a survival world and the creative Abandon Nature restore option is enabled,
             // then perform the restoration.
             if ((wc.getClaimsAbandonNatureRestoration())) {
-
                 GriefPrevention.addLogEntry(player.getName() + " abandoned a claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
                 GriefPrevention.sendMessage(player, TextMode.WARN, Messages.UnclaimCleanupWarning);
                 GriefPrevention.instance.restoreClaim(claim, 20L * 60 * 2);

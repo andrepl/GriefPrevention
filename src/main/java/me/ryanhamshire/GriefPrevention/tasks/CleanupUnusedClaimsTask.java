@@ -25,9 +25,7 @@ import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import java.util.Calendar;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 // FEATURE: automatically remove claims owned by inactive players which:
 // ...aren't protecting much OR
@@ -36,35 +34,20 @@ import java.util.Vector;
 
 // runs every 1 minute in the main thread
 public class CleanupUnusedClaimsTask implements Runnable {
-    int nextClaimIndex;
-    private boolean flInitialized=false;
 
-    public CleanupUnusedClaimsTask() {
-    }
+    LinkedList<UUID> claimIds = new LinkedList<UUID>();
+    public CleanupUnusedClaimsTask() {}
 
     @Override
     public void run() {
-        // don't do anything when there are no claims
-        if (GriefPrevention.instance.dataStore.getClaimsSize() == 0) return;
-
-        if (!flInitialized) {
-            if (GriefPrevention.instance == null || GriefPrevention.instance.dataStore == null) return;
-            // start scanning in a random spot
-            if (GriefPrevention.instance.dataStore.getClaimsSize() == 0) {
-                this.nextClaimIndex = 0;
-            } else {
-                Random randomNumberGenerator = new Random();
-                this.nextClaimIndex = randomNumberGenerator.nextInt(GriefPrevention.instance.dataStore.getClaimsSize());
-            }
-            flInitialized=true;
+        if (GriefPrevention.instance.dataStore.claimCount() == 0) return;
+        if (this.claimIds.isEmpty()) {
+            // Get a list of top level claim id's and shuffle it.
+            claimIds = new LinkedList<UUID>(Arrays.asList(GriefPrevention.instance.dataStore.getTopLevelClaimIDs()));
+            Collections.shuffle(claimIds);
+            return;
         }
-
-        // wrap search around to beginning
-        if (this.nextClaimIndex >= GriefPrevention.instance.dataStore.getClaimsSize()) this.nextClaimIndex = 0;
-
-        // decide which claim to check next
-        Claim claim = GriefPrevention.instance.dataStore.getClaimArray().get(this.nextClaimIndex++);
-
+        Claim claim = GriefPrevention.instance.dataStore.getClaim(claimIds.pop());
         // skip administrative claims
         if (claim.isAdminClaim()) return;
         WorldConfig wc = GriefPrevention.instance.getWorldCfg(claim.getLesserBoundaryCorner().getWorld());
@@ -90,7 +73,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
             // if that's a chest claim and those are set to expire
             if (claim.getArea() <= areaOfDefaultClaim && wc.getChestClaimExpirationDays() > 0) {
                 claim.removeSurfaceFluids(null);
-                GriefPrevention.instance.dataStore.deleteClaim(claim);
+                GriefPrevention.instance.dataStore.deleteClaim(claim, null, true);
                 cleanupChunks = true;
 
                 // if configured to do so, restore the land to natural
@@ -160,7 +143,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 }
 
                 if (removeClaim) {
-                    GriefPrevention.instance.dataStore.deleteClaim(claim);
+                    GriefPrevention.instance.dataStore.deleteClaim(claim, null, true);
                     GriefPrevention.addLogEntry("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
 
                     // if configured to do so, restore the claim area to natural state
@@ -169,11 +152,6 @@ public class CleanupUnusedClaimsTask implements Runnable {
                     }
                 }
             }
-        }
-
-        // toss that player data out of the cache, it's probably not needed in memory right now
-        if (!GriefPrevention.instance.getServer().getOfflinePlayer(claim.getOwnerName()).isOnline()) {
-            GriefPrevention.instance.dataStore.clearCachedPlayerData(claim.getOwnerName());
         }
 
         // since we're potentially loading a lot of chunks to scan parts of the world where there are no players currently playing, be mindful of memory usage

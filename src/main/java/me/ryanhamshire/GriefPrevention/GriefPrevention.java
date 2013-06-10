@@ -20,10 +20,6 @@ package me.ryanhamshire.GriefPrevention;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
@@ -41,7 +37,6 @@ import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
 import me.ryanhamshire.GriefPrevention.tasks.EntityCleanupTask;
 import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
 import me.ryanhamshire.GriefPrevention.tasks.SendPlayerMessageTask;
-import me.ryanhamshire.GriefPrevention.tasks.TreeCleanupTask;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -53,7 +48,6 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -133,54 +127,21 @@ public class GriefPrevention extends JavaPlugin {
     public void onEnable() {
         instance = this;
         // load the config if it exists
-        FileConfiguration config = YamlConfiguration.loadConfiguration(new File(DataStore.configFilePath));
+        FileConfiguration config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
         FileConfiguration outConfig = new YamlConfiguration();
         configuration = new ConfigData(config, outConfig);
         // read configuration settings (note defaults)
         commandHandler = new CommandHandler(this);
         commandHandler.initialize();
-
         messageManager = new MessageManager(this);
-        
-        // load player groups.
 
-        // optional database settings
-
-        // when datastore initializes, it loads player and claim data, and posts some stats to the log
-        if (configuration.getDatabaseUrl().length() > 0) {
-            try {
-                DatabaseDataStore databaseStore = new DatabaseDataStore(configuration.getDatabaseUrl(),
-                        configuration.getDatabaseUserName(), configuration.getDatabasePassword());
-                if (FlatFileDataStore.hasData()) {
-                    GriefPrevention.addLogEntry("There appears to be some data on the hard drive.  Migrating those data to the database...");
-                    FlatFileDataStore flatFileStore = new FlatFileDataStore();
-                    flatFileStore.migrateData(databaseStore);
-                    GriefPrevention.addLogEntry("Data migration process complete.  Reloading data from the database...");
-                    databaseStore.close();
-                    databaseStore = new DatabaseDataStore(configuration.getDatabaseUrl(), configuration.getDatabaseUserName(),
-                            configuration.getDatabasePassword());
-                }
-                this.dataStore = databaseStore;
-            } catch (Exception e) {
-                GriefPrevention.addLogEntry("Because there was a problem with the database, GriefPrevention will not function properly.  Either update the database config settings resolve the issue, or delete those lines from your config.yml so that GriefPrevention can use the file system to store data.");
-                return;
-            }
+        try {
+            this.dataStore = new DataStore(this);
+        } catch (Exception e) {
+            GriefPrevention.addLogEntry("Unable to initialize the file system data store.  Details:");
+            GriefPrevention.addLogEntry(e.getMessage());
         }
 
-        // if not using the database because it's not configured or because there was a problem, use the file system to store data
-        // this is the preferred method, as it's simpler than the database scenario
-        if (this.dataStore == null) {
-            try {
-                this.dataStore = new FlatFileDataStore();
-            } catch (Exception e) {
-                GriefPrevention.addLogEntry("Unable to initialize the file system data store.  Details:");
-                GriefPrevention.addLogEntry(e.getMessage());
-            }
-        }
-        // start recurring cleanup scan for unused claims belonging to inactive players
-        // if the option is enabled.
-        // look through all world configurations.
-        boolean claimcleanupOn = false;
         boolean entitycleanupEnabled = false;
         if (entitycleanupEnabled) {
             EntityCleanupTask task = new EntityCleanupTask(0);
@@ -215,10 +176,10 @@ public class GriefPrevention extends JavaPlugin {
             }
         }
         try {
-            new File(DataStore.configFilePath).delete();
-            outConfig.save(new File(DataStore.configFilePath).getAbsolutePath());
+            new File(getDataFolder(), "config.yml").delete();
+            outConfig.save(new File(getDataFolder(), "config.yml").getAbsolutePath());
         } catch (IOException exx) {
-            this.getLogger().log(Level.SEVERE, "Failed to save primary configuration file:" + DataStore.configFilePath);
+            this.getLogger().log(Level.SEVERE, "Failed to save primary configuration file:" + new File(getDataFolder(), "config.yml"));
         }
     }
 
@@ -291,16 +252,8 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     public void onDisable() {
-        // save data for any online players
-        Player[] players = this.getServer().getOnlinePlayers();
-        for (Player player : players) {
-            String playerName = player.getName();
-            PlayerData playerData = this.dataStore.getPlayerData(playerName);
-            this.dataStore.savePlayerData(playerName, playerData);
-        }
-        // cancel ALL pending tasks.
         Bukkit.getScheduler().cancelTasks(this);
-        this.dataStore.close();
+        this.dataStore.onDisable();
     }
 
     // called when a player spawns, applies protection for that player if necessary

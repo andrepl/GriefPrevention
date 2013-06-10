@@ -46,7 +46,6 @@ public class ClaimsList extends BaseCommand {
             return true;
         }
 
-
         //load the target player's data
         PlayerData playerData = plugin.dataStore.getPlayerData(otherPlayer.getName());
         GriefPrevention.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
@@ -57,10 +56,6 @@ public class ClaimsList extends BaseCommand {
 
         if (playerData.getClaims().size() > 0)
             GriefPrevention.sendMessage(sender, TextMode.INSTR, "   =" + playerData.getRemainingClaimBlocks());
-
-        //drop the data we just loaded, if the player isn't online
-        if (!otherPlayer.isOnline())
-            plugin.dataStore.clearCachedPlayerData(otherPlayer.getName());
 
         return true;
 

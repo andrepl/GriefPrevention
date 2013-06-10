@@ -251,9 +251,6 @@ public class PlayerEventHandler implements Listener {
         if (wc.getPvPPunishLogout() && playerData.inPvpCombat()) {
             player.setHealth(0);
         }
-
-        // drop data about this player
-        this.dataStore.clearCachedPlayerData(player.getName());
     }
 
     // determines whether or not a login or logout notification should be silenced, depending on how many there have been in the last minute
@@ -838,10 +835,6 @@ public class PlayerEventHandler implements Listener {
                         long daysElapsed = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24);
 
                         GriefPrevention.sendMessage(player, TextMode.INFO, Messages.PlayerOfflineTime, String.valueOf(daysElapsed));
-
-                        // drop the data we just loaded, if the player isn't online
-                        if (plugin.getServer().getPlayerExact(claim.getOwnerName()) == null)
-                            this.dataStore.clearCachedPlayerData(claim.getOwnerName());
                     }
                 }
                 return;
@@ -1175,7 +1168,7 @@ public class PlayerEventHandler implements Listener {
                                     playerData.getLastShovelLocation().getBlockY() - wc.getClaimsExtendIntoGroundDistance(), clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance(),
                                     playerData.getLastShovelLocation().getBlockZ(), clickedBlock.getZ(),
                                     "--subdivision--",  // owner name is not used for subdivisions
-                                    playerData.getClaimSubdividing(), null, false, player, true);
+                                    playerData.getClaimSubdividing(), null, false, null, player, true);
 
                             // if it didn't succeed, tell the player why
                             if (result.succeeded == CreateClaimResult.Result.CLAIM_OVERLAP) {
@@ -1271,8 +1264,7 @@ public class PlayerEventHandler implements Listener {
                         lastShovelLocation.getBlockX(), clickedBlock.getX(),
                         lastShovelLocation.getBlockY() - wc.getClaimsExtendIntoGroundDistance(), clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance(),
                         lastShovelLocation.getBlockZ(), clickedBlock.getZ(),
-                        playerName,
-                        null, null, false, player, true);
+                        playerName, null, null, false, null, player, true);
 
                 // if it didn't succeed, tell the player why
                 if (result.succeeded == CreateClaimResult.Result.CLAIM_OVERLAP) {

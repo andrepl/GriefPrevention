@@ -14,7 +14,6 @@ public class MessageManager {
 
     private String[] messages;
     private GriefPrevention plugin;
-    private static final String filePath = DataStore.dataLayerFolderPath + File.separator + "messages.yml";
 
     public MessageManager(GriefPrevention plugin) {
         this.plugin = plugin;
@@ -202,7 +201,7 @@ public class MessageManager {
         this.addDefault(defaults, Messages.UnknownCommand, "Unknown subcommand {0}", "0:subcommand");
 
         // load the config file
-        FileConfiguration config = YamlConfiguration.loadConfiguration(new File(filePath));
+        FileConfiguration config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));
 
         // for each message ID
         for (int i = 0; i < messageIDs.length; i++) {
@@ -228,9 +227,9 @@ public class MessageManager {
 
         // save any changes
         try {
-            config.save(filePath);
+            config.save(new File(plugin.getDataFolder(), "messages.yml"));
         } catch (IOException exception) {
-            GriefPrevention.addLogEntry("Unable to write to the configuration file at \"" + filePath + "\"");
+            GriefPrevention.addLogEntry("Unable to write to the configuration file at \"" + new File(plugin.getDataFolder(), "messages.yml") + "\"");
         }
 
         defaults.clear();

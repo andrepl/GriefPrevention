@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 
 import java.util.List;
+import java.util.UUID;
 
 // FEATURE: creative mode worlds get a regular entity cleanup
 
@@ -103,7 +104,7 @@ public class EntityCleanupTask implements Runnable {
         }
 
         // starting and stopping point.  each execution of the task scans 5% of the server's claims
-        Long[] claims = GriefPrevention.instance.dataStore.getClaimIds();
+        UUID[] claims = GriefPrevention.instance.dataStore.getTopLevelClaimIDs();
         int j = (int) (claims.length * this.percentageStart);
         int k = (int) (claims.length * (this.percentageStart + .05));
         for (; j < claims.length && j < k; j++) {

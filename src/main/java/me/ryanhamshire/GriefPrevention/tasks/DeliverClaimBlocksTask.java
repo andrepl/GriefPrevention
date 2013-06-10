@@ -69,7 +69,7 @@ public class DeliverClaimBlocksTask implements Runnable {
 
                     //intentionally NOT saving data here to reduce overall secondary storage access frequency
                     //many other operations will cause this players data to save, including his eventual logout
-                    //dataStore.savePlayerData(player.getName(), playerData);
+                    //dataStore.writePlayerToStorage(player.getName(), playerData);
                 }
             } catch (Exception e) {
             }

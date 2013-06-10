@@ -249,6 +249,7 @@ public class BlockEventHandler implements Listener {
             if (block.getY() < claim.getLesserBoundaryCorner().getBlockY() && claim.allowBuild(player) == null) {
                 // extend the claim downward beyond the breakage point
                 this.dataStore.extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
+
             }
         }
 
@@ -366,7 +367,7 @@ public class BlockEventHandler implements Listener {
             if (playerData.getClaims().size() == 0) {
                 // radius == 0 means protect ONLY the chest
                 if (wc.getAutomaticClaimsForNewPlayerRadius() == 0) {
-                    this.dataStore.createClaim(block.getWorld(), block.getX(), block.getX(), block.getY(), block.getY(), block.getZ(), block.getZ(), player.getName(), null, null, false, player);
+                    this.dataStore.createClaim(block.getWorld(), block.getX(), block.getX(), block.getY(), block.getY(), block.getZ(), block.getZ(), player.getName(), null, null, false, null, player, true);
                     GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ChestClaimConfirmation);
                 } else { // otherwise, create a claim in the area around the chest
                     // as long as the automatic claim overlaps another existing claim, shrink it
@@ -376,7 +377,7 @@ public class BlockEventHandler implements Listener {
                             block.getY() - wc.getClaimsExtendIntoGroundDistance(), block.getY(),
                             block.getZ() - radius, block.getZ() + radius,
                             player.getName(),
-                            null, null, false, player).succeeded != CreateClaimResult.Result.SUCCESS)) {
+                            null, null, false, null, player, true).succeeded != CreateClaimResult.Result.SUCCESS)) {
                         radius--;
                     }
 

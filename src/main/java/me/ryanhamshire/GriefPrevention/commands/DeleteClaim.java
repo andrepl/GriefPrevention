@@ -34,7 +34,7 @@ public class DeleteClaim extends BaseClaimCommand {
                 playerData.setWarnedAboutMajorDeletion(true);
             } else {
                 claim.removeSurfaceFluids(null);
-                plugin.dataStore.deleteClaim(claim);
+                plugin.dataStore.deleteClaim(claim, null, true);
 
                 //if in a creative mode world, /restorenature the claim
                 if (wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
