@@ -5,6 +5,11 @@ dev-url: ${project.devurl}
 version: ${project.version}
 
 commands:
+   gpimportdata:
+      description: Import data from Grief Prevention
+      usage: /<command>
+      permission: griefprevention.admin
+
    griefprevention:
       description: The main GriefPrevention command.
       aliases: [gp, grief, gprev]

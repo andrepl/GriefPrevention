@@ -226,7 +226,7 @@ public class FileSystemPersistence implements IPersistence {
                 flagSec.set(entry.getKey(), entry.getValue());
             }
             if (c.getParent() != null) {
-                cfg.set("parentId", c.getParent().getId());
+                cfg.set("parentId", c.getParent().getId().toString());
             }
             ArrayList<String> builders = new ArrayList<String>();
             ArrayList<String> containers = new ArrayList<String>();

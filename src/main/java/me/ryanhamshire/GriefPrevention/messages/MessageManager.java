@@ -201,6 +201,8 @@ public class MessageManager {
         this.addDefault(defaults, Messages.UnknownFlag, "Unknown Claim Flag: {0}", "0:flag name");
         this.addDefault(defaults, Messages.InvalidFlagValue, "Invalid Flag Value: {0}", "0:flag value");
         this.addDefault(defaults, Messages.FlagSet, "Flag {0} successfully set to {1}", "0:flag name;1:flag value");
+        this.addDefault(defaults, Messages.NoFlagPermission, "Sorry, you don't have permission to set claim flags.", null);
+
 
 
         // load the config file

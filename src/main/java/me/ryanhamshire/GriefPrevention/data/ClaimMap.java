@@ -20,6 +20,8 @@ public class ClaimMap {
 
     public void add(Claim claim) {
         claim.setInDataStore(true);
+        byId.put(claim.getId(), claim);
+
         if (claim.getParent() != null) {
             childrenById.put(claim.getId(), claim);
             return;
@@ -36,7 +38,6 @@ public class ClaimMap {
             ownerCollection.add(claim.getId());
         }
 
-        byId.put(claim.getId(), claim);
         Long[] chunkKeys = getChunks(claim);
         String worldName = claim.getLesserBoundaryCorner().getWorld().getName();
         if (!byChunk.containsKey(worldName)) {

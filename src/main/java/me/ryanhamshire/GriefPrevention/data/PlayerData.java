@@ -55,7 +55,7 @@ public class PlayerData {
     }
 
     // how many claim blocks the player has earned via play time
-    private int accruedClaimBlocks = plugin.configuration.getInitialBlocks();
+    private int accruedClaimBlocks = 0;
 
     // where this player was the last time we checked on him for earning claim blocks
     private Location lastAfkCheckLocation = null;
@@ -131,6 +131,7 @@ public class PlayerData {
         // see login cooldown feature, PlayerEventHandler.onPlayerLogin()
         // if the player successfully logs in, this value will be overwritten with the current date and time 
         this.plugin = plugin;
+        this.accruedClaimBlocks = plugin.configuration.getInitialBlocks();
         Calendar lastYear = Calendar.getInstance();
         lastYear.add(Calendar.YEAR, -1);
         this.lastLogin = lastYear.getTime();

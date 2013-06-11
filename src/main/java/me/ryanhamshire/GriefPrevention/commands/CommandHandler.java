@@ -50,6 +50,7 @@ public class CommandHandler implements TabExecutor {
     AdjustBonusClaimBlocks cmdAdjustBonusClaimBlocks;
     Trapped cmdTrapped;
     Flag cmdFlag;
+    ImportData cmdImportData;
 
     public CommandHandler(GriefPrevention plugin) {
         this.plugin = plugin;
@@ -90,6 +91,7 @@ public class CommandHandler implements TabExecutor {
         cmdTrapped = new Trapped(plugin);
         cmdFlag = new Flag(plugin);
         cmdPermissionTrust = new PermissionTrust(plugin);
+        cmdImportData = new ImportData(plugin);
     }
 
     @Override
