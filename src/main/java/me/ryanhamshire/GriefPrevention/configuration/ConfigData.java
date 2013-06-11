@@ -1,22 +1,17 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * holds configuration data global to GP as well as 

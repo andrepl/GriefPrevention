@@ -18,8 +18,8 @@
 
 package me.ryanhamshire.GriefPrevention.visualization;
 
-import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.Material;

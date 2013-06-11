@@ -1,8 +1,9 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.ShovelMode;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,13 +12,6 @@ import org.bukkit.entity.Player;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andre
- * Date: 6/8/13
- * Time: 3:54 PM
- * To change this template use File | Settings | File Templates.
- */
 public class RestoreNature extends BaseCommand {
 
     public RestoreNature(GriefPrevention plugin) {
@@ -32,7 +26,7 @@ public class RestoreNature extends BaseCommand {
             return true;
         }
 
-        ShovelMode newMode = ShovelMode.ADMIN.RESTORE_NATURE;
+        ShovelMode newMode = ShovelMode.RESTORE_NATURE;
 
         if (args.size() > 0) {
             if (args.peek().equalsIgnoreCase("aggressive")) {
@@ -62,6 +56,7 @@ public class RestoreNature extends BaseCommand {
                     try {
                         playerData.setFillRadius(Integer.parseInt(args.peek()));
                     } catch (Exception exception) {
+                        playerData.setFillRadius(2);
                     }
                 }
                 if (playerData.getFillRadius() < 0) playerData.setFillRadius(2);

@@ -18,22 +18,22 @@
 
 package me.ryanhamshire.GriefPrevention.data;
 
-import java.net.InetAddress;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Vector;
-
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.ShovelMode;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.net.InetAddress;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Vector;
+
 // holds all of GriefPrevention's player-tied data
+@SuppressWarnings("unused")
 public class PlayerData {
 
     GriefPrevention plugin;
@@ -159,8 +159,7 @@ public class PlayerData {
     // the number of claim blocks a player has available for claiming land
     public int getRemainingClaimBlocks() {
         int remainingBlocks = this.accruedClaimBlocks + this.bonusClaimBlocks;
-        for (int i = 0; i < this.claims.size(); i++) {
-            Claim claim = this.claims.get(i);
+        for (Claim claim : this.claims) {
             remainingBlocks -= claim.getArea();
         }
         // add any blocks this player might have based on group membership (permissions)

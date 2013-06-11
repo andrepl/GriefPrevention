@@ -1,7 +1,6 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.exceptions.InvalidFlagValueException;
 import me.ryanhamshire.GriefPrevention.flags.BaseFlag;

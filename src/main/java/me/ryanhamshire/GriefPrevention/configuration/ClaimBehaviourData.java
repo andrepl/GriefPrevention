@@ -1,17 +1,19 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
-import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
-// this enum is used for some of the configuration options.
 import org.bukkit.entity.Player;
+
+// this enum is used for some of the configuration options.
 
 // holds data pertaining to an option and where it works. 
 // used primarily for information on explosions.
+@SuppressWarnings("unused")
 public class ClaimBehaviourData {
 
 	public enum ClaimAllowanceConstants {
@@ -44,12 +46,11 @@ public class ClaimBehaviourData {
 		}
 
         public boolean performTest(GriefPrevention plugin, Location testLocation, Player testPlayer, boolean ShowMessages) {
-            WorldConfig wc = plugin.getWorldCfg(testLocation.getWorld());
-            PlayerData pd = null;
+            PlayerData pd;
             if (testPlayer == null) return true;
-            if (testPlayer != null) pd = plugin.getDataStore().getPlayerData(testPlayer.getName());
+            pd = plugin.getDataStore().getPlayerData(testPlayer.getName());
             if ((pd != null) && pd.isIgnoreClaims() || this == REQUIRE_NONE) return true;
-            String result = null;
+            String result;
             Claim atPosition  = plugin.getDataStore().getClaimAt(testLocation, false, null);
             if(atPosition == null) return true; //unexpected...
             switch(this) {
@@ -110,15 +111,11 @@ public class ClaimBehaviourData {
     private PlacementRules claims;
     private ClaimBehaviourMode claimBehaviour;
 
-    public Object clone() {
-        return new ClaimBehaviourData(this);
-    }
-
     public ClaimBehaviourData(ClaimBehaviourData source) {
         this.plugin = source.plugin;
         this.behaviourName = source.behaviourName;
-        this.claims= (PlacementRules) source.claims.clone();
-        this.wilderness = (PlacementRules)source.wilderness.clone();
+        this.claims = new PlacementRules(source.claims);
+        this.wilderness = new PlacementRules(source.wilderness);
         this.claimBehaviour = source.claimBehaviour;
     }
 

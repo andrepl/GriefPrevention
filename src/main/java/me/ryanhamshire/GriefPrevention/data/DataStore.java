@@ -18,14 +18,18 @@
 
 package me.ryanhamshire.GriefPrevention.data;
 
-import me.ryanhamshire.GriefPrevention.*;
+import me.ryanhamshire.GriefPrevention.CreateClaimResult;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.persistence.FileSystemPersistence;
 import me.ryanhamshire.GriefPrevention.data.persistence.IPersistence;
-import me.ryanhamshire.GriefPrevention.events.*;
+import me.ryanhamshire.GriefPrevention.events.ClaimCreatedEvent;
+import me.ryanhamshire.GriefPrevention.events.ClaimResizeEvent;
 import me.ryanhamshire.GriefPrevention.exceptions.ClaimOwnershipException;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -71,7 +75,7 @@ public class DataStore {
                 claims.add(claim);
             }
         }
-    };
+    }
 
     public void onDisable() {
         Claim[] dirtyClaims = new Claim[dirtyClaimIds.size()];
@@ -88,7 +92,7 @@ public class DataStore {
         }
         persistence.writePlayerDataSync(dirtyPlayerData);
         persistence.onDisable();
-    };
+    }
 
     public PlayerData getPlayerData(String playerName) {
         if (playerName == null) {
@@ -104,7 +108,7 @@ public class DataStore {
             pd.getClaims().addAll(playerClaims);
         }
         return pd;
-    };
+    }
 
     public void savePlayerData(String playerName, PlayerData playerData) {
         this.playerData.put(playerName, playerData);
@@ -133,20 +137,18 @@ public class DataStore {
         }
 
         // otherwise, search all existing claims in the chunk until we find the right claim
-        for(int i = 0; i < aclaims.size(); i++) {
-            Claim claim = aclaims.get(i);
-
+        for (Claim claim : aclaims) {
             //if we reach a claim which is greater than the temp claim created above, there's definitely no claim
             //in the collection which includes our location
             if (claim.greaterThan(tempClaim)) return null;
 
             //find a top level claim
-            if(claim.contains(location, ignoreHeight, false)) {
+            if (claim.contains(location, ignoreHeight, false)) {
                 //when we find a top level claim, if the location is in one of its subdivisions,
                 //return the SUBDIVISION, not the top level claim
-                for(int j = 0; j < claim.getChildren().size(); j++) {
+                for (int j = 0; j < claim.getChildren().size(); j++) {
                     Claim subdivision = claim.getChildren().get(j);
-                    if(subdivision.contains(location, ignoreHeight, false)) return subdivision;
+                    if (subdivision.contains(location, ignoreHeight, false)) return subdivision;
                 }
                 return claim;
             }
@@ -200,7 +202,6 @@ public class DataStore {
         WorldConfig wc = plugin.getWorldCfg(world);
         int smallx, bigx, smally, bigy, smallz, bigz;
 
-        Player gotplayer = Bukkit.getPlayer(ownerName);
         //determine small versus big inputs
         if (x1 < x2) {
             smallx = x1;
@@ -264,8 +265,7 @@ public class DataStore {
             }
         }
 
-        for (int i=0; i<claimsToCheck.size(); i++) {
-            Claim otherClaim = claimsToCheck.get(i);
+        for (Claim otherClaim : claimsToCheck) {
             //if we find an existing claim which will be overlapped
             if (otherClaim.overlaps(newClaim)) {
                 //result = fail, return conflicting claim

@@ -1,10 +1,10 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
-import me.ryanhamshire.GriefPrevention.data.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -30,8 +30,8 @@ public class BaseTrustCommand extends BaseClaimCommand {
             return false;
         }
 
-        String permission = null;
-        OfflinePlayer otherPlayer = null;
+        String permission;
+        OfflinePlayer otherPlayer;
         String recipientName = args.pop();
 
         boolean isForcedDenial = false;
@@ -125,8 +125,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
         //if forcedenial is true, we will add the exclamation back to the name for addition.
         if (isForcedDenial) recipientName = "!" + recipientName;
         //apply changes
-        for (int i = 0; i < targetClaims.size(); i++) {
-            Claim currentClaim = targetClaims.get(i);
+        for (Claim currentClaim : targetClaims) {
             if (permissionLevel == null) {
                 if (!currentClaim.isManager(recipientName)) {
                     currentClaim.addManager(recipientName);
@@ -161,12 +160,12 @@ public class BaseTrustCommand extends BaseClaimCommand {
         if (userecipientName.toUpperCase().startsWith("G:")) {
             userecipientName = "Group " + userecipientName.substring(2);
         }
-        plugin.sendMessage(player, TextMode.SUCCESS, Messages.GrantPermissionConfirmation, recipientName, permissionDescription, location);
+        plugin.sendMessage(player, TextMode.SUCCESS, Messages.GrantPermissionConfirmation, userecipientName, permissionDescription, location);
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 }

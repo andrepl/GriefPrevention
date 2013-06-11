@@ -1,9 +1,9 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -22,7 +22,7 @@ public class ClaimsList extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         //player whose claims will be listed
-        OfflinePlayer otherPlayer = null;
+        OfflinePlayer otherPlayer;
 
         if (args.size() > 1) return false;
 
@@ -51,7 +51,7 @@ public class ClaimsList extends BaseCommand {
         plugin.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.getDataStore().getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.getDataStore().getGroupBonusBlocks(otherPlayer.getName())));
         for (int i = 0; i < playerData.getClaims().size(); i++) {
             Claim claim = playerData.getClaims().get(i);
-            plugin.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + plugin.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+            plugin.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
         }
 
         if (playerData.getClaims().size() > 0)

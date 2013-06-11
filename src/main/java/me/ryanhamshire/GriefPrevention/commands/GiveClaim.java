@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.Bukkit;
@@ -49,7 +49,7 @@ public class GiveClaim extends BaseClaimCommand {
                 plugin.getDataStore().changeClaimOwner(claimToGive, target.getName());
                 //message both players.
                 plugin.sendMessage(source, TextMode.SUCCESS, Messages.GiveSuccessSender, originalOwner, target.getName());
-                if (target != null && target.isOnline()) {
+                if (target.isOnline()) {
                     plugin.sendMessage(target, TextMode.SUCCESS, Messages.GiveSuccessTarget, originalOwner);
                 }
             } catch (Exception exx) {

@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.command.Command;
@@ -20,7 +20,7 @@ public class ClaimInfo extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
-        Claim claim = null;
+        Claim claim;
         if (args.size() == 1) {
             UUID claimid = UUID.fromString(args.peek());
             claim = plugin.getDataStore().getClaim(claimid);
@@ -53,7 +53,7 @@ public class ClaimInfo extends BaseCommand {
             plugin.sendMessage(sender, TextMode.INFO, "Owner: " + ClaimOwner);
             String parentId = claim.getParent() == null ? "(no parent)" : String.valueOf(claim.getParent().getId());
             plugin.sendMessage(sender, TextMode.INFO, "Parent ID: " + parentId);
-            String childInfo = "";
+            String childInfo;
             //if no subclaims, set childinfo to indicate as such.
             if (claim.getChildren().size() == 0) {
                 childInfo = "No subclaims.";

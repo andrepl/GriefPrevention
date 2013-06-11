@@ -18,39 +18,27 @@
 
 package me.ryanhamshire.GriefPrevention;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-
+import me.ryanhamshire.GriefPrevention.commands.CommandHandler;
 import me.ryanhamshire.GriefPrevention.configuration.ConfigData;
 import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
-import me.ryanhamshire.GriefPrevention.flags.FlagManager;
-import me.ryanhamshire.GriefPrevention.messages.MessageManager;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
-import me.ryanhamshire.GriefPrevention.commands.CommandHandler;
-import me.ryanhamshire.GriefPrevention.data.*;
+import me.ryanhamshire.GriefPrevention.data.Claim;
+import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.data.PluginClaimMeta;
+import me.ryanhamshire.GriefPrevention.flags.FlagManager;
 import me.ryanhamshire.GriefPrevention.listeners.BlockEventHandler;
 import me.ryanhamshire.GriefPrevention.listeners.EntityEventHandler;
 import me.ryanhamshire.GriefPrevention.listeners.PlayerEventHandler;
+import me.ryanhamshire.GriefPrevention.messages.MessageManager;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
-import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
-import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
-import me.ryanhamshire.GriefPrevention.tasks.EntityCleanupTask;
-import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
-import me.ryanhamshire.GriefPrevention.tasks.SendPlayerMessageTask;
+import me.ryanhamshire.GriefPrevention.tasks.*;
 import net.milkbowl.vault.economy.Economy;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -60,6 +48,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
 
 public class GriefPrevention extends JavaPlugin {
     // for convenience, a reference to the instance of this plugin
@@ -313,13 +305,9 @@ public class GriefPrevention extends JavaPlugin {
             // if there's a claim here, keep looking
             if (claim != null) {
                 candidateLocation = new Location(claim.getLesserBoundaryCorner().getWorld(), claim.getLesserBoundaryCorner().getBlockX() - 1, claim.getLesserBoundaryCorner().getBlockY(), claim.getLesserBoundaryCorner().getBlockZ() - 1);
-                continue;
-            }
-
-            // otherwise find a safe place to teleport the player
-            else {
+            } else {
                 // find a safe height, a couple of blocks above the surface
-                GuaranteeChunkLoaded(candidateLocation);
+                guaranteeChunkLoaded(candidateLocation);
                 Block highestBlock = candidateLocation.getWorld().getHighestBlockAt(candidateLocation.getBlockX(), candidateLocation.getBlockZ());
                 Location destination = new Location(highestBlock.getWorld(), highestBlock.getX(), highestBlock.getY() + 2, highestBlock.getZ());
                 player.teleport(destination);
@@ -337,9 +325,11 @@ public class GriefPrevention extends JavaPlugin {
 
     // ensures a piece of the managed world is loaded into server memory
     // (generates the chunk if necessary)
-    private static void GuaranteeChunkLoaded(Location location) {
+    private static void guaranteeChunkLoaded(Location location) {
         Chunk chunk = location.getChunk();
-        while (!chunk.isLoaded() || !chunk.load(true)) ;
+        if (!chunk.isLoaded()) {
+            chunk.load(true);
+        }
     }
 
     // sends a color-coded message to a player

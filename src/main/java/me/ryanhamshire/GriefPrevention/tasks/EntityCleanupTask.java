@@ -18,9 +18,9 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
-import me.ryanhamshire.GriefPrevention.data.Claim;
-import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;

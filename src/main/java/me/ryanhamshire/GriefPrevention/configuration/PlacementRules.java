@@ -1,7 +1,6 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -87,11 +86,6 @@ public class PlacementRules {
         belowSeaLevel = BasicPermissionConstants.fromBoolean(below);
     }
 
-    public PlacementRules(BasicPermissionConstants above, BasicPermissionConstants below) {
-        aboveSeaLevel = above;
-        belowSeaLevel = below;
-    }
-
     /**
      * constructs a new PlacementRules based on the settings in the given configuration file at the given Node, using specific defaults and
      * a target Configuration to save the elements too.
@@ -125,9 +119,5 @@ public class PlacementRules {
         boolean result = (aboveSeaLevel.allowed() && (target.getBlockY() >= seaLevelofWorld)) ||
                 (belowSeaLevel.allowed() && (target.getBlockY() < seaLevelofWorld));
         return result;
-    }
-
-    public Object clone() {
-        return new PlacementRules(this);
     }
 }

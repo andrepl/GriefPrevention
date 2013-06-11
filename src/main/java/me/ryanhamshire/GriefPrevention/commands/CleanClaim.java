@@ -1,10 +1,10 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
-import me.ryanhamshire.GriefPrevention.data.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -14,13 +14,6 @@ import org.bukkit.entity.Player;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andre
- * Date: 6/8/13
- * Time: 3:01 PM
- * To change this template use File | Settings | File Templates.
- */
 public class CleanClaim extends BaseClaimCommand {
     public CleanClaim(GriefPrevention plugin) {
         super(plugin, "cleanclaim", Messages.ClaimMissing);

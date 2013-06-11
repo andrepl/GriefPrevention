@@ -18,9 +18,9 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.DataStore;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -43,11 +43,10 @@ public class DeliverClaimBlocksTask implements Runnable {
         //ensure players get at least 1 block (if accrual is totally disabled, this task won't even be scheduled)
         //BC: refactored, now it calculates the blocks that have been accrued on a per-Player basis.
         //for each online player
-        for (int i = 0; i < players.length; i++) {
-            Player player = players[i];
+        for (Player player : players) {
             WorldConfig wc = plugin.getWorldCfg(player.getWorld());
 
-            int accruedBlocks = Math.max(1, (int)(wc.getClaimBlocksAccruedPerHour() / 12));
+            int accruedBlocks = Math.max(1, (int) (wc.getClaimBlocksAccruedPerHour() / 12));
 
             DataStore dataStore = plugin.getDataStore();
             PlayerData playerData = dataStore.getPlayerData(player.getName());
@@ -79,6 +78,7 @@ public class DeliverClaimBlocksTask implements Runnable {
                     //dataStore.writePlayerToStorage(player.getName(), playerData);
                 }
             } catch (Exception e) {
+                plugin.debug(e.getMessage());
             }
 
             //remember current location for next time

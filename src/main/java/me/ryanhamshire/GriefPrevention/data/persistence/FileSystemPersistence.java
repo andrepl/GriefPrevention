@@ -3,7 +3,6 @@ package me.ryanhamshire.GriefPrevention.data.persistence;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.SerializationUtil;
 import me.ryanhamshire.GriefPrevention.data.Claim;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.data.PluginClaimMeta;
 import me.ryanhamshire.GriefPrevention.exceptions.DatastoreException;
@@ -29,7 +28,7 @@ public class FileSystemPersistence implements IPersistence {
         @Override
         public boolean accept(File dir, String name) {
             try {
-                UUID uuid = UUID.fromString(name);
+                UUID.fromString(name);
                 return true;
             } catch (IllegalArgumentException ex) {
                 return false;

@@ -1,18 +1,15 @@
 package me.ryanhamshire.GriefPrevention.flags;
 
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
-import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData.ClaimBehaviourMode;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 /**
  * A base class to be extended by plugins to provide custom flags.
  */
+@SuppressWarnings("unused")
 public abstract class BaseFlag {
 
     protected final String key;

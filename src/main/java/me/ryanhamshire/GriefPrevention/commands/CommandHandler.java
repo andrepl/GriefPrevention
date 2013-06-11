@@ -1,13 +1,16 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.*;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class CommandHandler implements TabExecutor {
     GriefPrevention plugin;
@@ -88,6 +91,7 @@ public class CommandHandler implements TabExecutor {
         cmdAdjustBonusClaimBlocks = new AdjustBonusClaimBlocks(plugin);
         cmdTrapped = new Trapped(plugin);
         cmdFlag = new Flag(plugin);
+        cmdPermissionTrust = new PermissionTrust(plugin);
     }
 
     @Override
@@ -116,7 +120,6 @@ public class CommandHandler implements TabExecutor {
         params.addAll(Arrays.asList(args));
         if (args.length == 1) {
             LinkedList<String> results = new LinkedList<String>();
-            String permNode = null;
             for (String s: commandMap.keySet()) {
                 if (s.startsWith(params.peek().toLowerCase())) {
                     BaseCommand bc = commandMap.get(s);
@@ -139,6 +142,7 @@ public class CommandHandler implements TabExecutor {
         return null;
     }
 
+    @SuppressWarnings("unused")
     public BaseCommand getCommand(String command) {
         return commandMap.get(command);
     }

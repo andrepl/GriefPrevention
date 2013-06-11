@@ -18,9 +18,9 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
-import me.ryanhamshire.GriefPrevention.data.Claim;
-import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -106,10 +106,10 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 plugin.getDataStore().deleteClaimsForPlayer(claim.getOwnerName(), true, false);
                 plugin.getLogger().info(" All of " + claim.getOwnerName() + "'s claims have expired. Removing all but the locked claims.");
 
-                for (int i = 0; i < claims.size(); i++) {
+                for (Claim claim1 : claims) {
                     // if configured to do so, restore the land to natural
                     if (wc.getClaimsAutoNatureRestoration()) {
-                        plugin.restoreClaim(claims.get(i), 0);
+                        plugin.restoreClaim(claim1, 0);
                         cleanupChunks = true;
                     }
                 }
@@ -163,8 +163,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
         if (cleanupChunks) {
             World world = claim.getLesserBoundaryCorner().getWorld();
             Chunk[] chunks = world.getLoadedChunks();
-            for (int i = 0; i < chunks.length; i++) {
-                Chunk chunk = chunks[i];
+            for (Chunk chunk : chunks) {
                 chunk.unload(true, true);
             }
         }

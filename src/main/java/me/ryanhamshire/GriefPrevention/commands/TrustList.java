@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.ChatColor;
@@ -40,41 +40,41 @@ public class TrustList extends BaseClaimCommand {
         player.sendMessage("Explicit permissions here:");
 
         StringBuilder permissions = new StringBuilder();
-        permissions.append(ChatColor.GOLD + "M: ");
+        permissions.append(ChatColor.GOLD.toString()).append("M: ");
 
         if (managers.size() > 0) {
-            for (int i = 0; i < managers.size(); i++) {
-                permissions.append(managers.get(i) + " ");
+            for (String manager : managers) {
+                permissions.append(manager).append(" ");
             }
         }
 
         player.sendMessage(permissions.toString());
         permissions = new StringBuilder();
-        permissions.append(ChatColor.YELLOW + "B: ");
+        permissions.append(ChatColor.YELLOW.toString()).append("B: ");
 
         if (builders.size() > 0) {
-            for (int i = 0; i < builders.size(); i++) {
-                permissions.append(builders.get(i) + " ");
+            for (String builder : builders) {
+                permissions.append(builder).append(" ");
             }
         }
 
         player.sendMessage(permissions.toString());
         permissions = new StringBuilder();
-        permissions.append(ChatColor.GREEN + "C: ");
+        permissions.append(ChatColor.GREEN.toString()).append("C: ");
 
         if (containers.size() > 0) {
-            for (int i = 0; i < containers.size(); i++) {
-                permissions.append(containers.get(i) + " ");
+            for (String container : containers) {
+                permissions.append(container).append(" ");
             }
         }
 
         player.sendMessage(permissions.toString());
         permissions = new StringBuilder();
-        permissions.append(ChatColor.BLUE + "A :");
+        permissions.append(ChatColor.BLUE.toString()).append("A :");
 
         if (accessors.size() > 0) {
-            for (int i = 0; i < accessors.size(); i++) {
-                permissions.append(accessors.get(i) + " ");
+            for (String accessor : accessors) {
+                permissions.append(accessor).append(" ");
             }
         }
         player.sendMessage(permissions.toString());

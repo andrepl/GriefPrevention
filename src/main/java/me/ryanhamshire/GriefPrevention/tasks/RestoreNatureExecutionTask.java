@@ -19,8 +19,8 @@
 package me.ryanhamshire.GriefPrevention.tasks;
 
 import me.ryanhamshire.GriefPrevention.BlockSnapshot;
-import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import org.bukkit.Chunk;
@@ -84,8 +84,7 @@ class RestoreNatureExecutionTask implements Runnable {
         // clean up any entities in the chunk, ensure no players are suffocated
         Chunk chunk = this.lesserCorner.getChunk();
         Entity[] entities = chunk.getEntities();
-        for (int i = 0; i < entities.length; i++) {
-            Entity entity = entities[i];
+        for (Entity entity : entities) {
             if (!(entity instanceof Player || entity instanceof Animals)) {
                 // hanging entities (paintings, item frames) are protected when they're in land claims
                 if (!(entity instanceof Hanging) || plugin.getDataStore().getClaimAt(entity.getLocation(), false, null) == null) {

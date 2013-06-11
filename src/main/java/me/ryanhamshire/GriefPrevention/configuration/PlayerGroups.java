@@ -1,26 +1,22 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.configuration.file.FileConfiguration;
-
 public class PlayerGroups {
 
 	private HashMap<String,PlayerGroup> playerGroups = new HashMap<String,PlayerGroup>();
-	/**
-	 * returns a copy of the PlayerGroups of this instance.
-	 * @return
-	 */
-	public List<PlayerGroup> getPlayerGroups(){ return new ArrayList<PlayerGroup>(playerGroups.values());}
+
 	public boolean groupExists(String testName){
 		return getGroupByName(testName) !=null;
 	}
 	/**
 	 * retrieves a a specified group, or null of the name does not match any group.
-	 * @param groupname
-	 * @return
+	 * @param groupname group name to look up
+	 * @return the PlayerGroup instance matching the given name
 	 */
 	public PlayerGroup getGroupByName(String groupname){
 		String capgroup = groupname.toUpperCase();
@@ -38,10 +34,11 @@ public class PlayerGroups {
  */
 	/**
 	 * Initializes this PlayerGroups collection based on data in the given configuration file at the specified node.
-	 * @param Source
-	 * @param SourceNode
+     *
+	 * @param Source the FileConfiguration to load from
+	 * @param SourceNode the name of the config node.
 	 */
-	public PlayerGroups(FileConfiguration Source,String SourceNode){
+	public PlayerGroups(FileConfiguration Source, String SourceNode){
 		List<PlayerGroup> checklist = PlayerGroup.getGroups(Source, SourceNode);
 		for(PlayerGroup iterate:checklist){
 			playerGroups.put(iterate.getGroupName().toUpperCase(), iterate);
@@ -50,35 +47,21 @@ public class PlayerGroups {
 
 	/**
 	 * Saves this PlayerGroups list to a FileConfiguration.
-	 * @param Target
-	 * @param TargetNode
+     *
+	 * @param target the FileConfiguration to write to
+	 * @param targetNode the name of the target node in the config
 	 */
-    public void save(FileConfiguration Target, String TargetNode){
+    public void save(FileConfiguration target, String targetNode) {
 		ArrayList<String> groupnames = new ArrayList<String>();
 		for(PlayerGroup pg: playerGroups.values()){
 			groupnames.add(pg.getGroupName());
 		}
-		Target.set(TargetNode + ".Names", groupnames);
+		target.set(targetNode + ".Names", groupnames);
 		for(PlayerGroup iterate: playerGroups.values()){
-			String usenode = TargetNode + "." + iterate.getGroupName();
-			iterate.Save(Target, usenode);
+			String usenode = targetNode + "." + iterate.getGroupName();
+			iterate.Save(target, usenode);
 		}
 		
 		
-	}
-	
-	/**
-	 * returns the PlayerGroup(s) this player belongs to. 
-	 * @param PlayerName
-	 * @return
-	 */
-	public List<PlayerGroup> getGroupsForPlayer(String PlayerName){
-		ArrayList<PlayerGroup> makelist = new ArrayList<PlayerGroup>();
-		for(PlayerGroup iterate: playerGroups.values()){
-			if(iterate.MatchPlayer(PlayerName)){
-				makelist.add(iterate);
-			}
-		}
-		return makelist;
 	}
 }

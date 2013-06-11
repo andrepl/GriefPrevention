@@ -1,11 +1,7 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.SerializationUtil;
-
 import me.ryanhamshire.GriefPrevention.tasks.CleanupUnusedClaimsTask;
 import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
 import org.bukkit.Bukkit;
@@ -14,6 +10,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * represents the configuration settings of a single world.
@@ -135,14 +134,14 @@ public class WorldConfig {
 
 	/**
 	 * returns whether Claims are enabled. Most configuration Options, while still present and readable, become redundant when this is false.
-	 * @return
+	 * @return true if claims are enabled in this world
 	 */
 	public boolean getClaimsEnabled() { return claimsEnabled; }
 
 	/**
-	 * returns the List of Trash block materials for this world. These are Materials that can be
-	 * -placed in survival
-	 * @return
+	 * gets the list of Materials that can be placed in survival
+     *
+	 * @return the List of Trash block materials for this world.
 	 */
 	public List<Material> getTrashBlocks() { return configTrashBlocks; }
     public double getClaimsAbandonReturnRatio() { return configClaimsAbandonReturnRatio; }
@@ -489,10 +488,6 @@ public class WorldConfig {
 		this.configModsAccessTrustIds = new MaterialCollection();
 		List<String> accessTrustStrings = config.getStringList("GriefPrevention.Mods.BlockIdsRequiringAccessTrust");
 		// default values for access trust mod blocks
-		if(accessTrustStrings == null || accessTrustStrings.size() == 0)
-		{
-			// none by default
-		}
 		SerializationUtil.parseMaterialListFromConfig(accessTrustStrings, this.configModsAccessTrustIds);
         outConfig.set("GriefPrevention.Mods.BlockIdsRequiringAccessTrust", this.configModsAccessTrustIds);
 

@@ -18,27 +18,18 @@
 
 package me.ryanhamshire.GriefPrevention.listeners;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
+import me.ryanhamshire.GriefPrevention.CreateClaimResult;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import me.ryanhamshire.GriefPrevention.tasks.TreeCleanupTask;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
-
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -48,23 +39,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
-import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 // event handlers related to blocks
 
@@ -227,9 +213,9 @@ public class BlockEventHandler implements Listener {
         // if the block is a trash block....
         if (wc.getTrashBlocks().contains(breakEvent.getBlock().getType())) {
             // and if this location is applicable for trash block placement...
-            if (wc.getTrashBlockPlacementBehaviour().allowed(breakEvent.getBlock().getLocation(), player).allowed()) ;
-            // allow it with abandon...
-            return;
+            if (wc.getTrashBlockPlacementBehaviour().allowed(breakEvent.getBlock().getLocation(), player).allowed()) {
+                return;
+            }
         }
 
         // make sure the player is allowed to break at the location
@@ -284,8 +270,7 @@ public class BlockEventHandler implements Listener {
 
             if (!player.hasPermission("griefprevention.eavesdrop") && wc.getSignEavesdrop()) {
                 Player[] players = plugin.getServer().getOnlinePlayers();
-                for (int i = 0; i < players.length; i++) {
-                    Player otherPlayer = players[i];
+                for (Player otherPlayer : players) {
                     if (otherPlayer.hasPermission("griefprevention.eavesdrop")) {
                         otherPlayer.sendMessage(ChatColor.GRAY + player.getName() + "(sign): " + signMessage);
                     }
@@ -316,8 +301,7 @@ public class BlockEventHandler implements Listener {
         // if placed block is fire and pvp is off, apply rules for proximity to other players
         if (block.getType() == Material.FIRE && !player.getWorld().getPVP() && !player.hasPermission("griefprevention.lava")) {
             List<Player> players = block.getWorld().getPlayers();
-            for (int i = 0; i < players.size(); i++) {
-                Player otherPlayer = players.get(i);
+            for (Player otherPlayer : players) {
                 Location location = otherPlayer.getLocation();
                 if (!otherPlayer.equals(player) && location.distanceSquared(block.getLocation()) < 9) {
                     plugin.sendMessage(player, TextMode.ERROR, Messages.PlayerTooCloseForFire, otherPlayer.getName());
@@ -463,9 +447,8 @@ public class BlockEventHandler implements Listener {
         if (claim != null) pistonClaimOwnerName = claim.getOwnerName();
 
         // which blocks are being pushed?
-        for (int i = 0; i < blocks.size(); i++) {
+        for (Block block : blocks) {
             // if ANY of the pushed blocks are owned by someone other than the piston owner, cancel the event
-            Block block = blocks.get(i);
             claim = this.dataStore.getClaimAt(block.getLocation(), false, null);
             if (claim != null && !claim.getOwnerName().equals(pistonClaimOwnerName)) {
                 event.setCancelled(true);
@@ -495,8 +478,7 @@ public class BlockEventHandler implements Listener {
 
         // if horizontal movement
         if (xchange != 0 || zchange != 0) {
-            for (int i = 0; i < blocks.size(); i++) {
-                Block block = blocks.get(i);
+            for (Block block : blocks) {
                 Claim originalClaim = this.dataStore.getClaimAt(block.getLocation(), false, null);
                 String originalOwnerName = "";
                 if (originalClaim != null) {
@@ -586,7 +568,7 @@ public class BlockEventHandler implements Listener {
     // blocks are not destroyed by fire, unless configured to do so
     @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockBurn(BlockBurnEvent burnEvent) {
-        WorldConfig wc = (WorldConfig) plugin.getWorldCfg(burnEvent.getBlock().getWorld().getName());
+        WorldConfig wc = plugin.getWorldCfg(burnEvent.getBlock().getWorld().getName());
         if (!wc.getFireDestroys()) {
             burnEvent.setCancelled(true);
             Block block = burnEvent.getBlock();
@@ -600,8 +582,7 @@ public class BlockEventHandler implements Listener {
             };
 
             // pro-actively put out any fires adjacent the burning block, to reduce future processing here
-            for (int i = 0; i < adjacentBlocks.length; i++) {
-                Block adjacentBlock = adjacentBlocks[i];
+            for (Block adjacentBlock : adjacentBlocks) {
                 if (adjacentBlock.getType() == Material.FIRE && adjacentBlock.getRelative(BlockFace.DOWN).getType() != Material.NETHERRACK) {
                     adjacentBlock.setType(Material.AIR);
                 }

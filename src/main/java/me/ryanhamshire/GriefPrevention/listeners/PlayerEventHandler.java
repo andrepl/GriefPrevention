@@ -18,48 +18,44 @@
 
 package me.ryanhamshire.GriefPrevention.listeners;
 
-import java.util.*;
-import java.util.regex.Pattern;
+    import me.ryanhamshire.GriefPrevention.CreateClaimResult;
+    import me.ryanhamshire.GriefPrevention.GriefPrevention;
+    import me.ryanhamshire.GriefPrevention.ShovelMode;
+    import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
+    import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
+    import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
+    import me.ryanhamshire.GriefPrevention.data.Claim;
+    import me.ryanhamshire.GriefPrevention.data.DataStore;
+    import me.ryanhamshire.GriefPrevention.data.PlayerData;
+    import me.ryanhamshire.GriefPrevention.events.PlayerChangeClaimEvent;
+    import me.ryanhamshire.GriefPrevention.messages.Messages;
+    import me.ryanhamshire.GriefPrevention.messages.TextMode;
+    import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
+    import me.ryanhamshire.GriefPrevention.visualization.Visualization;
+    import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
+    import org.bukkit.Bukkit;
+    import org.bukkit.Chunk;
+    import org.bukkit.Location;
+    import org.bukkit.Material;
+    import org.bukkit.World.Environment;
+    import org.bukkit.block.Block;
+    import org.bukkit.block.BlockFace;
+    import org.bukkit.entity.*;
+    import org.bukkit.entity.minecart.HopperMinecart;
+    import org.bukkit.entity.minecart.PoweredMinecart;
+    import org.bukkit.entity.minecart.StorageMinecart;
+    import org.bukkit.event.EventHandler;
+    import org.bukkit.event.EventPriority;
+    import org.bukkit.event.Listener;
+    import org.bukkit.event.block.Action;
+    import org.bukkit.event.entity.PlayerDeathEvent;
+    import org.bukkit.event.player.*;
+    import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+    import org.bukkit.inventory.InventoryHolder;
+    import org.bukkit.inventory.ItemStack;
 
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
-import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
-import me.ryanhamshire.GriefPrevention.events.PlayerChangeClaimEvent;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
-import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
-import me.ryanhamshire.GriefPrevention.data.*;
-import me.ryanhamshire.GriefPrevention.messages.TextMode;
-import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
-import me.ryanhamshire.GriefPrevention.visualization.Visualization;
-import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World.Environment;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Animals;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Hanging;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.minecart.HopperMinecart;
-import org.bukkit.entity.minecart.PoweredMinecart;
-import org.bukkit.entity.minecart.StorageMinecart;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.*;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
+    import java.util.*;
+    import java.util.regex.Pattern;
 
 public class PlayerEventHandler implements Listener {
     private final GriefPrevention plugin;
@@ -171,7 +167,6 @@ public class PlayerEventHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     void onPlayerLogin(PlayerLoginEvent event) {
         Player player = event.getPlayer();
-        WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         // remember the player's ip address
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
         playerData.setIpAddress(event.getAddress());
@@ -191,7 +186,6 @@ public class PlayerEventHandler implements Listener {
 
         Player player = event.getPlayer();
         String playerName = player.getName();
-        WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         // note login time
         long now = Calendar.getInstance().getTimeInMillis();
         final PlayerData playerData = this.dataStore.getPlayerData(playerName);
@@ -213,7 +207,6 @@ public class PlayerEventHandler implements Listener {
     // when a player dies...
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerDeath(PlayerDeathEvent event) {
-        WorldConfig wc = plugin.getWorldCfg(event.getEntity().getWorld());
         PlayerData playerData = this.dataStore.getPlayerData(event.getEntity().getName());
         long now = Calendar.getInstance().getTimeInMillis();
         playerData.setLastDeathTimeStamp(now);
@@ -589,8 +582,7 @@ public class PlayerEventHandler implements Listener {
                 }
 
                 List<Player> players = block.getWorld().getPlayers();
-                for (int i = 0; i < players.size(); i++) {
-                    Player otherPlayer = players.get(i);
+                for (Player otherPlayer : players) {
                     Location location = otherPlayer.getLocation();
                     if (!otherPlayer.equals(player) && block.getY() >= location.getBlockY() - 1 && location.distanceSquared(block.getLocation()) < minLavaDistance * minLavaDistance) {
                         plugin.sendMessage(player, TextMode.ERROR, Messages.NoLavaNearOtherPlayer, otherPlayer.getName());
@@ -613,7 +605,6 @@ public class PlayerEventHandler implements Listener {
         if (wc.getWaterBucketBehaviour().allowed(block.getLocation(), player).denied()) {
             // plugin.sendMessage(player, TextMode.Err, noBuildReason);
             bucketEvent.setCancelled(true);
-            return;
         }
     }
 
@@ -630,10 +621,10 @@ public class PlayerEventHandler implements Listener {
             if (clickedBlock == null || clickedBlock.getType() == Material.SNOW) {
                 // try to find a far away non-air block along line of sight
                 HashSet<Byte> transparentMaterials = new HashSet<Byte>();
-                transparentMaterials.add(Byte.valueOf((byte) Material.AIR.getId()));
-                transparentMaterials.add(Byte.valueOf((byte) Material.SNOW.getId()));
-                transparentMaterials.add(Byte.valueOf((byte) Material.LONG_GRASS.getId()));
-                clickedBlock = player.getTargetBlock(transparentMaterials, 250);
+                transparentMaterials.add((byte) Material.AIR.getId());
+                transparentMaterials.add((byte) Material.SNOW.getId());
+                transparentMaterials.add((byte) Material.LONG_GRASS.getId());
+                clickedBlock = player.getTargetBlock(transparentMaterials, 200);
             }
         } catch (Exception e) {
             return;
@@ -1292,10 +1283,10 @@ public class PlayerEventHandler implements Listener {
 
                     Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.apply(plugin, player, visualization);
-                    return;
+
                 } else if (result.succeeded == CreateClaimResult.Result.CANCELED) {
                     // A plugin canceled the event.
-                    return;
+
                 } else { // otherwise, advise him on the /trust command and show him his new claim
                     plugin.sendMessage(player, TextMode.SUCCESS, Messages.CreateClaimSuccess);
                     Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());

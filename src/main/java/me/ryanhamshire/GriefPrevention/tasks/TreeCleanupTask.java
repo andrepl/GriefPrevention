@@ -18,8 +18,8 @@
 
 package me.ryanhamshire.GriefPrevention.tasks;
 
-import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -65,8 +65,8 @@ public class TreeCleanupTask implements Runnable {
             return;
 
         // scan the original tree block locations to see if any of them have been replaced		
-        for (int i = 0; i < this.originalTreeBlocks.size(); i++) {
-            Location location = this.originalTreeBlocks.get(i).getLocation();
+        for (Block originalTreeBlock1 : this.originalTreeBlocks) {
+            Location location = originalTreeBlock1.getLocation();
             Block currentBlock = location.getBlock();
 
             // if the block has been replaced, stop here, we won't do any cleanup
@@ -77,8 +77,8 @@ public class TreeCleanupTask implements Runnable {
 
         // otherwise scan again, this time removing any remaining log blocks
         boolean logsRemaining = false;
-        for (int i = 0; i < this.originalTreeBlocks.size(); i++) {
-            Location location = this.originalTreeBlocks.get(i).getLocation();
+        for (Block originalTreeBlock : this.originalTreeBlocks) {
+            Location location = originalTreeBlock.getLocation();
             Block currentBlock = location.getBlock();
             if (currentBlock.getType() == Material.LOG) {
                 logsRemaining = true;

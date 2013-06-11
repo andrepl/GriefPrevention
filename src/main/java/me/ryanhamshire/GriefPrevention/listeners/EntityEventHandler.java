@@ -18,44 +18,33 @@
 
 package me.ryanhamshire.GriefPrevention.listeners;
 
-import java.util.Calendar;
-import java.util.List;
-
-import me.ryanhamshire.GriefPrevention.*;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
+import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
-
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.DataStore;
-import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.bukkit.event.entity.EntityBreakDoorEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
-import org.bukkit.event.entity.ExpBottleEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
+
+import java.util.Calendar;
+import java.util.List;
 
 // handles events related to entities
 public class EntityEventHandler implements Listener {
@@ -315,11 +304,8 @@ public class EntityEventHandler implements Listener {
         if (noBuildReason != null) {
             event.setCancelled(true);
             plugin.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);
-            return;
-        }
-
-        // otherwise, apply entity-count limitations for creative worlds
-        else if (plugin.creativeRulesApply(event.getEntity().getLocation())) {
+        } else if (plugin.creativeRulesApply(event.getEntity().getLocation())) {
+            // otherwise, apply entity-count limitations for creative worlds
             PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
             Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, playerData.getLastClaim());
             if (claim == null) return;

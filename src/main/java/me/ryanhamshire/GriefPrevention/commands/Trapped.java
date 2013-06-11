@@ -1,10 +1,10 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import me.ryanhamshire.GriefPrevention.tasks.PlayerRescueTask;
 import org.bukkit.World;
@@ -16,13 +16,6 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andre
- * Date: 6/8/13
- * Time: 6:03 PM
- * To change this template use File | Settings | File Templates.
- */
 public class Trapped extends BaseClaimCommand {
 
     public Trapped(GriefPrevention plugin) {

@@ -1,9 +1,9 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
-import me.ryanhamshire.GriefPrevention.*;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.data.Claim;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -52,7 +52,7 @@ public class Untrust extends BaseCommand {
         } else if ((!target.startsWith("[") || !target.endsWith("]"))
                 && !target.toUpperCase().startsWith("G:") && !target.startsWith("!")) {
             otherPlayer = plugin.resolvePlayer(target);
-            if (!clearPermissions && otherPlayer == null && !target.equals("public")) {
+            if (otherPlayer == null && !target.equals("public")) {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.PlayerNotFound);
                 return true;
             }

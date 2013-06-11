@@ -1,9 +1,9 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  * represents a Player Group.
@@ -17,15 +17,6 @@ public class PlayerGroup {
 
     private List<String> PlayerNames = new ArrayList<String>(); //names of players in this group.
     private String GroupName;
-
-    /**
-     * retrieves the current list of PlayerNames in this group.
-     *
-     * @return
-     */
-    public List<String> getPlayerNames() {
-        return new ArrayList<String>(PlayerNames);
-    }
 
     /**
      * retrieves the name of this Group.
@@ -90,7 +81,7 @@ public class PlayerGroup {
         Target.set(TargetNode, PlayerNames);
     }
 
-    private PlayerGroup(FileConfiguration Source, String SourceNode) {
+    private PlayerGroup(FileConfiguration source, String sourceNode) {
         //System.out.println("reading group from " + SourceNode);
         //Source is the Config to load from.
         //Node is the first node. An example of the Groups:
@@ -99,13 +90,13 @@ public class PlayerGroup {
 
         //First: parse out the Group name. This is everything past the last period.
 
-        String getgroupname = SourceNode.substring(SourceNode.lastIndexOf('.') + 1);
-        GroupName = getgroupname;
+
+        GroupName = sourceNode.substring(sourceNode.lastIndexOf('.') + 1);
         //now we want the list at this Node.
         PlayerNames = new ArrayList<String>();
-        for (String iteratename : Source.getStringList(SourceNode)) {
-            System.out.println("Group-" + SourceNode + " " + iteratename);
-            PlayerNames.add(iteratename);
+        for (String iterNames: source.getStringList(sourceNode)) {
+            System.out.println("Group-" + sourceNode + " " + iterNames);
+            PlayerNames.add(iterNames);
         }
     }
 }

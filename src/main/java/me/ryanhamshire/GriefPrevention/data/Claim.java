@@ -18,26 +18,27 @@
 
 package me.ryanhamshire.GriefPrevention.data;
 
-import java.util.*;
-
-
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
-import me.ryanhamshire.GriefPrevention.exceptions.InvalidFlagValueException;
-import me.ryanhamshire.GriefPrevention.flags.BaseFlag;
-import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.configuration.PlayerGroup;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.events.ClaimModifiedEvent;
+import me.ryanhamshire.GriefPrevention.exceptions.InvalidFlagValueException;
+import me.ryanhamshire.GriefPrevention.flags.BaseFlag;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
-
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.*;
 
 // represents a player claim
 // creating an instance doesn't make an effective claim
@@ -49,9 +50,6 @@ public class Claim {
     // an Attempt is made to parse them and if the world isn't loaded the claim will be
     // "dormant" which means it will return false for most queries.
     private GriefPrevention plugin;
-    private String LesserCorner;
-    private String GreaterCorner;
-    private boolean WasDeferred = false;
     private HashMap<String, PluginClaimMeta> claimMeta = new HashMap<String, PluginClaimMeta>();
     private HashMap<String, String> flags = new HashMap<String, String>();
 
@@ -110,16 +108,6 @@ public class Claim {
      * This variable sets whether a claim gets deleted with the automatic cleanup.
      */
     private boolean neverDelete = false;
-    private Map<String, Object> rawFlags;
-
-    public Claim getChildAt(Location testlocation) {
-
-        for (Claim iterate : children) {
-            if (iterate.contains(testlocation, false, false))
-                return iterate;
-        }
-        return null;
-    }
 
     /**
      * Whether or not this is an administrative claim.<br />
@@ -252,29 +240,25 @@ public class Claim {
         this.ownerName = ownerName;
 
         // other permissions
-        for (int i = 0; i < builderNames.length; i++) {
-            String name = builderNames[i];
+        for (String name : builderNames) {
             if (name != null && !name.isEmpty()) {
                 this.playerNameToClaimPermissionMap.put(name, ClaimPermission.BUILD);
             }
         }
 
-        for (int i = 0; i < containerNames.length; i++) {
-            String name = containerNames[i];
+        for (String name : containerNames) {
             if (name != null && !name.isEmpty()) {
                 this.playerNameToClaimPermissionMap.put(name, ClaimPermission.INVENTORY);
             }
         }
 
-        for (int i = 0; i < accessorNames.length; i++) {
-            String name = accessorNames[i];
+        for (String name : accessorNames) {
             if (name != null && !name.isEmpty()) {
                 this.playerNameToClaimPermissionMap.put(name, ClaimPermission.ACCESS);
             }
         }
 
-        for (int i = 0; i < managerNames.length; i++) {
-            String name = managerNames[i];
+        for (String name : managerNames) {
             if (name != null && !name.isEmpty()) {
                 this.managers.add(name);
             }
@@ -592,8 +576,7 @@ public class Claim {
         if (this.allowEdit(player) == null) return null;
 
         // anyone who's in the managers (/PermissionTrust) list can do this
-        for (int i = 0; i < this.managers.size(); i++) {
-            String managerID = this.managers.get(i);
+        for (String managerID : this.managers) {
             if (this.isApplicablePlayer(managerID, player.getName())) return null;
 
             else if (managerID.startsWith("[") && managerID.endsWith("]")) {
@@ -718,10 +701,7 @@ public class Claim {
     public void getPermissions(ArrayList<String> builders, ArrayList<String> containers, ArrayList<String> accessors, ArrayList<String> managers) {
         // loop through all the entries in the hash map
         // if we have a parent, add the parent permissions first, then overwrite them.
-        Iterator<Map.Entry<String, ClaimPermission>> mappingsIterator = this.playerNameToClaimPermissionMap.entrySet().iterator();
-        while (mappingsIterator.hasNext()) {
-            Map.Entry<String, ClaimPermission> entry = mappingsIterator.next();
-
+        for (Map.Entry<String, ClaimPermission> entry : this.playerNameToClaimPermissionMap.entrySet()) {
             // build up a list for each permission level
             if (entry.getValue() == ClaimPermission.BUILD) {
                 builders.add(entry.getKey());
@@ -733,8 +713,8 @@ public class Claim {
         }
 
         // managers are handled a little differently
-        for (int i = 0; i < this.managers.size(); i++) {
-            managers.add(this.managers.get(i));
+        for (String manager : this.managers) {
+            managers.add(manager);
         }
     }
 
@@ -832,9 +812,9 @@ public class Claim {
         // code to exclude subdivisions in this check
         else if (excludeSubdivisions) {
             // search all subdivisions to see if the location is in any of them
-            for (int i = 0; i < this.children.size(); i++) {
+            for (Claim aChildren : this.children) {
                 // if we find such a subdivision, return false
-                if (this.children.get(i).contains(location, ignoreHeight, true)) {
+                if (aChildren.contains(location, ignoreHeight, true)) {
                     return false;
                 }
             }
@@ -920,8 +900,7 @@ public class Claim {
             for (int z = lesserChunk.getZ(); z <= greaterChunk.getZ(); z++) {
                 Chunk chunk = lesserChunk.getWorld().getChunkAt(x, z);
                 Entity[] entities = chunk.getEntities();
-                for (int i = 0; i < entities.length; i++) {
-                    Entity entity = entities[i];
+                for (Entity entity : entities) {
                     if (!(entity instanceof Player) && this.contains(entity.getLocation(), false, false)) {
                         totalEntities++;
                         if (totalEntities > maxEntities) entity.remove();
@@ -941,8 +920,7 @@ public class Claim {
         if (thisCorner.getBlockX() > otherCorner.getBlockX()) return true;
         if (thisCorner.getBlockX() < otherCorner.getBlockX()) return false;
         if (thisCorner.getBlockZ() > otherCorner.getBlockZ()) return true;
-        if (thisCorner.getBlockZ() < otherCorner.getBlockZ()) return false;
-        return thisCorner.getWorld().getName().compareTo(otherCorner.getWorld().getName()) < 0;
+        return thisCorner.getBlockZ() >= otherCorner.getBlockZ() && thisCorner.getWorld().getName().compareTo(otherCorner.getWorld().getName()) < 0;
     }
 
     public long getPlayerInvestmentScore() {
@@ -1013,8 +991,7 @@ public class Claim {
      */
     public boolean isManager(String player) {
         // if we don't know who's asking, always say no (i've been told some mods can make this happen somehow)
-        if (player == null) return false;
-        return playerInList(managers, player);
+        return player != null && playerInList(managers, player);
     }
 
     /**
@@ -1053,13 +1030,6 @@ public class Claim {
         }
         managers.remove(player);
         return true;
-    }
-
-    public void clearManagers() {
-
-        for (String iterateman : managers) {
-            removeManager(iterateman);
-        }
     }
 
     /**
@@ -1123,6 +1093,7 @@ public class Claim {
         this.id = id;
     }
 
+    @SuppressWarnings("unused")
     public PluginClaimMeta getClaimMeta(Plugin plugin, boolean create) {
         if (!claimMeta.containsKey(plugin.getName())) {
             if (!create) {

@@ -2,7 +2,6 @@ package me.ryanhamshire.GriefPrevention.messages;
 
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -208,9 +207,8 @@ public class MessageManager {
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));
 
         // for each message ID
-        for (int i = 0; i < messageIDs.length; i++) {
+        for (Messages messageID : messageIDs) {
             // get default for this message
-            Messages messageID = messageIDs[i];
             CustomizableMessage messageData = defaults.get(messageID.name());
 
             // if default is missing, log an error and use some fake data for now so that the plugin can run

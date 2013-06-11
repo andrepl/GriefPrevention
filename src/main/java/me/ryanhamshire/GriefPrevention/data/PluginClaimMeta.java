@@ -1,23 +1,16 @@
 package me.ryanhamshire.GriefPrevention.data;
 
-import org.bukkit.Color;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 @SerializableAs("ClaimMeta")
+@SuppressWarnings("unused")
 public class PluginClaimMeta implements ConfigurationSerializable {
     String pluginName = null;
     HashMap<String, Object> data = new HashMap<String, Object>();
