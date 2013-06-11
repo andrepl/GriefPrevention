@@ -16,6 +16,9 @@ extensibility, without any immediate regard for backwards compatibility with dat
 What's Different?
 -----------------
 
+ - Claims support arbitrary, persistent metadata.
+ - A complete "Flag" system is built in to allow extension plugins to easily add new claim flags
+ - all player movements are tracked and claim enter/exit events are fired.
  - Siege mode is gone, because I have no use for it and it can be implemented externally.
  - Spam protection is gone.  spam != grief. and GP wasn't super great at it.
  - The source code has been thoroughly cleaned up and reformatted. 
@@ -29,8 +32,8 @@ What's Different?
 What's Planned?
 ---------------
 
- - The data storage backend is going to be made to support arbitrary, persistent metadata for both players and claims.
- - Player movements will be tracked and events fired when claims are entered/left.
- - an api for new claim 'flags' to be created.
  - Probably a name change, there won't be much in common with the original when I'm through with it. :)
+ - A more efficient persistence backend.
+ - importers/converters for persistence backends.
+ - Suggestions welcome, but quite possibly ignored.
 
