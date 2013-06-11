@@ -39,7 +39,6 @@ What's Planned?
  - importers/converters for persistence backends.
  - more command consolidation
  - Suggestions welcome, but quite possibly ignored.
- - Removing lesser used configuration options
 
 
 API Usage
