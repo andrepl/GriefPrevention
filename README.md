@@ -35,6 +35,7 @@ What's Planned?
 
  - Probably a name change, there won't be much in common with the original when I'm through with it. :)
  - A more efficient persistence backend.
+ - removing some lesser used/unused configuration settings
  - importers/converters for persistence backends.
  - more command consolidation
  - Suggestions welcome, but quite possibly ignored.
