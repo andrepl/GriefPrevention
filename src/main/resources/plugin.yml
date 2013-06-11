@@ -75,10 +75,6 @@ commands:
       usage: /<command> <player> <amount>
       permission: griefprevention.adjustclaimblocks
       aliases: acb
-   transferclaimblocks:
-      description: transfers claim blocks from one player to another.
-      usage: /<command> <sourceplayer> <targetplayer> <amount>
-      permission: griefprevention.transferclaimblocks
    deleteclaim:
       description: Deletes the claim you're standing in, even if it's not your claim.
       usage: /<command>
@@ -143,10 +139,6 @@ commands:
       description: Deletes all administrative claims.
       usage: /<command>
       permission: griefprevention.adminclaims
-   transferclaim:
-      description: Converts an administrative claim to a private claim.
-      usage: /<command> <player>
-      permission: griefprevention.adjustclaimblocks
    deathblow:
       description: Kills a player, optionally giving his inventory to another player.
       usage: /<command> <player> [recipientPlayer]
@@ -176,7 +168,7 @@ commands:
    giveclaim:
           description: give a claim to another player
           usage: /<command> <player>
-          permission: griefprevention.transferclaim
+          permission: griefprevention.giveclaim
 
 permissions:
     griefprevention.cleanclaim:
@@ -198,11 +190,8 @@ permissions:
             griefprevention.ignoreclaims: true
             griefprevention.adminclaims: true
             griefprevention.adjustclaimblocks: true
-            griefprevention.transferclaimblocks: true
             griefprevention.deleteclaims: true
             griefprevention.lava: true
-            griefprevention.eavesdrop: true
-            griefprevention.admineavesdrop: true
             griefprevention.deathblow: true
             griefprevention.adminlock: true
             griefprevention.lock: true
@@ -225,17 +214,8 @@ permissions:
     griefprevention.giveclaimblocks:
         description: Grants permission to give claim blocks to another player.
         default: false
-    griefprevention.transferclaimblocks:
-        description: Grants permission to transfer claim blocks from one player to another.
-        default: op
     griefprevention.lava:
         description: Grants permission to place lava near the surface and outside of claims.
-        default: op
-    griefprevention.eavesdrop:
-        description: Allows a player to see whispered chat messages (/tell).
-        default: op
-    griefprevention.admineavesdrop:
-        description: Allows a player to see all whispered chat messages (/tell).
         default: op
     griefprevention.restorenatureaggressive:
         description: Grants access to /RestoreNatureAggressive and /RestoreNatureFill.

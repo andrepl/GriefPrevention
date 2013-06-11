@@ -25,7 +25,6 @@ public class CommandHandler implements TabExecutor {
     IgnoreClaims cmdIgnoreClaims;
     Reload cmdReload;
     GiveClaimBlocks cmdGiveClaimBlocks;
-    TransferClaimBlocks cmdTransferClaimBlocks;
     AbandonAllClaims cmdAbandonAllClaims;
     RestoreNature cmdRestoreNature;
     Trust cmdTrust;
@@ -66,7 +65,6 @@ public class CommandHandler implements TabExecutor {
         cmdIgnoreClaims = new IgnoreClaims(plugin);
         cmdReload = new Reload(plugin);
         cmdGiveClaimBlocks = new GiveClaimBlocks(plugin);
-        cmdTransferClaimBlocks = new TransferClaimBlocks(plugin);
         cmdAbandonAllClaims = new AbandonAllClaims(plugin);
         cmdRestoreNature = new RestoreNature(plugin);
         cmdTrust = new Trust(plugin);

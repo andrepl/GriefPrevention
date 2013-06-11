@@ -57,12 +57,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Listener class for Block-related Event handling.
  */
-public class BlockEventHandler implements Listener {
+public class BlockListener implements Listener {
     // convenience reference to singleton datastore
     private DataStore dataStore;
     private GriefPrevention plugin;
+
+    // how far away to search from a tree trunk for its branch blocks
+    private static final int TREE_RADIUS = 5;
+
     // constructor
-    public BlockEventHandler(DataStore dataStore, GriefPrevention plugin) {
+    public BlockListener(DataStore dataStore, GriefPrevention plugin) {
         this.dataStore = dataStore;
         this.plugin = plugin;
     }
@@ -734,10 +738,10 @@ public class BlockEventHandler implements Listener {
         // next step: scan for other log blocks and leaves in this tree
 
         // set boundaries for the scan
-        int min_x = rootBlock.getX() - GriefPrevention.TREE_RADIUS;
-        int max_x = rootBlock.getX() + GriefPrevention.TREE_RADIUS;
-        int min_z = rootBlock.getZ() - GriefPrevention.TREE_RADIUS;
-        int max_z = rootBlock.getZ() + GriefPrevention.TREE_RADIUS;
+        int min_x = rootBlock.getX() - TREE_RADIUS;
+        int max_x = rootBlock.getX() + TREE_RADIUS;
+        int min_z = rootBlock.getZ() - TREE_RADIUS;
+        int max_z = rootBlock.getZ() + TREE_RADIUS;
         int max_y = rootBlock.getWorld().getMaxHeight() - 1;
 
         // keep track of all the examined blocks, and all the log blocks found

@@ -590,14 +590,14 @@ public class WorldConfig {
         // Task startup.
         // if we have a blockaccrued value and the ClaimTask for delivering claim blocks is null,
         // create and schedule it to run.
-        if (configClaimsBlocksAccruedPerHour > 0 && plugin.claimTask == null) {
-            plugin.claimTask = new DeliverClaimBlocksTask(plugin);
+        if (configClaimsBlocksAccruedPerHour > 0 && plugin.getClaimTask() == null) {
+            plugin.setClaimTask(new DeliverClaimBlocksTask(plugin));
             plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin,
-                         plugin.claimTask, 60L*20*2, 60L*20*5);
+                    plugin.getClaimTask(), 60L*20*2, 60L*20*5);
         }
 
         //similar logic for ClaimCleanup: if claim cleanup is enabled and there isn't a cleanup task, start it.
-        if (this.getClaimCleanupEnabled() && plugin.cleanupTask==null) {
+        if (this.getClaimCleanupEnabled() && plugin.getCleanupTask() == null) {
             CleanupUnusedClaimsTask task2 = new CleanupUnusedClaimsTask(plugin);
             plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, task2, 20L * 60 * 2, 20L * 60 * 5);
         }

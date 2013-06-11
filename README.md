@@ -26,7 +26,8 @@ What's Different?
    all commands are now available as subcommands of a main `/griefprevention`
    command (also aliased to `/gp`).  some have also been combined into multi 
    purpose commands, for example `/restorenatureaggressive` is now 
-   `/restorenature aggressive`.  Tab completion is available wherever possible.
+   `/restorenature aggressive` or `/gp restorenature aggressive`.
+   Tab completion is available wherever possible.
 
 
 What's Planned?
@@ -37,6 +38,7 @@ What's Planned?
  - importers/converters for persistence backends.
  - more command consolidation
  - Suggestions welcome, but quite possibly ignored.
+ - Removing lesser used configuration options
 
 
 API Usage

@@ -47,12 +47,12 @@ import java.util.Calendar;
 import java.util.List;
 
 // handles events related to entities
-public class EntityEventHandler implements Listener {
+public class EntityListener implements Listener {
     // convenience reference for the singleton datastore
     private DataStore dataStore;
     GriefPrevention plugin;
     
-    public EntityEventHandler(DataStore dataStore, GriefPrevention griefPrevention) {
+    public EntityListener(DataStore dataStore, GriefPrevention griefPrevention) {
         this.dataStore = dataStore;
         this.plugin = griefPrevention;
     }
@@ -149,7 +149,7 @@ public class EntityEventHandler implements Listener {
                 if (claimPos != null && !claimPos.isExplosivesAllowed()) {
                     blocks.remove(i--);
                 } else if (block.getType() == Material.LOG) {
-                    plugin.getBlockEventHandler().handleLogBroken(block);
+                    plugin.getBlockListener().handleLogBroken(block);
                 }
             }
         }
@@ -287,7 +287,7 @@ public class EntityEventHandler implements Listener {
 
         // if the player doesn't have build permission, don't allow the breakage
         Player playerRemover = (Player) entityEvent.getRemover();
-        String noBuildReason = plugin.getBlockEventHandler().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(playerRemover.getName()), null);
+        String noBuildReason = plugin.getBlockListener().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(playerRemover.getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
             plugin.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
@@ -300,7 +300,7 @@ public class EntityEventHandler implements Listener {
         // FEATURE: similar to above, placing a painting requires build permission in the claim
 
         // if the player doesn't have permission, don't allow the placement
-        String noBuildReason = plugin.getBlockEventHandler().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(event.getPlayer().getName()), null);
+        String noBuildReason = plugin.getBlockListener().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(event.getPlayer().getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
             plugin.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);

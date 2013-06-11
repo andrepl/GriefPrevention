@@ -27,9 +27,9 @@ import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.data.PluginClaimMeta;
 import me.ryanhamshire.GriefPrevention.flags.FlagManager;
-import me.ryanhamshire.GriefPrevention.listeners.BlockEventHandler;
-import me.ryanhamshire.GriefPrevention.listeners.EntityEventHandler;
-import me.ryanhamshire.GriefPrevention.listeners.PlayerEventHandler;
+import me.ryanhamshire.GriefPrevention.listeners.BlockListener;
+import me.ryanhamshire.GriefPrevention.listeners.EntityListener;
+import me.ryanhamshire.GriefPrevention.listeners.PlayerListener;
 import me.ryanhamshire.GriefPrevention.messages.MessageManager;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
@@ -69,17 +69,15 @@ public class GriefPrevention extends JavaPlugin {
     // reference to the economy plugin, if economy integration is enabled
     private Economy economy = null;
 
-    // how far away to search from a tree trunk for its branch blocks
-    public static final int TREE_RADIUS = 5;
-
     private CommandHandler commandHandler;
     
     private static boolean eventsRegistered = false;
 
-    public DeliverClaimBlocksTask claimTask = null;
-    public CleanupUnusedClaimsTask cleanupTask = null;
+    private DeliverClaimBlocksTask claimTask = null;
+    private CleanupUnusedClaimsTask cleanupTask = null;
     private MessageManager messageManager;
-    private BlockEventHandler blockEventHandler;
+
+    private BlockListener blockListener;
 
     /**
      * Retrieves a World Configuration given the World. if the World Configuration is not loaded,
@@ -145,13 +143,13 @@ public class GriefPrevention extends JavaPlugin {
             eventsRegistered = true;
             PluginManager pluginManager = this.getServer().getPluginManager();
             // player events
-            PlayerEventHandler playerEventHandler = new PlayerEventHandler(this.dataStore, this);
+            PlayerListener playerEventHandler = new PlayerListener(this.dataStore, this);
             pluginManager.registerEvents(playerEventHandler, this);
             // block events
-            blockEventHandler = new BlockEventHandler(this.dataStore, this);
-            pluginManager.registerEvents(blockEventHandler, this);
+            blockListener = new BlockListener(this.dataStore, this);
+            pluginManager.registerEvents(blockListener, this);
             // entity events
-            EntityEventHandler entityEventHandler = new EntityEventHandler(this.dataStore, this);
+            EntityListener entityEventHandler = new EntityListener(this.dataStore, this);
             pluginManager.registerEvents(entityEventHandler, this);
         }
 
@@ -195,27 +193,6 @@ public class GriefPrevention extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
         return commandHandler.onCommand(sender, cmd, commandLabel, args);
     }
-
-    /**
-     * transfers a number of claim blocks from a source player to a  target player.
-     *
-     * @param source player name.
-     * @param target Player name.
-     * @return number of claim blocks transferred.
-     */
-    public synchronized int transferClaimBlocks(String source, String target, int desiredAmount) {
-        // transfer claim blocks from source to target, return number of claim blocks transferred.
-        PlayerData playerData = this.dataStore.getPlayerData(source);
-        PlayerData receiverData = this.dataStore.getPlayerData(target);
-        if (playerData != null && receiverData != null) {
-            int xferamount = Math.min(playerData.getAccruedClaimBlocks(), desiredAmount);
-            playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() - xferamount);
-            receiverData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + xferamount);
-            return xferamount;
-        }
-        return 0;
-  }
-
 
     /**
      * Creates a friendly Location string for the given Location.
@@ -368,13 +345,6 @@ public class GriefPrevention extends JavaPlugin {
         }
     }
 
-    // determines whether creative anti-grief rules apply at a location
-    public boolean creativeRulesApply(Location location) {
-        // return this.config_claims_enabledCreativeWorlds.contains(location.getWorld().getName());
-        return configuration.getWorldConfig(location.getWorld()).getCreativeRules();
-    }
-
-
     // restores nature in multiple chunks, as described by a claim instance
     // this restores all chunks which have ANY number of claim blocks from this claim in them
     // if the claim is still active (in the data store), then the claimed blocks will not be changed (only the area bordering the claim)
@@ -416,16 +386,21 @@ public class GriefPrevention extends JavaPlugin {
 
         // create task
         // when done processing, this task will create a main thread task to actually update the world with processing results
-        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(this, snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, getWorldCfg(chunk.getWorld()).getSeaLevelOverride(), aggressiveMode, this.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
-        this.getServer().getScheduler().runTaskLaterAsynchronously(this, task, delayInTicks);
+        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(this, snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, this.getWorldCfg(chunk.getWorld()).getSeaLevelOverride(), aggressiveMode, this.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
+        getServer().getScheduler().runTaskLaterAsynchronously(this, task, delayInTicks);
+    }
+    // determines whether creative anti-grief rules apply at a location
+    public boolean creativeRulesApply(Location location) {
+        // return this.config_claims_enabledCreativeWorlds.contains(location.getWorld().getName());
+        return configuration.getWorldConfig(location.getWorld()).getCreativeRules();
     }
 
     public MessageManager getMessageManager() {
         return messageManager;
     }
 
-    public BlockEventHandler getBlockEventHandler() {
-        return blockEventHandler;
+    public BlockListener getBlockListener() {
+        return blockListener;
     }
 
     public void debug(String s) {
@@ -448,5 +423,21 @@ public class GriefPrevention extends JavaPlugin {
 
     public DataStore getDataStore() {
         return dataStore;
+    }
+
+    public DeliverClaimBlocksTask getClaimTask() {
+        return claimTask;
+    }
+
+    public void setClaimTask(DeliverClaimBlocksTask claimTask) {
+        this.claimTask = claimTask;
+    }
+
+    public CleanupUnusedClaimsTask getCleanupTask() {
+        return cleanupTask;
+    }
+
+    public void setCleanupTask(CleanupUnusedClaimsTask cleanupTask) {
+        this.cleanupTask = cleanupTask;
     }
 }

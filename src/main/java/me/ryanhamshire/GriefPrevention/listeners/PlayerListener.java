@@ -18,6 +18,7 @@
 
 package me.ryanhamshire.GriefPrevention.listeners;
 
+    import me.ryanhamshire.GriefPrevention.BlockSnapshot;
     import me.ryanhamshire.GriefPrevention.CreateClaimResult;
     import me.ryanhamshire.GriefPrevention.GriefPrevention;
     import me.ryanhamshire.GriefPrevention.ShovelMode;
@@ -31,6 +32,7 @@ package me.ryanhamshire.GriefPrevention.listeners;
     import me.ryanhamshire.GriefPrevention.messages.Messages;
     import me.ryanhamshire.GriefPrevention.messages.TextMode;
     import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
+    import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
     import me.ryanhamshire.GriefPrevention.visualization.Visualization;
     import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
     import org.bukkit.Bukkit;
@@ -57,7 +59,7 @@ package me.ryanhamshire.GriefPrevention.listeners;
     import java.util.*;
     import java.util.regex.Pattern;
 
-public class PlayerEventHandler implements Listener {
+public class PlayerListener implements Listener {
     private final GriefPrevention plugin;
     private DataStore dataStore;
     private EnumSet<Material> containerBlocks;
@@ -72,7 +74,7 @@ public class PlayerEventHandler implements Listener {
     private Pattern howToClaimPattern = null;
 
     // typical constructor, yawn
-    public PlayerEventHandler(DataStore dataStore, GriefPrevention plugin) {
+    public PlayerListener(DataStore dataStore, GriefPrevention plugin) {
         this.dataStore = dataStore;
         this.plugin = plugin;
         containerBlocks = EnumSet.of(Material.WORKBENCH, Material.ENDER_CHEST, Material.DISPENSER, Material.ANVIL,
@@ -329,7 +331,7 @@ public class PlayerEventHandler implements Listener {
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
         // don't allow interaction with item frames in claimed areas without build permission
         if (entity instanceof Hanging) {
-            String noBuildReason = plugin.getBlockEventHandler().allowBuild(player, entity.getLocation(), playerData, playerData.getLastClaim());
+            String noBuildReason = plugin.getBlockListener().allowBuild(player, entity.getLocation(), playerData, playerData.getLastClaim());
             if (noBuildReason != null) {
                 plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
                 event.setCancelled(true);
@@ -527,7 +529,7 @@ public class PlayerEventHandler implements Listener {
         Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim());
 
         // make sure the player is allowed to build at the location
-        String noBuildReason = plugin.getBlockEventHandler().allowBuild(player, block.getLocation(), playerData, claim);
+        String noBuildReason = plugin.getBlockListener().allowBuild(player, block.getLocation(), playerData, claim);
         if (noBuildReason != null) {
             plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
             bucketEvent.setCancelled(true);
@@ -768,7 +770,7 @@ public class PlayerEventHandler implements Listener {
                     || materialInHand == Material.HOPPER_MINECART || materialInHand == Material.EXPLOSIVE_MINECART || materialInHand == Material.BOAT) && plugin.creativeRulesApply(clickedBlock.getLocation())) {
                 // if it's a spawn egg, minecart, or boat, and this is a creative world, apply special rules
                 // player needs build permission at this location
-                String noBuildReason = plugin.getBlockEventHandler().allowBuild(player, clickedBlock.getLocation(), playerData, null);
+                String noBuildReason = plugin.getBlockListener().allowBuild(player, clickedBlock.getLocation(), playerData, null);
                 if (noBuildReason != null) {
                     plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
                     System.out.println("CANCELLING Container Access.");

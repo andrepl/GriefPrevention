@@ -1,6 +1,7 @@
 package me.ryanhamshire.GriefPrevention.commands;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
 import org.bukkit.command.Command;
@@ -46,7 +47,7 @@ public class GiveClaimBlocks extends BaseCommand {
             return true;
         }
 
-        int amtXferred = plugin.transferClaimBlocks(sender.getName(), targetPlayerName, desiredxfer);
+        int amtXferred = transferClaimBlocks(sender.getName(), targetPlayerName, desiredxfer);
         if (amtXferred == 0) {
             plugin.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksError);
         } else {
@@ -59,4 +60,25 @@ public class GiveClaimBlocks extends BaseCommand {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    /**
+     * transfers a number of claim blocks from a source player to a  target player.
+     *
+     * @param source player name.
+     * @param target Player name.
+     * @return number of claim blocks transferred.
+     */
+    public synchronized int transferClaimBlocks(String source, String target, int desiredAmount) {
+        // transfer claim blocks from source to target, return number of claim blocks transferred.
+        PlayerData playerData = plugin.getDataStore().getPlayerData(source);
+        PlayerData receiverData = plugin.getDataStore().getPlayerData(target);
+        if (playerData != null && receiverData != null) {
+            int xferamount = Math.min(playerData.getAccruedClaimBlocks(), desiredAmount);
+            playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() - xferamount);
+            receiverData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + xferamount);
+            return xferamount;
+        }
+        return 0;
+    }
+
 }
