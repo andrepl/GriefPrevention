@@ -41,4 +41,6 @@ public interface IPersistence {
     // 'write' methods as well.
     public void writePlayerDataSync(PlayerData... players);
     public void writeClaimDataSync(Claim... claims);
+
+    public void deleteClaim(Claim claim);
 }

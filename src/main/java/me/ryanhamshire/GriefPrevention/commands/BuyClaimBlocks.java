@@ -27,7 +27,7 @@ public class BuyClaimBlocks extends BaseCommand {
         Player player = (Player) sender;
 
         //if economy is disabled, don't do anything
-        if (GriefPrevention.economy == null) {
+        if (!plugin.hasEconomy()) {
             plugin.sendMessage(sender, TextMode.ERROR, Messages.BuySellNotConfigured);
             return true;
         }
@@ -45,7 +45,7 @@ public class BuyClaimBlocks extends BaseCommand {
 
         //if no parameter, just tell player cost per block and balance
         if (args.size() != 1) {
-            plugin.sendMessage(player, TextMode.INFO, Messages.BlockPurchaseCost, String.valueOf(plugin.configuration.getClaimBlocksPurchaseCost()), String.valueOf(GriefPrevention.economy.getBalance(player.getName())));
+            plugin.sendMessage(player, TextMode.INFO, Messages.BlockPurchaseCost, String.valueOf(plugin.configuration.getClaimBlocksPurchaseCost()), String.valueOf(plugin.getEconomy().getBalance(player.getName())));
             return false;
         } else {
             //determine max purchasable blocks
@@ -76,7 +76,7 @@ public class BuyClaimBlocks extends BaseCommand {
             }
 
             //if the player can't afford his purchase, send error message
-            double balance = plugin.economy.getBalance(player.getName());
+            double balance = plugin.getEconomy().getBalance(player.getName());
             double totalCost = blockCount * plugin.configuration.getClaimBlocksPurchaseCost();
             if (totalCost > balance) {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.InsufficientFunds, String.valueOf(totalCost), String.valueOf(balance));
@@ -84,7 +84,7 @@ public class BuyClaimBlocks extends BaseCommand {
             //otherwise carry out transaction
             else {
                 //withdraw cost
-                plugin.economy.withdrawPlayer(player.getName(), totalCost);
+                plugin.getEconomy().withdrawPlayer(player.getName(), totalCost);
 
                 //add blocks
                 playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + blockCount);

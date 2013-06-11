@@ -27,7 +27,7 @@ public class SellClaimBlocks extends BaseCommand {
         Player player = (Player) sender;
 
         //if economy is disabled, don't do anything
-        if (GriefPrevention.economy == null) {
+        if (!plugin.hasEconomy()) {
             plugin.sendMessage(player, TextMode.ERROR, Messages.BuySellNotConfigured);
             return true;
         }
@@ -71,7 +71,7 @@ public class SellClaimBlocks extends BaseCommand {
         } else {
             //compute value and deposit it
             double totalValue = blockCount * plugin.configuration.getClaimBlocksSellValue();
-            plugin.economy.depositPlayer(player.getName(), totalValue);
+            plugin.getEconomy().depositPlayer(player.getName(), totalValue);
 
             //subtract blocks
             playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks()-blockCount);

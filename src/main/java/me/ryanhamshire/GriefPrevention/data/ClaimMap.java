@@ -79,6 +79,12 @@ public class ClaimMap {
                     }
                 }
             }
+            if (claim.getOwnerName() != "") {
+                HashSet<UUID> uuids = byOwner.get(claim.getOwnerName());
+                if (uuids != null) {
+                    uuids.remove(claim.getId());
+                }
+            }
             // Remove children
             for (Claim childClaim: claim.getChildren()) {
                 claim.setInDataStore(false);

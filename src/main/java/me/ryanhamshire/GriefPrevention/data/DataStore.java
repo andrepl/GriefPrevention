@@ -25,6 +25,7 @@ import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.persistence.FileSystemPersistence;
 import me.ryanhamshire.GriefPrevention.data.persistence.IPersistence;
 import me.ryanhamshire.GriefPrevention.events.ClaimCreatedEvent;
+import me.ryanhamshire.GriefPrevention.events.ClaimDeletedEvent;
 import me.ryanhamshire.GriefPrevention.events.ClaimResizeEvent;
 import me.ryanhamshire.GriefPrevention.exceptions.ClaimOwnershipException;
 import org.bukkit.Bukkit;
@@ -360,8 +361,23 @@ public class DataStore {
     }
 
     public boolean deleteClaim(Claim claim, Player player, boolean callEvent) {
-        //TODO
-        return false;
+        //fire the delete Claim event.
+        if (callEvent) {
+            ClaimDeletedEvent ev = new ClaimDeletedEvent(claim, player);
+            Bukkit.getPluginManager().callEvent(ev);
+            if(ev.isCancelled()) {
+                return false;
+            }
+        }
+        claims.remove(claim);
+        persistence.deleteClaim(claim);
+        //update player data, except for administrative claims, which have no owner
+        if (!claim.isAdminClaim()) {
+            PlayerData ownerData = this.getPlayerData(claim.getOwnerName());
+            ownerData.getClaims().remove(claim);
+            this.savePlayerData(claim.getOwnerName(), ownerData);
+        }
+        return true;
     }
 
     public UUID[] getTopLevelClaimIDs() {
@@ -372,8 +388,23 @@ public class DataStore {
         return claims.size();
     }
 
-    public void extendClaim(Claim claim, int i) {
+    public void extendClaim(Claim claim, int newDepth) {
+        WorldConfig wc = plugin.getWorldCfg(claim.getLesserBoundaryCorner().getWorld());
 
+        if(newDepth < wc.getClaimsMaxDepth()) newDepth = wc.getClaimsMaxDepth();
+
+        if(claim.getParent() != null){
+            claim = claim.getParent();
+        }
+
+        claim.getLesserBoundaryCorner().setY(newDepth);
+        claim.getGreaterBoundaryCorner().setY(newDepth);
+
+        for (Claim child: claim.getChildren()) {
+            child.getLesserBoundaryCorner().setY(newDepth);
+            child.getGreaterBoundaryCorner().setY(newDepth);
+        }
+        saveClaim(claim);
     }
 
     /**

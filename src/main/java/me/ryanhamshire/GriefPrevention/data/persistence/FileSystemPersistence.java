@@ -252,6 +252,14 @@ public class FileSystemPersistence implements IPersistence {
         }
     }
 
+    @Override
+    public void deleteClaim(Claim claim) {
+        try {
+            File claimFile = getClaimDataFile(claim.getId().toString(), false);
+            claimFile.delete();
+        } catch (DatastoreException e) {}
+    }
+
 
     /**
      * get a File pointing to the location on disk where player/group data should be stored.

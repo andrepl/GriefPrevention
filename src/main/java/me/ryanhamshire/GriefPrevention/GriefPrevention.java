@@ -67,13 +67,10 @@ public class GriefPrevention extends JavaPlugin {
     private DataStore dataStore;
 
     // reference to the economy plugin, if economy integration is enabled
-    public static Economy economy = null;
+    private Economy economy = null;
 
     // how far away to search from a tree trunk for its branch blocks
     public static final int TREE_RADIUS = 5;
-
-    // how long to wait before deciding a player is staying online or staying offline, for notification messages
-    public static final int NOTIFICATION_SECONDS = 20;
 
     private CommandHandler commandHandler;
     
@@ -165,7 +162,7 @@ public class GriefPrevention extends JavaPlugin {
             getLogger().info("Vault loaded successfully!");
             // ask Vault to hook into an economy plugin
             if (economyProvider != null) {
-                GriefPrevention.economy = economyProvider.getProvider();
+                economy = economyProvider.getProvider();
             } else {
                 getLogger().info("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
             }
@@ -435,6 +432,14 @@ public class GriefPrevention extends JavaPlugin {
         if (configuration.isDebugMode()) {
             getLogger().info(s);
         }
+    }
+
+    public Economy getEconomy() {
+        return economy;
+    }
+
+    public boolean hasEconomy() {
+        return economy != null;
     }
 
     public FlagManager getFlagManager() {

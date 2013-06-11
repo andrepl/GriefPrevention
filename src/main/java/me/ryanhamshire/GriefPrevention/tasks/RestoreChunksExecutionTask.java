@@ -16,7 +16,6 @@ public class RestoreChunksExecutionTask implements Runnable {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         if (chunksregen == null) return;
         for (Chunk iterate : chunksregen) {
             iterate.getWorld().regenerateChunk(iterate.getX(), iterate.getZ());
