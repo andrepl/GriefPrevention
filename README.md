@@ -38,8 +38,30 @@ What's Planned?
  - more command consolidation
  - Suggestions welcome, but quite possibly ignored.
 
+
 API Usage
 ---------
 
 It's still early days, there is no documentation, but there is a plugin which uses the api to add 2 new flags, as well as custom entry/exit messges.
 http://github.com/andrepl/GPExtras/
+
+
+Development Builds
+------------------
+
+Development builds are available at http://mcgitlab.norcode.com:8081/job/GriefPreventionTNG/ 
+
+Please only use these for non-production servers. The data formats may still change and backwards compatibility is not guaranteed.
+
+
+Bugs
+----
+
+Please report all bugs on the [Github Issue Tracker](https://github.com/andrepl/GriefPreventionTNG/issues)
+
+
+Known Issues
+------------
+
+Grief Prevention TNG is *NOT* compatible with ClaimControl, GPFlags, GPRealEstate or any other plugins meant to work with the original Grief Prevention plugin.
+
