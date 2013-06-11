@@ -14,6 +14,13 @@
         <project.devurl>http://dev.bukkit.org/server-mods/grief-prevention</project.devurl>
         <project.softdepends>[Vault, Multiverse-Core, My Worlds, MystCraft, Transporter]</project.softdepends>
     </properties>
+    <distributionManagement>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Staging Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <build>
         <resources>
             <resource>
