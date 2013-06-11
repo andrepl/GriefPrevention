@@ -35,27 +35,32 @@ import java.util.*;
 // runs every 1 minute in the main thread
 public class CleanupUnusedClaimsTask implements Runnable {
 
+    GriefPrevention plugin;
     LinkedList<UUID> claimIds = new LinkedList<UUID>();
     public CleanupUnusedClaimsTask() {}
 
+    public CleanupUnusedClaimsTask(GriefPrevention plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public void run() {
-        if (GriefPrevention.instance.dataStore.claimCount() == 0) return;
+        if (plugin.dataStore.claimCount() == 0) return;
         if (this.claimIds.isEmpty()) {
             // Get a list of top level claim id's and shuffle it.
-            claimIds = new LinkedList<UUID>(Arrays.asList(GriefPrevention.instance.dataStore.getTopLevelClaimIDs()));
+            claimIds = new LinkedList<UUID>(Arrays.asList(plugin.dataStore.getTopLevelClaimIDs()));
             Collections.shuffle(claimIds);
             return;
         }
-        Claim claim = GriefPrevention.instance.dataStore.getClaim(claimIds.pop());
+        Claim claim = plugin.dataStore.getClaim(claimIds.pop());
         // skip administrative claims
         if (claim.isAdminClaim()) return;
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(claim.getLesserBoundaryCorner().getWorld());
+        WorldConfig wc = plugin.getWorldCfg(claim.getLesserBoundaryCorner().getWorld());
         // track whether we do any important work which would require cleanup afterward
         boolean cleanupChunks = false;
 
         // get data for the player, especially last login timestamp
-        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(claim.getOwnerName());
+        PlayerData playerData = plugin.dataStore.getPlayerData(claim.getOwnerName());
 
         // determine area of the default chest claim
         int areaOfDefaultClaim = 0;
@@ -73,12 +78,12 @@ public class CleanupUnusedClaimsTask implements Runnable {
             // if that's a chest claim and those are set to expire
             if (claim.getArea() <= areaOfDefaultClaim && wc.getChestClaimExpirationDays() > 0) {
                 claim.removeSurfaceFluids(null);
-                GriefPrevention.instance.dataStore.deleteClaim(claim, null, true);
+                plugin.dataStore.deleteClaim(claim, null, true);
                 cleanupChunks = true;
 
                 // if configured to do so, restore the land to natural
                 if (wc.getClaimsAutoNatureRestoration()) {
-                    GriefPrevention.instance.restoreClaim(claim, 0);
+                    plugin.restoreClaim(claim, 0);
                 }
 
                 GriefPrevention.addLogEntry(" " + claim.getOwnerName() + "'s new player claim expired.");
@@ -98,13 +103,13 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 }
 
                 // delete them
-                GriefPrevention.instance.dataStore.deleteClaimsForPlayer(claim.getOwnerName(), true, false);
+                plugin.dataStore.deleteClaimsForPlayer(claim.getOwnerName(), true, false);
                 GriefPrevention.addLogEntry(" All of " + claim.getOwnerName() + "'s claims have expired. Removing all but the locked claims.");
 
                 for (int i = 0; i < claims.size(); i++) {
                     // if configured to do so, restore the land to natural
                     if (wc.getClaimsAutoNatureRestoration()) {
-                        GriefPrevention.instance.restoreClaim(claims.get(i), 0);
+                        plugin.restoreClaim(claims.get(i), 0);
                         cleanupChunks = true;
                     }
                 }
@@ -114,7 +119,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
             Calendar earliestAllowedLoginDate = Calendar.getInstance();
             earliestAllowedLoginDate.add(Calendar.DATE, -wc.getUnusedClaimExpirationDays());
             boolean needsInvestmentScan = earliestAllowedLoginDate.getTime().after(playerData.getLastLogin());
-            boolean creativerules = GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner());
+            boolean creativerules = plugin.creativeRulesApply(claim.getLesserBoundaryCorner());
             boolean sizelimitreached = (creativerules && claim.getWidth() > wc.getClaimCleanupMaximumSize());
 
 
@@ -133,7 +138,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 // in creative mode, a build which is almost entirely lava above sea level will be automatically removed, even if the owner is an active player
                 // lava above the surface deducts 10 points per block from the investment score
                 // so 500 blocks of lava without anything built to offset all that potential mess would be cleaned up automatically
-                if (GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner()) && investmentScore < -5000) {
+                if (plugin.creativeRulesApply(claim.getLesserBoundaryCorner()) && investmentScore < -5000) {
                     removeClaim = true;
                 }
 
@@ -143,12 +148,12 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 }
 
                 if (removeClaim) {
-                    GriefPrevention.instance.dataStore.deleteClaim(claim, null, true);
+                    plugin.dataStore.deleteClaim(claim, null, true);
                     GriefPrevention.addLogEntry("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
 
                     // if configured to do so, restore the claim area to natural state
                     if (wc.getClaimsAutoNatureRestoration()) {
-                        GriefPrevention.instance.restoreClaim(claim, 0);
+                        plugin.restoreClaim(claim, 0);
                     }
                 }
             }

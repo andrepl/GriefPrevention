@@ -20,7 +20,7 @@ public class BuyClaimBlocks extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
 
@@ -28,24 +28,24 @@ public class BuyClaimBlocks extends BaseCommand {
 
         //if economy is disabled, don't do anything
         if (GriefPrevention.economy == null) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.BuySellNotConfigured);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.BuySellNotConfigured);
             return true;
         }
 
         if (!player.hasPermission("griefprevention.buysellclaimblocks")) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoPermissionForCommand);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionForCommand);
             return true;
         }
 
         //if purchase disabled, send error message
         if (plugin.configuration.getClaimBlocksPurchaseCost() == 0) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.OnlySellBlocks);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.OnlySellBlocks);
             return true;
         }
 
         //if no parameter, just tell player cost per block and balance
         if (args.size() != 1) {
-            GriefPrevention.sendMessage(player, TextMode.INFO, Messages.BlockPurchaseCost, String.valueOf(plugin.configuration.getClaimBlocksPurchaseCost()), String.valueOf(GriefPrevention.economy.getBalance(player.getName())));
+            plugin.sendMessage(player, TextMode.INFO, Messages.BlockPurchaseCost, String.valueOf(plugin.configuration.getClaimBlocksPurchaseCost()), String.valueOf(GriefPrevention.economy.getBalance(player.getName())));
             return false;
         } else {
             //determine max purchasable blocks
@@ -54,7 +54,7 @@ public class BuyClaimBlocks extends BaseCommand {
 
             //if the player is at his max, tell him so
             if (maxPurchasable <= 0) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClaimBlockLimit);
+                plugin.sendMessage(player, TextMode.ERROR, Messages.ClaimBlockLimit);
                 return true;
             }
 
@@ -79,7 +79,7 @@ public class BuyClaimBlocks extends BaseCommand {
             double balance = plugin.economy.getBalance(player.getName());
             double totalCost = blockCount * plugin.configuration.getClaimBlocksPurchaseCost();
             if (totalCost > balance) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.InsufficientFunds, String.valueOf(totalCost), String.valueOf(balance));
+                plugin.sendMessage(player, TextMode.ERROR, Messages.InsufficientFunds, String.valueOf(totalCost), String.valueOf(balance));
             }
             //otherwise carry out transaction
             else {
@@ -91,7 +91,7 @@ public class BuyClaimBlocks extends BaseCommand {
                 plugin.dataStore.savePlayerData(player.getName(), playerData);
 
                 //inform player
-                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.PurchaseConfirmation, String.valueOf(totalCost), String.valueOf(playerData.getRemainingClaimBlocks()));
+                plugin.sendMessage(player, TextMode.SUCCESS, Messages.PurchaseConfirmation, String.valueOf(totalCost), String.valueOf(playerData.getRemainingClaimBlocks()));
             }
             return true;
         }

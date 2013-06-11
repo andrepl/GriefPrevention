@@ -99,7 +99,7 @@ public class CommandHandler implements TabExecutor {
         }
         BaseCommand bc = commandMap.get(params.peek().toLowerCase());
         if (bc == null) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.UnknownCommand, params.peek());
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.UnknownCommand, params.peek());
             return true;
         }
         String newLabel = commandLabel + " " + params.pop();
@@ -137,6 +137,10 @@ public class CommandHandler implements TabExecutor {
             }
         }
         return null;
+    }
+
+    public BaseCommand getCommand(String command) {
+        return commandMap.get(command);
     }
 
     public void registerCommand(BaseCommand baseCommand, String name) {

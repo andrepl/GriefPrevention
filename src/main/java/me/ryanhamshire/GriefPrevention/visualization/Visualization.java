@@ -34,23 +34,24 @@ public class Visualization {
     public ArrayList<VisualizationElement> elements = new ArrayList<VisualizationElement>();
 
    // sends a visualization to a player
-    public static void Apply(Player player, Visualization visualization) {
-        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
+    public static void apply(GriefPrevention plugin, Player player, Visualization visualization) {
 
-       // if he has any current visualization, clear it first
+        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+
+        // if he has any current visualization, clear it first
         if (playerData.getCurrentVisualization() != null) {
-            Visualization.Revert(player);
+            Visualization.Revert(plugin, player);
         }
 
-       // if he's online, create a task to send him the visualization in about half a second
+        // if he's online, create a task to send him the visualization in about half a second
         if (player.isOnline()) {
-            GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, new VisualizationApplicationTask(player, playerData, visualization), 10L);
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new VisualizationApplicationTask(player, playerData, visualization), 10L);
         }
     }
 
-   // reverts a visualization by sending another block change list, this time with the real world block values
-    public static void Revert(Player player) {
-        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
+    // reverts a visualization by sending another block change list, this time with the real world block values
+    public static void Revert(GriefPrevention plugin, Player player) {
+        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
 
         Visualization visualization = playerData.getCurrentVisualization();
 
@@ -67,30 +68,30 @@ public class Visualization {
         }
     }
 
-   // convenience method to build a visualization from a claim
-   // visualizationType determines the style (gold blocks, silver, red, diamond, etc)
+    // convenience method to build a visualization from a claim
+    // visualizationType determines the style (gold blocks, silver, red, diamond, etc)
     public static Visualization FromClaim(Claim claim, int height, VisualizationType visualizationType, Location locality) {
-       // visualize only top level claims
+        // visualize only top level claims
         if (claim.getParent() != null) {
             return FromClaim(claim.getParent(), height, visualizationType, locality);
         }
 
         Visualization visualization = new Visualization();
 
-       // add subdivisions first
+        // add subdivisions first
         for (int i = 0; i < claim.getChildren().size(); i++) {
             visualization.addClaimElements(claim.getChildren().get(i), height, VisualizationType.SUBDIVISION, locality);
         }
 
-       // add top level last so that it takes precedence (it shows on top when the child claim boundaries overlap with its boundaries)
+        // add top level last so that it takes precedence (it shows on top when the child claim boundaries overlap with its boundaries)
         visualization.addClaimElements(claim, height, visualizationType, locality);
 
         return visualization;
     }
 
-   // adds a claim's visualization to the current visualization
-   // handy for combining several visualizations together, as when visualization a top level claim with several subdivisions inside
-   // locality is a performance consideration.  only create visualization blocks for around 100 blocks of the locality
+    // adds a claim's visualization to the current visualization
+    // handy for combining several visualizations together, as when visualization a top level claim with several subdivisions inside
+    // locality is a performance consideration.  only create visualization blocks for around 100 blocks of the locality
     private void addClaimElements(Claim claim, int height, VisualizationType visualizationType, Location locality) {
         Location smallXsmallZ = claim.getLesserBoundaryCorner();
         Location bigXbigZ = claim.getGreaterBoundaryCorner();

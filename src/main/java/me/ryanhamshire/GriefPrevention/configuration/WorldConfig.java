@@ -23,6 +23,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class WorldConfig {
 
+    private GriefPrevention plugin;
+    
 	// Explosion and similar effect information.
 	// we've moved this to another class for brevity as well as to make it easier to deal with and more flexible.
 	// you know- all the standard reasons for moving things into a class. I'll shut up now and get to writing the applicable code.
@@ -100,6 +102,7 @@ public class WorldConfig {
     private int configClaimsWildernessBlocksDelay;                   	// the number of non-trash blocks that can be placed before warning.  0 disables the display entirely.
     private int configClaimsPerPlayerClaimLimit;                        // maximum number of claims a user can have.
     private double configClaimsAbandonReturnRatio;                // return ratio when abandoning a claim- .80 will result in players getting 80% of the used claim blocks back.
+    
     private String WorldName;
     private List<Material> configTrashBlocks = null;
     private List<String> configModsIgnoreClaimsAccounts;			// list of player names which ALWAYS ignore claims
@@ -214,8 +217,9 @@ public class WorldConfig {
 	public String getWorldName() { return WorldName; }
 
 	// constructor accepts a Name and a FileConfiguration.
-	public WorldConfig(String pName,FileConfiguration config,FileConfiguration outConfig) {
+	public WorldConfig(GriefPrevention plugin, String pName, FileConfiguration config, FileConfiguration outConfig) {
 
+        this.plugin = plugin;
 		// determine defaults based on the world itself (isCreative, isPvP)
 		boolean isCreative=false,isPvP=false;
 		WorldName = pName;
@@ -231,61 +235,61 @@ public class WorldConfig {
 		// read in the data for TNT explosions and Golem/Wither placements.
 
 		this.creeperExplosionBehaviour = new ClaimBehaviourData("Creeper Explosions",config,outConfig,"GriefPrevention.CreeperExplosions",
-				ClaimBehaviourData.getOutsideClaims("Creeper Explosions"));
+				ClaimBehaviourData.getOutsideClaims(plugin, "Creeper Explosions"));
 
 		this.witherExplosionBehaviour = new ClaimBehaviourData("Wither Explosions",config,outConfig,"GriefPrevention.WitherExplosions",
-				ClaimBehaviourData.getOutsideClaims("Wither Explosions"));
+				ClaimBehaviourData.getOutsideClaims(plugin, "Wither Explosions"));
 
 		this.witherEatBehaviour = new ClaimBehaviourData("Wither Eating",config,outConfig,"GriefPrevention.WitherEating",
-				ClaimBehaviourData.getOutsideClaims("Wither Eating"));
+				ClaimBehaviourData.getOutsideClaims(plugin, "Wither Eating"));
 
 		this.tntExplosionBehaviour = new ClaimBehaviourData("TNT Explosions",config,outConfig,"GriefPrevention.TNTExplosions",
-				ClaimBehaviourData.getOutsideClaims("TNTExplosions"));
+				ClaimBehaviourData.getOutsideClaims(plugin, "TNTExplosions"));
 
 		this.otherExplosionBehaviour = new ClaimBehaviourData("Other Explosions",config,outConfig,"GriefPrevention.OtherExplosions",
-				ClaimBehaviourData.getOutsideClaims("Other Explosions"));
+				ClaimBehaviourData.getOutsideClaims(plugin, "Other Explosions"));
 
 		this.waterBucketBehaviour = new ClaimBehaviourData("Water Placement",config,outConfig,"GriefPrevention.WaterBuckets",
-		        ClaimBehaviourData.getAboveSeaLevel("Water Placement"));
+		        ClaimBehaviourData.getAboveSeaLevel(plugin, "Water Placement"));
 
 		this.lavaBucketBehaviour = new ClaimBehaviourData("Lava Placement",config,outConfig,"GriefPrevention.LavaBuckets",
-				ClaimBehaviourData.getAboveSeaLevel("Lava Placement"));
+				ClaimBehaviourData.getAboveSeaLevel(plugin, "Lava Placement"));
 
 		// golem spawn rules.
 		this.ironGolemSpawnBehaviour = new ClaimBehaviourData("Iron Golem Spawning",config,outConfig,"GriefPrevention.BuildIronGolem",
-				ClaimBehaviourData.getInsideClaims("Iron Golem Spawning"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Iron Golem Spawning"));
 
 		this.snowGolemSpawnBehaviour = new ClaimBehaviourData("Snow Golem Spawning",config,outConfig,"GriefPrevention.BuildSnowGolem",
-				ClaimBehaviourData.getInsideClaims("Snow Golem Spawning"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Snow Golem Spawning"));
 
 
 		this.witherSpawnBehaviour = new ClaimBehaviourData("Wither Spawning",config,outConfig,"GriefPrevention.BuildWither",
-				ClaimBehaviourData.getInsideClaims("Wither Spawning"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Wither Spawning"));
 
 		trashBlockPlacementBehaviour = new ClaimBehaviourData("Trash Block Placement",config,outConfig,"GriefPrevention.TrashBlockPlacementRules",
-				ClaimBehaviourData.getOutsideClaims("Trash Block Placement"));
+				ClaimBehaviourData.getOutsideClaims(plugin, "Trash Block Placement"));
 
 		villagerTrades = new ClaimBehaviourData("Villager Trading",config,outConfig,"GriefPrevention.Claims.VillagerTrading",
-				ClaimBehaviourData.getInsideClaims("Villager Trading"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Villager Trading"));
 
 		this.environmentalVehicleDamage = new ClaimBehaviourData("Environmental Vehicle Damage",config,outConfig,"GriefPrevention.Claims.EnvironmentalVehicleDamage",
-				ClaimBehaviourData.getOutsideClaims("Environmental Vehicle Damage"));
+				ClaimBehaviourData.getOutsideClaims(plugin, "Environmental Vehicle Damage"));
 
 
 		this.zombieDoorBreaking = new ClaimBehaviourData("Zombie Door Breaking",config,outConfig,"GriefPrevention.ZombieDoorBreaking",
-				ClaimBehaviourData.getNone("Zombie Door Breaking"));
+				ClaimBehaviourData.getNone(plugin, "Zombie Door Breaking"));
 
 		sheepShearingRules = new ClaimBehaviourData("Sheep Shearing",config,outConfig,"GriefPrevention.SheepShearing",
-				ClaimBehaviourData.getInsideClaims("Sheep Shearing"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Sheep Shearing"));
 
 		sheepDyeing = new ClaimBehaviourData("Sheep Dyeing",config,outConfig,"GriefPrevention.SheepDyeing",
-				ClaimBehaviourData.getInsideClaims("Sheep Dyeing"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Sheep Dyeing"));
 
 		this.bonemealGrass = new ClaimBehaviourData("Bonemeal",config,outConfig,"GriefPrevention.BonemealGrass",
-				ClaimBehaviourData.getInsideClaims("Bonemeal"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Bonemeal"));
 
 		this.playerTrampleRules = new ClaimBehaviourData("Crop Trampling",config,outConfig,"GriefPrevention.PlayerCropTrample",
-				ClaimBehaviourData.getInsideClaims("Crop Trampling"));
+				ClaimBehaviourData.getInsideClaims(plugin, "Crop Trampling"));
 
 		// read trash blocks.
 		// Cobblestone,Torch,Dirt,Sapling,Gravel,Sand,TNT,Workbench
@@ -591,23 +595,24 @@ public class WorldConfig {
         // Task startup.
         // if we have a blockaccrued value and the ClaimTask for delivering claim blocks is null,
         // create and schedule it to run.
-        if (configClaimsBlocksAccruedPerHour > 0 && GriefPrevention.instance.claimTask == null) {
-            GriefPrevention.instance.claimTask = new DeliverClaimBlocksTask();
-            GriefPrevention.instance.getServer().getScheduler().scheduleSyncRepeatingTask(GriefPrevention.instance,
-                         GriefPrevention.instance.claimTask, 60L*20*2, 60L*20*5);
+        if (configClaimsBlocksAccruedPerHour > 0 && plugin.claimTask == null) {
+            plugin.claimTask = new DeliverClaimBlocksTask(plugin);
+            plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin,
+                         plugin.claimTask, 60L*20*2, 60L*20*5);
         }
 
         //similar logic for ClaimCleanup: if claim cleanup is enabled and there isn't a cleanup task, start it.
-        if (this.getClaimCleanupEnabled() && GriefPrevention.instance.cleanupTask==null) {
-            CleanupUnusedClaimsTask task2 = new CleanupUnusedClaimsTask();
-            GriefPrevention.instance.getServer().getScheduler().scheduleSyncRepeatingTask(GriefPrevention.instance, task2, 20L * 60 * 2, 20L * 60 * 5);
+        if (this.getClaimCleanupEnabled() && plugin.cleanupTask==null) {
+            CleanupUnusedClaimsTask task2 = new CleanupUnusedClaimsTask(plugin);
+            plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, task2, 20L * 60 * 2, 20L * 60 * 5);
         }
 	}
 
-	public WorldConfig(String worldname) {
-		this(worldname,new YamlConfiguration(),ConfigData.createTargetConfiguration(worldname) );
+	public WorldConfig(GriefPrevention plugin, String worldname) {
+		this (plugin, worldname, new YamlConfiguration(), ConfigData.createTargetConfiguration(worldname));
 	}
-	public WorldConfig(World grabfor) {
-		this(grabfor.getName());
+
+	public WorldConfig(GriefPrevention plugin, World world) {
+		this(plugin, world.getName());
 	}
 }

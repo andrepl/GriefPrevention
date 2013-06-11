@@ -34,7 +34,7 @@ public class RestoreNatureProcessingTask implements Runnable {
     // world information captured from the main thread
     // will be updated and sent back to main thread to be applied to the world
     private BlockSnapshot[][][] snapshots;
-
+    private GriefPrevention plugin;
     // other information collected from the main thread.
     // not to be updated, only to be passed back to main thread to provide some context about the operation
     private int miny;
@@ -51,7 +51,8 @@ public class RestoreNatureProcessingTask implements Runnable {
     private ArrayList<Integer> notAllowedToHang;    // natural blocks which don't naturally hang in their air
     private ArrayList<Integer> playerBlocks;        // a "complete" list of player-placed blocks.  MUST BE MAINTAINED as patches introduce more
 
-    public RestoreNatureProcessingTask(BlockSnapshot[][][] snapshots, int miny, Environment environment, Biome biome, Location lesserBoundaryCorner, Location greaterBoundaryCorner, int seaLevel, boolean aggressiveMode, boolean creativeMode, Player player) {
+    public RestoreNatureProcessingTask(GriefPrevention plugin, BlockSnapshot[][][] snapshots, int miny, Environment environment, Biome biome, Location lesserBoundaryCorner, Location greaterBoundaryCorner, int seaLevel, boolean aggressiveMode, boolean creativeMode, Player player) {
+        this.plugin = plugin;
         this.snapshots = snapshots;
         this.miny = miny;
         if (this.miny < 0) this.miny = 0;
@@ -144,8 +145,8 @@ public class RestoreNatureProcessingTask implements Runnable {
         this.removePlayerLeaves();
 
         // schedule main thread task to apply the result to the world
-        RestoreNatureExecutionTask task = new RestoreNatureExecutionTask(this.snapshots, this.miny, this.lesserBoundaryCorner, this.greaterBoundaryCorner, this.player);
-        GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task);
+        RestoreNatureExecutionTask task = new RestoreNatureExecutionTask(plugin, this.snapshots, this.miny, this.lesserBoundaryCorner, this.greaterBoundaryCorner, this.player);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task);
     }
 
     private void removePlayerLeaves() {

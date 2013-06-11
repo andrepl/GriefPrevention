@@ -28,7 +28,7 @@ public class RestoreNature extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command cmd, String label, LinkedList<String> args) {
         //change shovel mode
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
 
@@ -50,10 +50,10 @@ public class RestoreNature extends BaseCommand {
 
         switch (newMode) {
             case RESTORE_NATURE:
-                GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.RestoreNatureActivate);
+                plugin.sendMessage(player, TextMode.INSTR, Messages.RestoreNatureActivate);
                 break;
             case RESTORE_NATURE_AGGRESSIVE:
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.RestoreNatureAggressiveActivate);
+                plugin.sendMessage(player, TextMode.WARN, Messages.RestoreNatureAggressiveActivate);
                 break;
             case RESTORE_NATURE_FILL:
                 //set radius based on arguments
@@ -65,7 +65,7 @@ public class RestoreNature extends BaseCommand {
                     }
                 }
                 if (playerData.getFillRadius() < 0) playerData.setFillRadius(2);
-                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.FillModeActive, String.valueOf(playerData.getFillRadius()));
+                plugin.sendMessage(player, TextMode.SUCCESS, Messages.FillModeActive, String.valueOf(playerData.getFillRadius()));
                 break;
         }
         playerData.setShovelMode(newMode);

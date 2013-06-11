@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
@@ -27,10 +26,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class ConfigData {
 
+    private GriefPrevention plugin;
+
     private String templateFile;
     private boolean debugMode;
 
-	private HashMap<String, WorldConfig> WorldCfg = new HashMap<String, WorldConfig>();
+	private HashMap<String, WorldConfig> worldCfg = new HashMap<String, WorldConfig>();
     private HashMap<TextMode, ChatColor> colors = new HashMap<TextMode, ChatColor>();
 
     private PlayerGroups playerGroups;
@@ -38,7 +39,7 @@ public class ConfigData {
     private double claimBlocksSellValue = 0.0;
     private int maxAccruedBlocks = 5000;
     private int initialBlocks = 100;
-
+    private static File defaultConfigFolder;
     private String databaseUrl;
     private String databaseUserName;
     private String databasePassword;
@@ -49,9 +50,10 @@ public class ConfigData {
      * @param coreConfig Configuration (config.yml) source file that contains core configuration information.
      * @param outConfig Target file to save back to.
      */
-    public ConfigData(FileConfiguration coreConfig, FileConfiguration outConfig) {
+    public ConfigData(GriefPrevention plugin, FileConfiguration coreConfig, FileConfiguration outConfig) {
         // core configuration is configuration that is Global.
-
+        this.plugin = plugin;
+        ConfigData.defaultConfigFolder =  new File(plugin.getDataFolder(), "WorldConfigs");
         this.debugMode = coreConfig.getBoolean("GriefPrevention.DebugMode", false);
         outConfig.set("GriefPrevention.DebugMode", this.debugMode);
 
@@ -90,8 +92,7 @@ public class ConfigData {
 
         // we try to avoid these now. Normally the primary interest is the
         // GriefPrevention.WorldConfigFolder setting.
-        File defaultConfigFolder = new File(GriefPrevention.instance.getDataFolder(), "WorldConfigs");
-        File defaultTemplateFile = new File(defaultConfigFolder, "_template.cfg");
+        File defaultTemplateFile = new File(ConfigData.defaultConfigFolder, "_template.cfg");
 
         // Configurable template file.
         templateFile = coreConfig.getString("GriefPrevention.WorldConfig.TemplateFile", defaultTemplateFile.getPath());
@@ -113,7 +114,7 @@ public class ConfigData {
         File configLocation = new File(configFolder);
         if (!configLocation.exists()) {
             // if not found, create the directory.
-            GriefPrevention.instance.getLogger().log(Level.INFO, "mkdirs() on " + configLocation.getAbsolutePath());
+            plugin.getLogger().log(Level.INFO, "mkdirs() on " + configLocation.getAbsolutePath());
             configLocation.mkdirs();
         }
 
@@ -131,21 +132,21 @@ public class ConfigData {
                     FileConfiguration source = YamlConfiguration.loadConfiguration(new File(lookfile.getAbsolutePath()));
                     FileConfiguration target = new YamlConfiguration();
                     // load in the WorldConfig...
-                    WorldConfig wc = new WorldConfig(baseName, source, target);
+                    WorldConfig wc = new WorldConfig(plugin, baseName, source, target);
                     try {
                         target.save(lookfile);
                     } catch (IOException iex) {
-                        GriefPrevention.instance.getLogger().log(Level.SEVERE, "Failed to save to " + lookfile.getAbsolutePath());
+                        plugin.getLogger().log(Level.SEVERE, "Failed to save to " + lookfile.getAbsolutePath());
                     }
                 }
             }
         } else if (configLocation.exists() && configLocation.isFile()) {
-            GriefPrevention.instance.getLogger().log(Level.SEVERE, "World Configuration Folder found, but it's a File. Double-check your GriefPrevention configuration files, and try again.");
+            plugin.getLogger().log(Level.SEVERE, "World Configuration Folder found, but it's a File. Double-check your GriefPrevention configuration files, and try again.");
         }
     }
 
     public Map<String, WorldConfig> getWorldConfigs() {
-		return Collections.unmodifiableMap(WorldCfg);
+		return Collections.unmodifiableMap(worldCfg);
 	}
 
     public String getTemplateFile() {
@@ -154,7 +155,7 @@ public class ConfigData {
 
     public List<WorldConfig> getCreativeRulesConfigs() {
 		ArrayList<WorldConfig> buildList = new ArrayList<WorldConfig>();
-		for(WorldConfig wcon:WorldCfg.values()) {
+		for(WorldConfig wcon: worldCfg.values()) {
 			if(wcon.getCreativeRules()) {
                 buildList.add(wcon);
             }
@@ -177,28 +178,27 @@ public class ConfigData {
 		// print log message if the passed world is not currently loaded or present.
 		// it will still go ahead and try to load the configuration.
 		if((grabfor = Bukkit.getWorld(worldName))==null) {
-			GriefPrevention.instance.getLogger().log(Level.SEVERE, "invalid World:" + worldName);
+			plugin.getLogger().log(Level.SEVERE, "invalid World:" + worldName);
 		}
 		
 		// if it's not in the hashmap...
-		if(!WorldCfg.containsKey(worldName)) {
+		if(!worldCfg.containsKey(worldName)) {
 			// special code: it's possible a configuration might already exist for this file, so we'll
 			// check
-            File defaultConfigFolder = new File(GriefPrevention.instance.getDataFolder(), "WorldConfigs");
-			String checkyamlfile = new File(defaultConfigFolder, worldName + ".cfg").getPath();
+			String checkyamlfile = new File(ConfigData.defaultConfigFolder, worldName + ".cfg").getPath();
 			// if it exists...
 			if (new File(checkyamlfile).exists()) {
 				// attempt to load the configuration from the given file.
 				YamlConfiguration existingcfg = YamlConfiguration.loadConfiguration(new File(checkyamlfile));
 				YamlConfiguration outConfiguration = new YamlConfiguration();
 				// place it in the hashmap.
-				WorldCfg.put(worldName,new WorldConfig(worldName,existingcfg,outConfiguration));
+				worldCfg.put(worldName,new WorldConfig(plugin, worldName, existingcfg, outConfiguration));
 				// try to save it. this can error out for who knows what reason. If it does, we'll
 				// squirt the issue to the log.
 				try {
                     outConfiguration.save(new File(checkyamlfile));
                 } catch (IOException iex) {
-					GriefPrevention.instance.getLogger().log(Level.SEVERE,"Failed to save World Config for world " + worldName);
+					plugin.getLogger().log(Level.SEVERE,"Failed to save World Config for world " + worldName);
 				}
 			} else {
 				// if the file doesn't exist, then we will go ahead and create a new configuration.
@@ -207,19 +207,19 @@ public class ConfigData {
 				// Otherwise, we create a blank configuration.
 				FileConfiguration useSource = (new File(templateFile).exists() ? YamlConfiguration.loadConfiguration(new File(templateFile)) : new YamlConfiguration());
 				// The target save location.
-				FileConfiguration Target = new YamlConfiguration();
+				FileConfiguration target = new YamlConfiguration();
 				// place it in the hashmap.
-				WorldCfg.put(worldName, new WorldConfig(grabfor.getName(),useSource,Target));
+				worldCfg.put(worldName, new WorldConfig(plugin, grabfor.getName(), useSource, target));
 				try {
-					Target.save(new File(checkyamlfile));
+					target.save(new File(checkyamlfile));
 				}catch(IOException ioex) {
-					GriefPrevention.instance.getLogger().log(Level.SEVERE, "Failed to write world configuration to " + checkyamlfile);
+					plugin.getLogger().log(Level.SEVERE, "Failed to write world configuration to " + checkyamlfile);
 				}		
             }
 			// save target
         }
 		// after the above logic, we know it's in the hashmap, so return that.
-		return WorldCfg.get(worldName);
+		return worldCfg.get(worldName);
 	}
     
 	public static FileConfiguration createTargetConfiguration(String sName) {
@@ -232,8 +232,7 @@ public class ConfigData {
 	 * @return the path name at which this configuration file will be found if it exists.
 	 */
 	public static String getWorldConfigLocation(String sName) {
-		File cfgDir = new File(GriefPrevention.instance.getDataFolder(), "WorldConfigs");
-        return new File(cfgDir, sName + ".cfg").getPath();
+        return new File(defaultConfigFolder, sName + ".cfg").getPath();
 	}
 
     public ChatColor getColor(TextMode color) {

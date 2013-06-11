@@ -119,9 +119,9 @@ public class PlacementRules {
      * @param target
      * @return
      */
-    public boolean allow(Location target, Player player, boolean showMessages) {
+    public boolean allow(GriefPrevention plugin, Location target, Player player, boolean showMessages) {
         // TODO player and showMessages args were added upstream but do nothing. investigate
-        int seaLevelofWorld = GriefPrevention.instance.getWorldCfg(target.getWorld()).getSeaLevelOverride();
+        int seaLevelofWorld = plugin.getWorldCfg(target.getWorld()).getSeaLevelOverride();
         boolean result = (aboveSeaLevel.allowed() && (target.getBlockY() >= seaLevelofWorld)) ||
                 (belowSeaLevel.allowed() && (target.getBlockY() < seaLevelofWorld));
         return result;

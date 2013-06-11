@@ -35,27 +35,27 @@ public class ClaimsList extends BaseCommand {
         } else {
             otherPlayer = plugin.resolvePlayer(args.peek());
             if (otherPlayer == null) {
-                GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
+                plugin.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
                 return true;
             }
         }
 
         //otherwise if no permission to delve into another player's claims data
         if (!sender.getName().equals(otherPlayer.getName()) && !sender.hasPermission("griefprevention.deleteclaims")) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.ClaimsListNoPermission);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.ClaimsListNoPermission);
             return true;
         }
 
         //load the target player's data
         PlayerData playerData = plugin.dataStore.getPlayerData(otherPlayer.getName());
-        GriefPrevention.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
+        plugin.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
         for (int i = 0; i < playerData.getClaims().size(); i++) {
             Claim claim = playerData.getClaims().get(i);
-            GriefPrevention.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + plugin.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+            plugin.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + plugin.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
         }
 
         if (playerData.getClaims().size() > 0)
-            GriefPrevention.sendMessage(sender, TextMode.INSTR, "   =" + playerData.getRemainingClaimBlocks());
+            plugin.sendMessage(sender, TextMode.INSTR, "   =" + playerData.getRemainingClaimBlocks());
 
         return true;
 

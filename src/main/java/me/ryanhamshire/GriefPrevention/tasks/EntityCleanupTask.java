@@ -37,16 +37,18 @@ import java.util.UUID;
 // this main thread task revisits the location of a partially chopped tree from several minutes ago
 // if any part of the tree is still there and nothing else has been built in its place, remove the remaining parts
 public class EntityCleanupTask implements Runnable {
-    // where to start cleaning in the list of entities
-    private double percentageStart;
+    
+    private final GriefPrevention plugin;
+    private double percentageStart;   // where to start cleaning in the list of entities
 
-    public EntityCleanupTask(double percentageStart) {
+    public EntityCleanupTask(GriefPrevention plugin, double percentageStart) {
+        this.plugin = plugin;
         this.percentageStart = percentageStart;
     }
 
     @Override
     public void run() {
-        List<WorldConfig> worlds = GriefPrevention.instance.configuration.getCreativeRulesConfigs();
+        List<WorldConfig> worlds = plugin.configuration.getCreativeRulesConfigs();
 
         for (WorldConfig worldconfiguration : worlds) {
             World world = Bukkit.getWorld(worldconfiguration.getWorldName());
@@ -89,7 +91,7 @@ public class EntityCleanupTask implements Runnable {
 
                 // all non-player entities must be in claims
                 else if (!(entity instanceof Player)) {
-                    Claim claim = GriefPrevention.instance.dataStore.getClaimAt(entity.getLocation(), false, cachedClaim);
+                    Claim claim = plugin.dataStore.getClaimAt(entity.getLocation(), false, cachedClaim);
                     if (claim != null) {
                         cachedClaim = claim;
                     } else {
@@ -104,14 +106,14 @@ public class EntityCleanupTask implements Runnable {
         }
 
         // starting and stopping point.  each execution of the task scans 5% of the server's claims
-        UUID[] claims = GriefPrevention.instance.dataStore.getTopLevelClaimIDs();
+        UUID[] claims = plugin.dataStore.getTopLevelClaimIDs();
         int j = (int) (claims.length * this.percentageStart);
         int k = (int) (claims.length * (this.percentageStart + .05));
         for (; j < claims.length && j < k; j++) {
-            Claim claim = GriefPrevention.instance.dataStore.getClaim(claims[j]);
+            Claim claim = plugin.dataStore.getClaim(claims[j]);
 
             // if it's a creative mode claim
-            if (GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner())) {
+            if (plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
                 // check its entity count and remove any extras
                 claim.allowMoreEntities();
             }
@@ -124,7 +126,7 @@ public class EntityCleanupTask implements Runnable {
             // System.gc();  // clean up every hour
         }
 
-        EntityCleanupTask task = new EntityCleanupTask(nextRunPercentageStart);
-        GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, task, 20L * 60 * 1);
+        EntityCleanupTask task = new EntityCleanupTask(plugin, nextRunPercentageStart);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 20L * 60 * 1);
     }
 }

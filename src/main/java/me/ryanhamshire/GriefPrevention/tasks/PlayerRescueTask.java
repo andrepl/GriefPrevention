@@ -31,13 +31,14 @@ import java.util.Calendar;
 // related to the /trapped slash command
 // this does run in the main thread, so it's okay to make non-thread-safe calls
 public class PlayerRescueTask implements Runnable {
+    GriefPrevention plugin;
     // original location where /trapped was used
     private Location location;
-
     // player data
     private Player player;
 
-    public PlayerRescueTask(Player player, Location location) {
+    public PlayerRescueTask(GriefPrevention plugin, Player player, Location location) {
+        this.plugin = plugin;
         this.player = player;
         this.location = location;
     }
@@ -48,17 +49,17 @@ public class PlayerRescueTask implements Runnable {
         if (!player.isOnline()) return;
 
         // he no longer has a pending /trapped slash command, so he can try to use it again now
-        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
         playerData.setPendingTrapped(false);
 
         // if the player moved three or more blocks from where he used /trapped, admonish him and don't save him
         if (player.getLocation().distance(this.location) > 3) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.RescueAbortedMoved);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.RescueAbortedMoved);
             return;
         }
 
         // otherwise find a place to teleport him
-        Location destination = GriefPrevention.instance.ejectPlayer(this.player);
+        Location destination = plugin.ejectPlayer(this.player);
 
         // log entry, in case admins want to investigate the "trap"
         GriefPrevention.addLogEntry("Rescued trapped player " + player.getName() + " from " + GriefPrevention.getfriendlyLocationString(this.location) + " to " + GriefPrevention.getfriendlyLocationString(destination) + ".");

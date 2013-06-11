@@ -83,7 +83,7 @@ public class EntityEventHandler implements Listener {
 
         // don't allow the wither to break blocks, when the wither is determined, too expensive to constantly check for claimed blocks
         else if (event.getEntityType() == EntityType.WITHER && wc.getClaimsEnabled()) {
-            event.setCancelled(wc.getWitherEatBehaviour().allowed(event.getEntity().getLocation(), null).Denied());
+            event.setCancelled(wc.getWitherEatBehaviour().allowed(event.getEntity().getLocation(), null).denied());
         }
     }
 
@@ -91,7 +91,7 @@ public class EntityEventHandler implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onZombieBreakDoor(EntityBreakDoorEvent event) {
         WorldConfig wc = plugin.getWorldCfg(event.getEntity().getWorld());
-        if (!wc.getZombieDoorBreaking().allowed(event.getEntity().getLocation(), null).Allowed()) {
+        if (!wc.getZombieDoorBreaking().allowed(event.getEntity().getLocation(), null).allowed()) {
             event.setCancelled(true);
         }
     }
@@ -111,7 +111,7 @@ public class EntityEventHandler implements Listener {
                 if (claim != null) {
                     String noAccessReason = claim.allowAccess(shooter);
                     if (noAccessReason != null) {
-                        GriefPrevention.sendMessage(shooter, TextMode.ERROR, noAccessReason);
+                        plugin.sendMessage(shooter, TextMode.ERROR, noAccessReason);
                         event.setCancelled(true);
                     }
                 }
@@ -151,7 +151,7 @@ public class EntityEventHandler implements Listener {
             if (wc.getModsExplodableIds().contains(new MaterialInfo(block.getTypeId(), block.getData(), null)))
                 continue;
             // creative rules stop all explosions, regardless of the other settings.
-            if (wc.getCreativeRules() || (useBehaviour != null && useBehaviour.allowed(block.getLocation(), null).Denied())) {
+            if (wc.getCreativeRules() || (useBehaviour != null && useBehaviour.allowed(block.getLocation(), null).denied())) {
                 // if not allowed. remove it...
                 blocks.remove(i--);
             } else {
@@ -212,19 +212,19 @@ public class EntityEventHandler implements Listener {
 
         if (reason == SpawnReason.BUILD_WITHER) {
             // can we build a wither?
-            if (wc.getWitherSpawnBehaviour().allowed(entity.getLocation(), null).Denied()) {
+            if (wc.getWitherSpawnBehaviour().allowed(entity.getLocation(), null).denied()) {
                 event.setCancelled(true);
                 return;
             }
         } else if (reason == SpawnReason.BUILD_SNOWMAN) {
             // can we build a snowman?
-            if (wc.getSnowGolemSpawnBehaviour().allowed(entity.getLocation(), null).Denied()) {
+            if (wc.getSnowGolemSpawnBehaviour().allowed(entity.getLocation(), null).denied()) {
                 event.setCancelled(true);
                 return;
             }
         } else if (reason == SpawnReason.BUILD_IRONGOLEM) {
 
-            if (wc.getIronGolemSpawnBehaviour().allowed(entity.getLocation(), null).Denied()) {
+            if (wc.getIronGolemSpawnBehaviour().allowed(entity.getLocation(), null).denied()) {
                 event.setCancelled(true);
                 return;
             }
@@ -301,7 +301,7 @@ public class EntityEventHandler implements Listener {
         String noBuildReason = plugin.getBlockEventHandler().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.dataStore.getPlayerData(playerRemover.getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
-            GriefPrevention.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
+            plugin.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
         }
     }
 
@@ -314,7 +314,7 @@ public class EntityEventHandler implements Listener {
         String noBuildReason = plugin.getBlockEventHandler().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.dataStore.getPlayerData(event.getPlayer().getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
-            GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);
+            plugin.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);
             return;
         }
 
@@ -326,7 +326,7 @@ public class EntityEventHandler implements Listener {
 
             String noEntitiesReason = claim.allowMoreEntities();
             if (noEntitiesReason != null) {
-                GriefPrevention.sendMessage(event.getPlayer(), TextMode.ERROR, noEntitiesReason);
+                plugin.sendMessage(event.getPlayer(), TextMode.ERROR, noEntitiesReason);
                 event.setCancelled(true);
                 return;
             }
@@ -384,13 +384,13 @@ public class EntityEventHandler implements Listener {
             if (wc.getProtectFreshSpawns()) {
                 if (defenderData.isPvpImmune()) {
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.ThatPlayerPvPImmune);
+                    plugin.sendMessage(attacker, TextMode.ERROR, Messages.ThatPlayerPvPImmune);
                     return;
                 }
 
                 if (attackerData.isPvpImmune()) {
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
+                    plugin.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
                     return;
                 }
             }
@@ -403,7 +403,7 @@ public class EntityEventHandler implements Listener {
                                 !attackerClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
                     attackerData.setLastClaim(attackerClaim);
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
+                    plugin.sendMessage(attacker, TextMode.ERROR, Messages.CantFightWhileImmune);
                     return;
                 }
 
@@ -413,7 +413,7 @@ public class EntityEventHandler implements Listener {
                                 !defenderClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
                     defenderData.setLastClaim(defenderClaim);
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.PlayerInPvPSafeZone);
+                    plugin.sendMessage(attacker, TextMode.ERROR, Messages.PlayerInPvPSafeZone);
                     return;
                 }
             }
@@ -476,7 +476,7 @@ public class EntityEventHandler implements Listener {
                                     projectile.remove();
                                 }
                             }
-                            GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                            plugin.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
                         }
                         // cache claim for later
                         if (playerData != null) {
@@ -491,7 +491,7 @@ public class EntityEventHandler implements Listener {
     // when a vehicle is damaged
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onVehicleDamage(VehicleDamageEvent event) {
-        WorldConfig wc = new WorldConfig(event.getVehicle().getWorld());
+        WorldConfig wc = new WorldConfig(plugin, event.getVehicle().getWorld());
 
         // all of this is anti theft code
         if (!wc.getClaimsPreventTheft()) return;
@@ -513,7 +513,7 @@ public class EntityEventHandler implements Listener {
             }
         }
         // if Damage source is unspecified and we allow environmental damage, don't cancel the event.
-        else if (damageSource == null && wc.getEnvironmentalVehicleDamage().allowed(event.getVehicle().getLocation(), attacker).Allowed()) {
+        else if (damageSource == null && wc.getEnvironmentalVehicleDamage().allowed(event.getVehicle().getLocation(), attacker).allowed()) {
             return;
         }
         // NOTE: vehicles can be pushed around.
@@ -539,7 +539,7 @@ public class EntityEventHandler implements Listener {
                 String noContainersReason = claim.allowContainers(attacker);
                 if (noContainersReason != null) {
                     event.setCancelled(true);
-                    GriefPrevention.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                    plugin.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
                 }
 
                 // cache claim for later

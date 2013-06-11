@@ -38,8 +38,10 @@ public class TreeCleanupTask implements Runnable {
     private Block originalRootBlock;             // where the root of the tree used to be
     private byte originalRootBlockData;             // data value of that root block (TYPE of log)
     private ArrayList<Block> originalTreeBlocks; // a list of other log blocks determined to be part of this tree
-
-    public TreeCleanupTask(Block originalChoppedBlock, Block originalRootBlock, ArrayList<Block> originalTreeBlocks, byte originalRootBlockData) {
+    private GriefPrevention plugin;
+    
+    public TreeCleanupTask(GriefPrevention plugin, Block originalChoppedBlock, Block originalRootBlock, ArrayList<Block> originalTreeBlocks, byte originalRootBlockData) {
+        this.plugin = plugin;
         this.originalChoppedBlock = originalChoppedBlock;
         this.originalRootBlock = originalRootBlock;
         this.originalTreeBlocks = originalTreeBlocks;
@@ -49,11 +51,11 @@ public class TreeCleanupTask implements Runnable {
     @Override
     public void run() {
         // if this chunk is no longer loaded, load it and come back in a few seconds
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(originalChoppedBlock.getWorld());
+        WorldConfig wc = plugin.getWorldCfg(originalChoppedBlock.getWorld());
         Chunk chunk = this.originalChoppedBlock.getWorld().getChunkAt(this.originalChoppedBlock);
         if (!chunk.isLoaded()) {
             chunk.load();
-            GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, this, 100L);
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 100L);
             return;
         }
 

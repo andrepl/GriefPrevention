@@ -42,19 +42,19 @@ public class Trapped extends BaseClaimCommand {
 
         //if the player isn't in a claim or has permission to build, tell him to man up
         if (claim == null || claim.allowBuild(player) == null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NotTrappedHere);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.NotTrappedHere);
             return true;
         }
 
         //if the player is in the nether or end, he's screwed (there's no way to programmatically find a safe place for him)
         if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.TrappedWontWorkHere);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.TrappedWontWorkHere);
             return true;
         }
 
         //if the player is in an administrative claim, he should contact an admin
         if (claim.isAdminClaim()) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.TrappedWontWorkHere);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.TrappedWontWorkHere);
             return true;
         }
 
@@ -63,13 +63,13 @@ public class Trapped extends BaseClaimCommand {
         long nextTrappedUsage = lastTrappedUsage + 1000 * 60 * 60 * wc.getClaimsTrappedCooldownHours();
         long now = Calendar.getInstance().getTimeInMillis();
         if (now < nextTrappedUsage) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.TrappedOnCooldown, String.valueOf(wc.getClaimsTrappedCooldownHours()), String.valueOf((nextTrappedUsage - now) / (1000 * 60) + 1));
+            plugin.sendMessage(player, TextMode.ERROR, Messages.TrappedOnCooldown, String.valueOf(wc.getClaimsTrappedCooldownHours()), String.valueOf((nextTrappedUsage - now) / (1000 * 60) + 1));
             return true;
         }
         //send instructions
-        GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.RescuePending);
+        plugin.sendMessage(player, TextMode.INSTR, Messages.RescuePending);
         //create a task to rescue this player in a little while
-        PlayerRescueTask task = new PlayerRescueTask(player, player.getLocation());
+        PlayerRescueTask task = new PlayerRescueTask(plugin, player, player.getLocation());
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 200L);  //20L ~ 1 second
 
         return true;

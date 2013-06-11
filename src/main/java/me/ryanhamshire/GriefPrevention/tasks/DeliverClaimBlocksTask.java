@@ -29,20 +29,27 @@ import org.bukkit.entity.Player;
 
 //runs every 5 minutes in the main thread, grants blocks per hour / 12 to each online player who appears to be actively playing
 public class DeliverClaimBlocksTask implements Runnable {
+    
+    private GriefPrevention plugin;
+
+    public DeliverClaimBlocksTask(GriefPrevention plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public void run() {
-        Player[] players = GriefPrevention.instance.getServer().getOnlinePlayers();
+        Player[] players = plugin.getServer().getOnlinePlayers();
 
         //ensure players get at least 1 block (if accrual is totally disabled, this task won't even be scheduled)
         //BC: refactored, now it calculates the blocks that have been accrued on a per-Player basis.
         //for each online player
         for (int i = 0; i < players.length; i++) {
             Player player = players[i];
-            WorldConfig wc = GriefPrevention.instance.getWorldCfg(player.getWorld());
+            WorldConfig wc = plugin.getWorldCfg(player.getWorld());
 
             int accruedBlocks = Math.max(1, (int)(wc.getClaimBlocksAccruedPerHour() / 12));
 
-            DataStore dataStore = GriefPrevention.instance.dataStore;
+            DataStore dataStore = plugin.dataStore;
             PlayerData playerData = dataStore.getPlayerData(player.getName());
 
             Location lastLocation = playerData.getLastAfkCheckLocation();
@@ -55,7 +62,7 @@ public class DeliverClaimBlocksTask implements Runnable {
                         !player.getLocation().getBlock().isLiquid()) {
                     //if player is over accrued limit, accrued limit was probably reduced in config file AFTER he accrued
                     //in that case, leave his blocks where they are
-                    if (playerData.getAccruedClaimBlocks() > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
+                    if (playerData.getAccruedClaimBlocks() > plugin.configuration.getMaxAccruedBlocks()) {
                         continue;
                     }
 
@@ -63,8 +70,8 @@ public class DeliverClaimBlocksTask implements Runnable {
                     playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + accruedBlocks);
 
                     //respect limits
-                    if (playerData.getAccruedClaimBlocks() > GriefPrevention.instance.configuration.getMaxAccruedBlocks()) {
-                        playerData.setAccruedClaimBlocks(GriefPrevention.instance.configuration.getMaxAccruedBlocks());
+                    if (playerData.getAccruedClaimBlocks() > plugin.configuration.getMaxAccruedBlocks()) {
+                        playerData.setAccruedClaimBlocks(plugin.configuration.getMaxAccruedBlocks());
                     }
 
                     //intentionally NOT saving data here to reduce overall secondary storage access frequency

@@ -96,7 +96,7 @@ public class FileSystemPersistence implements IPersistence {
             String[] accessors = cfg.getStringList("accessors").toArray(new String[0]);
             String[] managers = cfg.getStringList("managers").toArray(new String[0]);
             boolean neverDelete = cfg.getBoolean("neverDelete", false);
-            claim = new Claim(min, max, ownerName, builders, containers, accessors, managers, id, neverDelete);
+            claim = new Claim(plugin, min, max, ownerName, builders, containers, accessors, managers, id, neverDelete);
             if (cfg.contains("flags")) {
                 ConfigurationSection flagSec = cfg.getConfigurationSection("flags");
                 claim.loadFlags(flagSec.getValues(false));
@@ -138,7 +138,7 @@ public class FileSystemPersistence implements IPersistence {
         for (File file: playerFolder.listFiles()) {
             if (file.isDirectory()) continue;
             cfg = YamlConfiguration.loadConfiguration(file);
-            playerData = new PlayerData();
+            playerData = new PlayerData(plugin);
             playerData.setAccruedClaimBlocks(cfg.getInt("accruedClaimBlocks"));
             playerData.setBonusClaimBlocks(cfg.getInt("bonusClaimBlocks"));
             playerData.setLastLogin(new Date(cfg.getLong("lastLogin")));
@@ -163,7 +163,7 @@ public class FileSystemPersistence implements IPersistence {
         } catch (DatastoreException e) {
             e.printStackTrace();
         }
-        playerData = new PlayerData();
+        playerData = new PlayerData(plugin);
         if (!playerFile.exists()) {
             playerData.setPlayerName(playerName);
         } else {

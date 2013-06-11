@@ -37,7 +37,7 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
             int newTotal = plugin.dataStore.adjustGroupBonusBlocks(permissionIdentifier, adjustment);
 
             if (sender instanceof Player) {
-                GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustGroupBlocksSuccess, permissionIdentifier, String.valueOf(adjustment), String.valueOf(newTotal));
+                plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustGroupBlocksSuccess, permissionIdentifier, String.valueOf(adjustment), String.valueOf(newTotal));
                 GriefPrevention.addLogEntry(sender.getName() + " adjusted " + permissionIdentifier + "'s bonus claim blocks by " + adjustment + ".");
             }
             return true;
@@ -46,7 +46,7 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
         //otherwise, find the specified player
         OfflinePlayer targetPlayer = plugin.resolvePlayer(args.peek());
         if (targetPlayer == null) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound);
             return true;
         }
 
@@ -54,7 +54,7 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
         PlayerData playerData = plugin.dataStore.getPlayerData(targetPlayer.getName());
         playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks() + adjustment);
         plugin.dataStore.savePlayerData(targetPlayer.getName(), playerData);
-        GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.getBonusClaimBlocks()));
+        plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.getBonusClaimBlocks()));
         if (sender instanceof Player) {
             GriefPrevention.addLogEntry(sender.getName() + " adjusted " + targetPlayer.getName() + "'s bonus claim blocks by " + adjustment + ".");
         }

@@ -25,7 +25,7 @@ public class TrustList extends BaseClaimCommand {
         //if no permission to manage permissions, error message
         String errorMessage = claim.allowGrantPermission(player);
         if (errorMessage != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, errorMessage);
+            plugin.sendMessage(player, TextMode.ERROR, errorMessage);
             return true;
         }
 

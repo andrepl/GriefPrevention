@@ -25,11 +25,14 @@ import org.bukkit.command.CommandSender;
 // sends a message to a player
 // used to send delayed messages, for example help text triggered by a player's chat
 public class SendPlayerMessageTask implements Runnable {
+
+    private GriefPrevention plugin;
     private CommandSender player;
     private ChatColor color;
     private String message;
 
-    public SendPlayerMessageTask(CommandSender player, ChatColor color, String message) {
+    public SendPlayerMessageTask(GriefPrevention plugin, CommandSender player, ChatColor color, String message) {
+        this.plugin = plugin;
         this.player = player;
         this.color = color;
         this.message = message;
@@ -37,6 +40,6 @@ public class SendPlayerMessageTask implements Runnable {
 
     @Override
     public void run() {
-        GriefPrevention.sendMessage(this.player, this.color, this.message);
+        plugin.sendMessage(this.player, this.color, this.message);
     }
 }

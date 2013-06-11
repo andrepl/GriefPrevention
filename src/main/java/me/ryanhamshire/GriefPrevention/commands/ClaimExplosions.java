@@ -21,15 +21,15 @@ public class ClaimExplosions extends BaseClaimCommand {
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
         String noBuildReason = claim.allowBuild(player);
         if (noBuildReason != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
+            plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
             return true;
         }
         if (claim.isExplosivesAllowed()) {
             claim.setExplosivesAllowed(false);
-            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ExplosivesDisabled);
+            plugin.sendMessage(player, TextMode.SUCCESS, Messages.ExplosivesDisabled);
         } else {
             claim.setExplosivesAllowed(true);
-            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ExplosivesEnabled);
+            plugin.sendMessage(player, TextMode.SUCCESS, Messages.ExplosivesEnabled);
         }
         return true;
     }

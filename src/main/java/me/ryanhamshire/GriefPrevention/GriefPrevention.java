@@ -63,7 +63,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class GriefPrevention extends JavaPlugin {
     // for convenience, a reference to the instance of this plugin
-    public static GriefPrevention instance;
+    private static GriefPrevention instance;
 
     // for logging to the console and log file
     public ConfigData configuration = null;
@@ -135,7 +135,7 @@ public class GriefPrevention extends JavaPlugin {
         // load the config if it exists
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
         FileConfiguration outConfig = new YamlConfiguration();
-        configuration = new ConfigData(config, outConfig);
+        configuration = new ConfigData(this, config, outConfig);
         getLogger().info("Configuration loaded, DebugMode: " + configuration.isDebugMode());
         // read configuration settings (note defaults)
         commandHandler = new CommandHandler(this);
@@ -153,7 +153,7 @@ public class GriefPrevention extends JavaPlugin {
 
         boolean entitycleanupEnabled = false;
         if (entitycleanupEnabled) {
-            EntityCleanupTask task = new EntityCleanupTask(0);
+            EntityCleanupTask task = new EntityCleanupTask(this, 0);
             this.getServer().getScheduler().scheduleSyncDelayedTask(this, task, 20L);
         }
 
@@ -300,7 +300,7 @@ public class GriefPrevention extends JavaPlugin {
         playerData.setPvpImmune(true);
 
         // inform the player
-        GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.PvPImmunityStart);
+        sendMessage(player, TextMode.SUCCESS, Messages.PvPImmunityStart);
     }
 
     // checks whether players can create claims in a world
@@ -349,19 +349,19 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     // sends a color-coded message to a player
-    public static void sendMessage(CommandSender player, TextMode color, Messages messageID, String... args) {
+    public void sendMessage(CommandSender player, TextMode color, Messages messageID, String... args) {
         sendMessage(player, color, messageID, 0, args);
     }
 
     // sends a color-coded message to a player
-    public static void sendMessage(CommandSender player, TextMode color, Messages messageID, long delayInTicks, String... args) {
+    public void sendMessage(CommandSender player, TextMode color, Messages messageID, long delayInTicks, String... args) {
         String message = instance.getMessageManager().getMessage(messageID, args);
         if (message == null || message.equals("")) return;
         sendMessage(player, color, message, delayInTicks);
     }
 
     // sends a color-coded message to a player
-    public static void sendMessage(CommandSender player, TextMode color, String message) {
+    public void sendMessage(CommandSender player, TextMode color, String message) {
         if (player == null) {
             GriefPrevention.addLogEntry(removeColors(message));
         } else {
@@ -370,7 +370,7 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     // sends a color-coded message to a player
-    public static void sendMessage(CommandSender player, ChatColor color, String message) {
+    public void sendMessage(CommandSender player, ChatColor color, String message) {
         if (player == null) {
             GriefPrevention.addLogEntry(removeColors(message));
         } else {
@@ -378,8 +378,8 @@ public class GriefPrevention extends JavaPlugin {
         }
     }
 
-    public static void sendMessage(CommandSender player, TextMode color, String message, long delayInTicks) {
-        SendPlayerMessageTask task = new SendPlayerMessageTask(player, instance.configuration.getColor(color), message);
+    public void sendMessage(CommandSender player, TextMode color, String message, long delayInTicks) {
+        SendPlayerMessageTask task = new SendPlayerMessageTask(this, player, instance.configuration.getColor(color), message);
         if (delayInTicks > 0) {
             instance.getServer().getScheduler().runTaskLater(instance, task, delayInTicks);
         } else {
@@ -435,7 +435,7 @@ public class GriefPrevention extends JavaPlugin {
 
         // create task
         // when done processing, this task will create a main thread task to actually update the world with processing results
-        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, getWorldCfg(chunk.getWorld()).getSeaLevelOverride(), aggressiveMode, this.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
+        RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(this, snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, getWorldCfg(chunk.getWorld()).getSeaLevelOverride(), aggressiveMode, this.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
         this.getServer().getScheduler().runTaskLaterAsynchronously(this, task, delayInTicks);
     }
 
@@ -455,5 +455,12 @@ public class GriefPrevention extends JavaPlugin {
 
     public FlagManager getFlagManager() {
         return flagManager;
+    }
+
+    public static DataStore getDataStore() {
+        if (instance == null) {
+            return null;
+        }
+        return instance.getDataStore();
     }
 }

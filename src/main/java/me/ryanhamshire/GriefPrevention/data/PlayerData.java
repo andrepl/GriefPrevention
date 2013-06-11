@@ -36,6 +36,8 @@ import org.bukkit.entity.Player;
 // holds all of GriefPrevention's player-tied data
 public class PlayerData {
 
+    GriefPrevention plugin;
+
     // the player's name
     private String playerName;
 
@@ -53,7 +55,7 @@ public class PlayerData {
     }
 
     // how many claim blocks the player has earned via play time
-    private int accruedClaimBlocks = GriefPrevention.instance.configuration.getInitialBlocks();
+    private int accruedClaimBlocks = plugin.configuration.getInitialBlocks();
 
     // where this player was the last time we checked on him for earning claim blocks
     private Location lastAfkCheckLocation = null;
@@ -124,10 +126,11 @@ public class PlayerData {
 
     private InetAddress ipAddress;
 
-    public PlayerData() {
+    public PlayerData(GriefPrevention plugin) {
         // default last login date value to a year ago to ensure a brand new player can log in
         // see login cooldown feature, PlayerEventHandler.onPlayerLogin()
         // if the player successfully logs in, this value will be overwritten with the current date and time 
+        this.plugin = plugin;
         Calendar lastYear = Calendar.getInstance();
         lastYear.add(Calendar.YEAR, -1);
         this.lastLogin = lastYear.getTime();
@@ -136,7 +139,7 @@ public class PlayerData {
 
     private WorldConfig wc() {
         Player p = Bukkit.getPlayer(playerName);
-        return GriefPrevention.instance.getWorldCfg(p.getWorld());
+        return plugin.getWorldCfg(p.getWorld());
     }
 
     // whether or not this player is "in" pvp combat

@@ -25,7 +25,7 @@ public class Flag extends BaseClaimCommand {
     @Override
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
         if (!(claim.isManager(player.getName()) || claim.getOwnerName().equals(player.getName()))) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
+            plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
             return true;
         }
         ChatColor keyColor = plugin.configuration.getColor(TextMode.INSTR);
@@ -43,7 +43,7 @@ public class Flag extends BaseClaimCommand {
         } else {
             BaseFlag flag = plugin.getFlagManager().getFlag(args.peek());
             if (flag == null) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.UnknownFlag, args.peek());
+                plugin.sendMessage(player, TextMode.ERROR, Messages.UnknownFlag, args.peek());
                 return true;
             }
             args.pop();
@@ -62,19 +62,19 @@ public class Flag extends BaseClaimCommand {
                 return true;
             } else if (args.size() == 1) {
                 if (!player.hasPermission(flag.getRequiredPermission())) {
-                    GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.UnknownFlag);
+                    plugin.sendMessage(player, TextMode.ERROR, Messages.UnknownFlag);
                     return true;
                 }
                 String value = args.pop();
                 try {
                     claim.setFlag(flag, value);
                 } catch (InvalidFlagValueException ex) {
-                    GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.InvalidFlagValue, value);
+                    plugin.sendMessage(player, TextMode.ERROR, Messages.InvalidFlagValue, value);
                     return true;
                 }
-                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.FlagSet, flag.getDisplayName(), claim.getFlag(flag));
+                plugin.sendMessage(player, TextMode.SUCCESS, Messages.FlagSet, flag.getDisplayName(), claim.getFlag(flag));
                 flag.onSet(player, claim, value);
-                GriefPrevention.instance.dataStore.saveClaim(claim);
+                plugin.dataStore.saveClaim(claim);
                 return true;
             }
             return false;

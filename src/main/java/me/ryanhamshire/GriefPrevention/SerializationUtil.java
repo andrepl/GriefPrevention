@@ -67,7 +67,7 @@ public class SerializationUtil {
         String zString = elements[3];
 
         // identify world the claim is in
-        World world = GriefPrevention.instance.getServer().getWorld(worldName);
+        World world = Bukkit.getServer().getWorld(worldName);
         if (world == null) {
             // try to load it...
             world = Bukkit.createWorld(new WorldCreator(worldName));

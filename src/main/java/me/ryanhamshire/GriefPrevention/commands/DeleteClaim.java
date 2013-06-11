@@ -27,10 +27,10 @@ public class DeleteClaim extends BaseClaimCommand {
         if (!claim.isAdminClaim() || player.hasPermission("griefprevention.adminclaims")) {
             PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
             if (claim.getChildren().size() > 0 && !playerData.isWarnedAboutMajorDeletion()) {
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeletionSubdivisionWarning);
+                plugin.sendMessage(player, TextMode.WARN, Messages.DeletionSubdivisionWarning);
                 playerData.setWarnedAboutMajorDeletion(true);
             } else if (claim.isNeverDelete() && !playerData.isWarnedAboutMajorDeletion()) {
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.DeleteLockedClaimWarning);
+                plugin.sendMessage(player, TextMode.WARN, Messages.DeleteLockedClaimWarning);
                 playerData.setWarnedAboutMajorDeletion(true);
             } else {
                 claim.removeSurfaceFluids(null);
@@ -40,15 +40,15 @@ public class DeleteClaim extends BaseClaimCommand {
                 if (wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
                     plugin.restoreClaim(claim, 0);
                 }
-                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.DeleteSuccess);
+                plugin.sendMessage(player, TextMode.SUCCESS, Messages.DeleteSuccess);
                 GriefPrevention.addLogEntry(player.getName() + " deleted " + claim.getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
 
                 //revert any current visualization
-                Visualization.Revert(player);
+                Visualization.Revert(plugin, player);
                 playerData.setWarnedAboutMajorDeletion(false);
             }
         } else {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CantDeleteAdminClaim);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.CantDeleteAdminClaim);
         }
         return true;
     }

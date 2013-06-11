@@ -131,7 +131,7 @@ public class BlockEventHandler implements Listener {
 
             // no building in survival wilderness when that is configured
             else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
-                if (wc.getTrashBlockPlacementBehaviour().allowed(location, player).Denied())
+                if (wc.getTrashBlockPlacementBehaviour().allowed(location, player).denied())
                     return plugin.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + plugin.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
                 else
                     return null;
@@ -191,7 +191,7 @@ public class BlockEventHandler implements Listener {
                 playerData.setLastChestDamageLocation(block.getLocation());
 
                 // give the player instructions
-                GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.DonateItemsInstruction);
+                plugin.sendMessage(player, TextMode.INSTR, Messages.DonateItemsInstruction);
             } else { // otherwise, try to donate the item stack in hand
                 // look for empty slot in chest
                 Chest chest = (Chest) block.getState();
@@ -201,7 +201,7 @@ public class BlockEventHandler implements Listener {
                 // if there isn't one
                 if (availableSlot < 0) {
                     // tell the player and stop here
-                    GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ChestFull);
+                    plugin.sendMessage(player, TextMode.ERROR, Messages.ChestFull);
                     return;
                 }
 
@@ -211,7 +211,7 @@ public class BlockEventHandler implements Listener {
                 playerInventory.setItemInHand(new ItemStack(Material.AIR));
 
                 // and confirm for the player
-                GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.DonationSuccess);
+                plugin.sendMessage(player, TextMode.SUCCESS, Messages.DonationSuccess);
             }
         }
     }
@@ -227,7 +227,7 @@ public class BlockEventHandler implements Listener {
         // if the block is a trash block....
         if (wc.getTrashBlocks().contains(breakEvent.getBlock().getType())) {
             // and if this location is applicable for trash block placement...
-            if (wc.getTrashBlockPlacementBehaviour().allowed(breakEvent.getBlock().getLocation(), player).Allowed()) ;
+            if (wc.getTrashBlockPlacementBehaviour().allowed(breakEvent.getBlock().getLocation(), player).allowed()) ;
             // allow it with abandon...
             return;
         }
@@ -238,7 +238,7 @@ public class BlockEventHandler implements Listener {
 
         String noBuildReason = allowBreak(player, block.getLocation(), playerData, claim);
         if (noBuildReason != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
+            plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
             breakEvent.setCancelled(true);
             return;
         }
@@ -304,7 +304,7 @@ public class BlockEventHandler implements Listener {
             // if set, then we only allow Trash Blocks to be placed, and only in the allowed places.
             Claim testclaim = plugin.dataStore.getClaimAt(block.getLocation(), true, null);
             if (testclaim == null) {
-                if (wc.getTrashBlockPlacementBehaviour().allowed(block.getLocation(), player).Allowed()) {
+                if (wc.getTrashBlockPlacementBehaviour().allowed(block.getLocation(), player).allowed()) {
                     if (wc.getTrashBlocks().contains(block.getType())) {
                         return;
                     }
@@ -320,7 +320,7 @@ public class BlockEventHandler implements Listener {
                 Player otherPlayer = players.get(i);
                 Location location = otherPlayer.getLocation();
                 if (!otherPlayer.equals(player) && location.distanceSquared(block.getLocation()) < 9) {
-                    GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.PlayerTooCloseForFire, otherPlayer.getName());
+                    plugin.sendMessage(player, TextMode.ERROR, Messages.PlayerTooCloseForFire, otherPlayer.getName());
                     placeEvent.setCancelled(true);
                     return;
                 }
@@ -331,7 +331,7 @@ public class BlockEventHandler implements Listener {
         // make sure the player is allowed to build at the location
         String noBuildReason = allowBuild(player, block.getLocation(), playerData, claim);
         if (noBuildReason != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, noBuildReason);
+            plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
             placeEvent.setCancelled(true);
             return;
         }
@@ -341,8 +341,8 @@ public class BlockEventHandler implements Listener {
         if (claim != null) {
             // warn about TNT not destroying claimed blocks
             if (block.getType() == Material.TNT && !claim.isExplosivesAllowed()) {
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.NoTNTDamageClaims);
-                GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.ClaimExplosivesAdvertisement);
+                plugin.sendMessage(player, TextMode.WARN, Messages.NoTNTDamageClaims);
+                plugin.sendMessage(player, TextMode.INSTR, Messages.ClaimExplosivesAdvertisement);
             }
 
             // if the player has permission for the claim and he's placing UNDER the claim
@@ -359,7 +359,7 @@ public class BlockEventHandler implements Listener {
             // FEATURE: automatically create a claim when a player who has no claims places a chest
             // if the chest is too deep underground, don't create the claim and explain why
             if (wc.getClaimsPreventTheft() && block.getY() < wc.getClaimsMaxDepth()) {
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.TooDeepToClaim);
+                plugin.sendMessage(player, TextMode.WARN, Messages.TooDeepToClaim);
                 return;
             }
             int radius = wc.getAutomaticClaimsForNewPlayerRadius();
@@ -368,7 +368,7 @@ public class BlockEventHandler implements Listener {
                 // radius == 0 means protect ONLY the chest
                 if (wc.getAutomaticClaimsForNewPlayerRadius() == 0) {
                     this.dataStore.createClaim(block.getWorld(), block.getX(), block.getX(), block.getY(), block.getY(), block.getZ(), block.getZ(), player.getName(), null, null, false, null, player, true);
-                    GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.ChestClaimConfirmation);
+                    plugin.sendMessage(player, TextMode.SUCCESS, Messages.ChestClaimConfirmation);
                 } else { // otherwise, create a claim in the area around the chest
                     // as long as the automatic claim overlaps another existing claim, shrink it
                     // note that since the player had permission to place the chest, at the very least, the automatic claim will include the chest
@@ -382,25 +382,25 @@ public class BlockEventHandler implements Listener {
                     }
 
                     // notify and explain to player
-                    GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.AutomaticClaimNotification);
+                    plugin.sendMessage(player, TextMode.SUCCESS, Messages.AutomaticClaimNotification);
                     // show the player the protected area
                     Claim newClaim = this.dataStore.getClaimAt(block.getLocation(), false, null);
                     Visualization visualization = Visualization.FromClaim(newClaim, block.getY(), VisualizationType.CLAIM, player.getLocation());
-                    Visualization.Apply(player, visualization);
+                    Visualization.apply(plugin, player, visualization);
                 }
 
                 // instructions for using /trust
-                GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.TrustCommandAdvertisement);
+                plugin.sendMessage(player, TextMode.INSTR, Messages.TrustCommandAdvertisement);
 
                 // unless special permission is required to create a claim with the shovel, educate the player about the shovel
                 if (!wc.getCreateClaimRequiresPermission()) {
-                    GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.GoldenShovelAdvertisement);
+                    plugin.sendMessage(player, TextMode.INSTR, Messages.GoldenShovelAdvertisement);
                 }
             }
 
             // check to see if this chest is in a claim, and warn when it isn't
             if (plugin.getWorldCfg(player.getWorld()).getClaimsPreventTheft() && this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim()) == null) {
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.UnprotectedChestWarning);
+                plugin.sendMessage(player, TextMode.WARN, Messages.UnprotectedChestWarning);
             }
         } else if (block.getType() == Material.SAPLING &&
                 plugin.getWorldCfg(player.getWorld()).getBlockSkyTrees() &&
@@ -417,12 +417,12 @@ public class BlockEventHandler implements Listener {
             // FEATURE: warn players when they're placing non-trash blocks outside of their claimed areas
             playerData.setUnclaimedBlockPlacementsUntilWarning(playerData.getUnclaimedBlockPlacementsUntilWarning()-1);
             if (playerData.getUnclaimedBlockPlacementsUntilWarning() <= 0 && wc.getClaimsWildernessBlocksDelay() != 0) {
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.BuildingOutsideClaims);
+                plugin.sendMessage(player, TextMode.WARN, Messages.BuildingOutsideClaims);
                 playerData.setUnclaimedBlockPlacementsUntilWarning(wc.getClaimsWildernessBlocksDelay());
 
                 if (playerData.getLastClaim() != null && playerData.getLastClaim().allowBuild(player) == null) {
                     Visualization visualization = Visualization.FromClaim(playerData.getLastClaim(), block.getY(), VisualizationType.CLAIM, player.getLocation());
-                    Visualization.Apply(player, visualization);
+                    Visualization.apply(plugin, player, visualization);
                 }
             }
         }
@@ -430,12 +430,12 @@ public class BlockEventHandler implements Listener {
         // warn players when they place TNT above sea level, since it doesn't destroy blocks there
 
         // warn players if Explosions are not allowed at the position they place it.
-        boolean TNTAllowed = wc.getTntExplosionBehaviour().allowed(block.getLocation(), null).Allowed();
+        boolean TNTAllowed = wc.getTntExplosionBehaviour().allowed(block.getLocation(), null).allowed();
 
         if (!TNTAllowed && block.getType() == Material.TNT &&
                 block.getWorld().getEnvironment() != Environment.NETHER &&
                 block.getY() > plugin.getWorldCfg(block.getWorld()).getSeaLevelOverride() - 5) {
-            GriefPrevention.sendMessage(player, TextMode.WARN, Messages.NoTNTDamageAboveSeaLevel);
+            plugin.sendMessage(player, TextMode.WARN, Messages.NoTNTDamageAboveSeaLevel);
         }
     }
 
@@ -692,8 +692,8 @@ public class BlockEventHandler implements Listener {
         // into wilderness is NOT OK when surface buckets are limited
         Material materialDispensed = dispenseEvent.getItem().getType();
 
-        if (materialDispensed == Material.WATER_BUCKET && wc.getWaterBucketBehaviour().allowed(toBlock.getLocation(), null).Allowed() ||
-                (materialDispensed == Material.LAVA_BUCKET && wc.getLavaBucketBehaviour().allowed(toBlock.getLocation(), null).Allowed())
+        if (materialDispensed == Material.WATER_BUCKET && wc.getWaterBucketBehaviour().allowed(toBlock.getLocation(), null).allowed() ||
+                (materialDispensed == Material.LAVA_BUCKET && wc.getLavaBucketBehaviour().allowed(toBlock.getLocation(), null).allowed())
                 && plugin.claimsEnabledForWorld(fromBlock.getWorld())) {
             dispenseEvent.setCancelled(true);
             return;
@@ -851,7 +851,7 @@ public class BlockEventHandler implements Listener {
         // if it doesn't have leaves, it's not a tree, so don't clean it up
         if (hasLeaves) {
             // schedule a cleanup task for later, in case the player leaves part of this tree hanging in the air
-            TreeCleanupTask cleanupTask = new TreeCleanupTask(block, rootBlock, treeBlocks, rootBlock.getData());
+            TreeCleanupTask cleanupTask = new TreeCleanupTask(plugin, block, rootBlock, treeBlocks, rootBlock.getData());
 
             // 20L ~ 1 second, so 2 mins = 120 seconds ~ 2400L
             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, cleanupTask, 2400L);

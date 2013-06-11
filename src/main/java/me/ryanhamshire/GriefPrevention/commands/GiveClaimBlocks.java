@@ -22,14 +22,14 @@ public class GiveClaimBlocks extends BaseCommand {
             return false;
         }
         if (!(sender instanceof Player)) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         }
 
         String targetPlayerName = args.pop();
         List<Player> matches = plugin.getServer().matchPlayer(targetPlayerName);
         if (matches.size() != 1) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound, targetPlayerName);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound, targetPlayerName);
             return true;
         }
 
@@ -37,20 +37,20 @@ public class GiveClaimBlocks extends BaseCommand {
         try {
             desiredxfer = Integer.parseInt(args.peek());
         } catch (NumberFormatException nfe) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.NotANumber, args.peek());
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.NotANumber, args.peek());
             return true;
         }
 
         if (desiredxfer == 0) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksLessThanOne);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksLessThanOne);
             return true;
         }
 
         int amtXferred = plugin.transferClaimBlocks(sender.getName(), targetPlayerName, desiredxfer);
         if (amtXferred == 0) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksError);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksError);
         } else {
-            GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.TransferBlocksSuccess, targetPlayerName, Integer.toString(amtXferred));
+            plugin.sendMessage(sender, TextMode.SUCCESS, Messages.TransferBlocksSuccess, targetPlayerName, Integer.toString(amtXferred));
         }
         return true;
     }

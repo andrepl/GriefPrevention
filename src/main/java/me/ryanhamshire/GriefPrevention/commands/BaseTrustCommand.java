@@ -46,7 +46,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
         if (recipientName.startsWith("[") && recipientName.endsWith("]")) {
             permission = recipientName.substring(1, recipientName.length() - 1);
             if (permission == null || permission.isEmpty()) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.InvalidPermissionID);
+                plugin.sendMessage(player, TextMode.ERROR, Messages.InvalidPermissionID);
                 return true;
             }
         } else if (recipientName.contains(".")) {
@@ -57,7 +57,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
 
             if (otherPlayer == null && !recipientName.equals("public") && !recipientName.equals("all") &&
                     !recipientName.toUpperCase().startsWith("G:")) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.PlayerNotFound);
+                plugin.sendMessage(player, TextMode.ERROR, Messages.PlayerNotFound);
                 return true;
             } else if (recipientName.toUpperCase().startsWith("G:")) {
                 //keep it as is.
@@ -79,7 +79,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
         } else {
             //check permission here
             if (claim.allowGrantPermission(player) != null) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
+                plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
                 return true;
             }
 
@@ -110,7 +110,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
 
             //error message for trying to grant a permission the player doesn't have
             if (errorMessage != null) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.CantGrantThatPermission);
+                plugin.sendMessage(player, TextMode.ERROR, Messages.CantGrantThatPermission);
                 return true;
             }
 
@@ -119,7 +119,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
 
         //if we didn't determine which claims to modify, tell the player to be specific
         if (targetClaims.size() == 0) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.GrantPermissionNoClaim);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.GrantPermissionNoClaim);
             return true;
         }
         //if forcedenial is true, we will add the exclamation back to the name for addition.
@@ -161,7 +161,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
         if (userecipientName.toUpperCase().startsWith("G:")) {
             userecipientName = "Group " + userecipientName.substring(2);
         }
-        GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.GrantPermissionConfirmation, recipientName, permissionDescription, location);
+        plugin.sendMessage(player, TextMode.SUCCESS, Messages.GrantPermissionConfirmation, recipientName, permissionDescription, location);
         return true;
     }
 

@@ -20,9 +20,9 @@ public class Reload extends BaseCommand {
         if (sender.hasPermission("griefprevention.reload")) {
             plugin.onDisable();
             plugin.onEnable();
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PluginReloaded);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.PluginReloaded);
         } else {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.NoPermissionForCommand);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.NoPermissionForCommand);
         }
         return true;
     }

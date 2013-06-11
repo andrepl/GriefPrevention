@@ -39,7 +39,7 @@ class RestoreNatureExecutionTask implements Runnable {
     // results from processing thread
     // will be applied to the world
     private BlockSnapshot[][][] snapshots;
-
+    private GriefPrevention plugin;
     // boundaries for changes
     private int miny;
     private Location lesserCorner;
@@ -48,8 +48,8 @@ class RestoreNatureExecutionTask implements Runnable {
     // player who should be notified about the result (will see a visualization when the restoration is complete)
     private Player player;
 
-    public RestoreNatureExecutionTask(BlockSnapshot[][][] snapshots, int miny, Location lesserCorner, Location greaterCorner, Player player) {
-
+    public RestoreNatureExecutionTask(GriefPrevention plugin, BlockSnapshot[][][] snapshots, int miny, Location lesserCorner, Location greaterCorner, Player player) {
+        this.plugin = plugin;
         this.snapshots = snapshots;
         this.miny = miny;
         this.lesserCorner = lesserCorner;
@@ -69,7 +69,7 @@ class RestoreNatureExecutionTask implements Runnable {
                     BlockSnapshot blockUpdate = this.snapshots[x][y][z];
                     Block currentBlock = blockUpdate.location.getBlock();
                     if (blockUpdate.typeId != currentBlock.getTypeId() || blockUpdate.data != currentBlock.getData()) {
-                        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(blockUpdate.location, false, cachedClaim);
+                        Claim claim = plugin.dataStore.getClaimAt(blockUpdate.location, false, cachedClaim);
                         if (claim != null) {
                             cachedClaim = claim;
                             break;
@@ -88,7 +88,7 @@ class RestoreNatureExecutionTask implements Runnable {
             Entity entity = entities[i];
             if (!(entity instanceof Player || entity instanceof Animals)) {
                 // hanging entities (paintings, item frames) are protected when they're in land claims
-                if (!(entity instanceof Hanging) || GriefPrevention.instance.dataStore.getClaimAt(entity.getLocation(), false, null) == null) {
+                if (!(entity instanceof Hanging) || plugin.dataStore.getClaimAt(entity.getLocation(), false, null) == null) {
                     // everything else is removed
                     entity.remove();
                 }
@@ -104,9 +104,9 @@ class RestoreNatureExecutionTask implements Runnable {
 
         // show visualization to player who started the restoration
         if (player != null) {
-            Claim claim = new Claim(lesserCorner, greaterCorner, "", new String[]{}, new String[]{}, new String[]{}, new String[]{}, null, false);
+            Claim claim = new Claim(plugin, lesserCorner, greaterCorner, "", new String[]{}, new String[]{}, new String[]{}, new String[]{}, null, false);
             Visualization visualization = Visualization.FromClaim(claim, player.getLocation().getBlockY(), VisualizationType.RESTORE_NATURE, player.getLocation());
-            Visualization.Apply(player, visualization);
+            Visualization.apply(plugin, player, visualization);
         }
     }
 }

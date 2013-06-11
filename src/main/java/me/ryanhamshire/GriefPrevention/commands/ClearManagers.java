@@ -23,19 +23,19 @@ public class ClearManagers extends BaseClaimCommand {
         PlayerData pdata = plugin.dataStore.getPlayerData(player.getName());
         if (claim != null) {
             if (claim.isAdminClaim()) {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotAdmin);
+                plugin.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotAdmin);
                 return true;
             }
             if (pdata.isIgnoreClaims() || claim.getOwnerName().equalsIgnoreCase(player.getName())) {
                 for (String currmanager : claim.getManagerList()) {
                     claim.removeManager(currmanager);
                 }
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClearManagersSuccess);
+                plugin.sendMessage(player, TextMode.ERROR, Messages.ClearManagersSuccess);
             } else {
-                GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotOwned);
+                plugin.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotOwned);
             }
         } else {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotFound);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotFound);
         }
         return true;
     }

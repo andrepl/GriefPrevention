@@ -36,36 +36,36 @@ public class AbandonClaim extends BaseClaimCommand {
 
         // verify ownership
         if (claim.allowEdit(player) != null) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NotYourClaim);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.NotYourClaim);
         }
 
         // don't allow abandon of claims if not configured to allow.
         else if (!wc.getAllowUnclaim()) {
-            GriefPrevention.sendMessage(player, TextMode.ERROR, Messages.NoCreativeUnClaim);
+            plugin.sendMessage(player, TextMode.ERROR, Messages.NoCreativeUnClaim);
         }
 
         // warn if has children and we're not explicitly deleting a top level claim
         else if (claim.getChildren().size() > 0 && !deleteTopLevel) {
-            GriefPrevention.sendMessage(player, TextMode.INSTR, Messages.DeleteTopLevelClaim);
+            plugin.sendMessage(player, TextMode.INSTR, Messages.DeleteTopLevelClaim);
             return true;
         }
 
         // if the claim is locked, let's warn the player and give them a chance to back out
         else if (!playerData.isWarnedAboutMajorDeletion() && claim.isNeverDelete()) {
-            GriefPrevention.sendMessage(player, TextMode.WARN, Messages.ConfirmAbandonLockedClaim);
+            plugin.sendMessage(player, TextMode.WARN, Messages.ConfirmAbandonLockedClaim);
             playerData.setWarnedAboutMajorDeletion(true);
         }
         // if auto-restoration is enabled,
         else if (!playerData.isWarnedAboutMajorDeletion() && wc.getClaimsAbandonNatureRestoration()) {
-            GriefPrevention.sendMessage(player, TextMode.WARN, Messages.AbandonClaimRestoreWarning);
+            plugin.sendMessage(player, TextMode.WARN, Messages.AbandonClaimRestoreWarning);
             playerData.setWarnedAboutMajorDeletion(true);
         } else if (!playerData.isWarnedAboutMajorDeletion() && costoverhead != claimarea) {
             playerData.setWarnedAboutMajorDeletion(true);
-            GriefPrevention.sendMessage(player, TextMode.WARN, Messages.AbandonCostWarning, String.valueOf(costoverhead));
+            plugin.sendMessage(player, TextMode.WARN, Messages.AbandonCostWarning, String.valueOf(costoverhead));
         }
         // if the claim has lots of surface water or some surface lava, warn the player it will be cleaned up
         else if (!playerData.isWarnedAboutMajorDeletion() && claim.hasSurfaceFluids() && claim.getParent() == null) {
-            GriefPrevention.sendMessage(player, TextMode.WARN, Messages.ConfirmFluidRemoval);
+            plugin.sendMessage(player, TextMode.WARN, Messages.ConfirmFluidRemoval);
             playerData.setWarnedAboutMajorDeletion(true);
         } else {
             // delete it
@@ -89,21 +89,21 @@ public class AbandonClaim extends BaseClaimCommand {
             // then perform the restoration.
             if ((wc.getClaimsAbandonNatureRestoration())) {
                 GriefPrevention.addLogEntry(player.getName() + " abandoned a claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.UnclaimCleanupWarning);
-                GriefPrevention.instance.restoreClaim(claim, 20L * 60 * 2);
+                plugin.sendMessage(player, TextMode.WARN, Messages.UnclaimCleanupWarning);
+                plugin.restoreClaim(claim, 20L * 60 * 2);
             }
             // remove the interest cost, and message the player.
             if (costoverhead > 0) {
                 playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() - costoverhead);
 
-                GriefPrevention.sendMessage(player, TextMode.WARN, Messages.AbandonCost, 0, String.valueOf(costoverhead));
+                plugin.sendMessage(player, TextMode.WARN, Messages.AbandonCost, 0, String.valueOf(costoverhead));
             }
             int remainingBlocks = playerData.getRemainingClaimBlocks();
             // tell the player how many claim blocks he has left
-            GriefPrevention.sendMessage(player, TextMode.SUCCESS, Messages.AbandonSuccess, 0, String.valueOf(remainingBlocks));
+            plugin.sendMessage(player, TextMode.SUCCESS, Messages.AbandonSuccess, 0, String.valueOf(remainingBlocks));
 
             // revert any current visualization
-            Visualization.Revert(player);
+            Visualization.Revert(plugin, player);
 
             playerData.setWarnedAboutMajorDeletion(false);
         }

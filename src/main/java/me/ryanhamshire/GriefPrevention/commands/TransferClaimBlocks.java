@@ -25,14 +25,14 @@ public class TransferClaimBlocks extends BaseCommand {
         String sourcePlayerName = args.pop();
         List<Player> matches = plugin.getServer().matchPlayer(sourcePlayerName);
         if (matches.size() != 1) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound, sourcePlayerName);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound, sourcePlayerName);
             return true;
         }
 
         String targetPlayerName = args.pop();
         matches = plugin.getServer().matchPlayer(targetPlayerName);
         if (matches.size() != 1) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound, targetPlayerName);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.PlayerNotFound, targetPlayerName);
             return true;
         }
 
@@ -40,20 +40,20 @@ public class TransferClaimBlocks extends BaseCommand {
         try {
             desiredxfer = Integer.parseInt(args.peek());
         } catch (NumberFormatException nfe) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.NotANumber, args.peek());
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.NotANumber, args.peek());
             return true;
         }
 
         if (desiredxfer == 0) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksLessThanOne);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksLessThanOne);
             return true;
         }
 
         int amtXferred = plugin.transferClaimBlocks(sourcePlayerName, targetPlayerName, desiredxfer);
         if (amtXferred == 0) {
-            GriefPrevention.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksError);
+            plugin.sendMessage(sender, TextMode.ERROR, Messages.TransferBlocksError);
         } else {
-            GriefPrevention.sendMessage(sender, TextMode.SUCCESS, Messages.TransferBlocksSuccess, targetPlayerName, Integer.toString(amtXferred));
+            plugin.sendMessage(sender, TextMode.SUCCESS, Messages.TransferBlocksSuccess, targetPlayerName, Integer.toString(amtXferred));
         }
         return true;
     }

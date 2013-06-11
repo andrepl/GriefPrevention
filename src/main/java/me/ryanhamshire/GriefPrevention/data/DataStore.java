@@ -197,7 +197,7 @@ public class DataStore {
                                                        Claim oldclaim,Player claimcreator,boolean doRaiseEvent) {
 
         CreateClaimResult result = new CreateClaimResult();
-        WorldConfig wc = GriefPrevention.instance.getWorldCfg(world);
+        WorldConfig wc = plugin.getWorldCfg(world);
         int smallx, bigx, smally, bigy, smallz, bigz;
 
         Player gotplayer = Bukkit.getPlayer(ownerName);
@@ -232,7 +232,7 @@ public class DataStore {
         }
 
         //create a new claim instance (but don't save it, yet)
-        Claim newClaim = new Claim(
+        Claim newClaim = new Claim(plugin,
                 new Location(world, smallx, smally, smallz),
                 new Location(world, bigx, bigy, bigz),
                 ownerName,
@@ -388,7 +388,7 @@ public class DataStore {
         ArrayList<Claim> claimsToDelete = new ArrayList<Claim>();
         for (Claim claim: this.claims.getAllTopLevel()) {
             if(claim.getOwnerName().equals(ownerName) &&
-                    (deleteCreativeClaims || !GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner())) &&
+                    (deleteCreativeClaims || !plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) &&
                     (!claim.isNeverDelete()|| deleteLockedClaims)) {
                 claimsToDelete.add(claim);
             }
@@ -399,8 +399,8 @@ public class DataStore {
             claim.removeSurfaceFluids(null);
             this.deleteClaim(claim, null, true);
             // if in a creative mode world, delete the claim
-            if (GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner())) {
-                GriefPrevention.instance.restoreClaim(claim, 0);
+            if (plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
+                plugin.restoreClaim(claim, 0);
             }
         }
     }
