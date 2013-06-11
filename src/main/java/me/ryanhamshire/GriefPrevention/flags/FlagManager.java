@@ -1,6 +1,9 @@
 package me.ryanhamshire.GriefPrevention.flags;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.exceptions.FlagAlreadyRegisteredException;
+import me.ryanhamshire.GriefPrevention.exceptions.InvalidFlagException;
+import org.apache.commons.lang.Validate;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -8,6 +11,7 @@ import java.util.LinkedHashMap;
 /**
  * Manages all 3rd party claim 'flags'
  */
+@SuppressWarnings("unused")
 public class FlagManager {
 
     private GriefPrevention plugin;
@@ -23,14 +27,25 @@ public class FlagManager {
      * A flag registered here will be available to players via the /gp flag
      * command and will have its values automatically persisted.
      * @param flag a subclass of BaseFlag to be registered
-     * @return true if the flag was successfully registered, false if a flag by that name is already registered.
+     * @throws InvalidFlagException if the one of the Flag's fields is null
+     * @throws FlagAlreadyRegisteredException if a flag with that key is already registered.
      */
-    public boolean registerFlag(BaseFlag flag) {
+    public void registerFlag(BaseFlag flag) throws InvalidFlagException, FlagAlreadyRegisteredException {
+        try {
+            Validate.notNull(flag.getDefaultValue());
+            Validate.notNull(flag.getRequiredPermission());
+            Validate.notNull(flag.getDisplayName());
+            Validate.notNull(flag.getKey());
+            Validate.notNull(flag.getValidOptions());
+            Validate.noNullElements(flag.getValidOptions());
+            Validate.notNull(flag.getDescription());
+        } catch (NullPointerException ex) {
+            throw new InvalidFlagException(ex);
+        }
         if (registeredClaimFlags.containsKey(flag.getKey().toLowerCase())) {
-            return false;
+            throw new FlagAlreadyRegisteredException(flag.getKey().toLowerCase());
         }
         registeredClaimFlags.put(flag.getKey().toLowerCase(), flag);
-        return true;
     }
 
     /**
