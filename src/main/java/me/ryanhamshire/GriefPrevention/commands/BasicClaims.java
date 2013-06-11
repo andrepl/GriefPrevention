@@ -24,7 +24,7 @@ public class BasicClaims extends BaseCommand {
             return true;
         }
         Player player = (Player) sender;
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         playerData.setShovelMode(ShovelMode.BASIC);
         playerData.setClaimSubdividing(null);
         plugin.sendMessage(player, TextMode.SUCCESS, Messages.BasicClaimsMode);

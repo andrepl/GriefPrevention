@@ -91,7 +91,7 @@ public class EntityCleanupTask implements Runnable {
 
                 // all non-player entities must be in claims
                 else if (!(entity instanceof Player)) {
-                    Claim claim = plugin.dataStore.getClaimAt(entity.getLocation(), false, cachedClaim);
+                    Claim claim = plugin.getDataStore().getClaimAt(entity.getLocation(), false, cachedClaim);
                     if (claim != null) {
                         cachedClaim = claim;
                     } else {
@@ -106,11 +106,11 @@ public class EntityCleanupTask implements Runnable {
         }
 
         // starting and stopping point.  each execution of the task scans 5% of the server's claims
-        UUID[] claims = plugin.dataStore.getTopLevelClaimIDs();
+        UUID[] claims = plugin.getDataStore().getTopLevelClaimIDs();
         int j = (int) (claims.length * this.percentageStart);
         int k = (int) (claims.length * (this.percentageStart + .05));
         for (; j < claims.length && j < k; j++) {
-            Claim claim = plugin.dataStore.getClaim(claims[j]);
+            Claim claim = plugin.getDataStore().getClaim(claims[j]);
 
             // if it's a creative mode claim
             if (plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {

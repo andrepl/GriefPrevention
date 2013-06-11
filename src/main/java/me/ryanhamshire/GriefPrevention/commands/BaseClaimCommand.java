@@ -28,7 +28,7 @@ public abstract class BaseClaimCommand extends BaseCommand {
             return true;
         }
         Player player = (Player) sender;
-        Claim claim = plugin.dataStore.getClaimAt(player.getLocation(), this.ignoreHeight, null);
+        Claim claim = plugin.getDataStore().getClaimAt(player.getLocation(), this.ignoreHeight, null);
         if (claim == null) {
             plugin.sendMessage(player, TextMode.ERROR, this.noClaimMessage);
             return true;

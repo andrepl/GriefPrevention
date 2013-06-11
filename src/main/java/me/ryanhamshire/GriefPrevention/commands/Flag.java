@@ -74,7 +74,7 @@ public class Flag extends BaseClaimCommand {
                 }
                 plugin.sendMessage(player, TextMode.SUCCESS, Messages.FlagSet, flag.getDisplayName(), claim.getFlag(flag));
                 flag.onSet(player, claim, value);
-                plugin.dataStore.saveClaim(claim);
+                plugin.getDataStore().saveClaim(claim);
                 return true;
             }
             return false;

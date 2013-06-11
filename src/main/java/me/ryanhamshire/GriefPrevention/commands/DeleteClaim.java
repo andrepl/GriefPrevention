@@ -25,7 +25,7 @@ public class DeleteClaim extends BaseClaimCommand {
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         //deleting an admin claim additionally requires the adminclaims permission
         if (!claim.isAdminClaim() || player.hasPermission("griefprevention.adminclaims")) {
-            PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
             if (claim.getChildren().size() > 0 && !playerData.isWarnedAboutMajorDeletion()) {
                 plugin.sendMessage(player, TextMode.WARN, Messages.DeletionSubdivisionWarning);
                 playerData.setWarnedAboutMajorDeletion(true);
@@ -34,7 +34,7 @@ public class DeleteClaim extends BaseClaimCommand {
                 playerData.setWarnedAboutMajorDeletion(true);
             } else {
                 claim.removeSurfaceFluids(null);
-                plugin.dataStore.deleteClaim(claim, null, true);
+                plugin.getDataStore().deleteClaim(claim, null, true);
 
                 //if in a creative mode world, /restorenature the claim
                 if (wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {

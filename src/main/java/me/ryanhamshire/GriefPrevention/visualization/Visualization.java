@@ -36,7 +36,7 @@ public class Visualization {
    // sends a visualization to a player
     public static void apply(GriefPrevention plugin, Player player, Visualization visualization) {
 
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
 
         // if he has any current visualization, clear it first
         if (playerData.getCurrentVisualization() != null) {
@@ -51,7 +51,7 @@ public class Visualization {
 
     // reverts a visualization by sending another block change list, this time with the real world block values
     public static void Revert(GriefPrevention plugin, Player player) {
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
 
         Visualization visualization = playerData.getCurrentVisualization();
 

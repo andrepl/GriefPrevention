@@ -47,8 +47,8 @@ public class ClaimsList extends BaseCommand {
         }
 
         //load the target player's data
-        PlayerData playerData = plugin.dataStore.getPlayerData(otherPlayer.getName());
-        plugin.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.dataStore.getGroupBonusBlocks(otherPlayer.getName())));
+        PlayerData playerData = plugin.getDataStore().getPlayerData(otherPlayer.getName());
+        plugin.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.getDataStore().getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.getDataStore().getGroupBonusBlocks(otherPlayer.getName())));
         for (int i = 0; i < playerData.getClaims().size(); i++) {
             Claim claim = playerData.getClaims().get(i);
             plugin.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + plugin.getfriendlyLocationString(claim.getLesserBoundaryCorner()));

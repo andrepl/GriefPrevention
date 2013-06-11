@@ -25,7 +25,7 @@ public class IgnoreClaims extends BaseCommand {
         }
         Player player = (Player) sender;
 
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         playerData.setIgnoreClaims(!playerData.isIgnoreClaims());
 
         //toggle ignore claims mode on or off

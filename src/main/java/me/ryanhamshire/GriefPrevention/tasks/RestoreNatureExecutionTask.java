@@ -69,7 +69,7 @@ class RestoreNatureExecutionTask implements Runnable {
                     BlockSnapshot blockUpdate = this.snapshots[x][y][z];
                     Block currentBlock = blockUpdate.location.getBlock();
                     if (blockUpdate.typeId != currentBlock.getTypeId() || blockUpdate.data != currentBlock.getData()) {
-                        Claim claim = plugin.dataStore.getClaimAt(blockUpdate.location, false, cachedClaim);
+                        Claim claim = plugin.getDataStore().getClaimAt(blockUpdate.location, false, cachedClaim);
                         if (claim != null) {
                             cachedClaim = claim;
                             break;
@@ -88,7 +88,7 @@ class RestoreNatureExecutionTask implements Runnable {
             Entity entity = entities[i];
             if (!(entity instanceof Player || entity instanceof Animals)) {
                 // hanging entities (paintings, item frames) are protected when they're in land claims
-                if (!(entity instanceof Hanging) || plugin.dataStore.getClaimAt(entity.getLocation(), false, null) == null) {
+                if (!(entity instanceof Hanging) || plugin.getDataStore().getClaimAt(entity.getLocation(), false, null) == null) {
                     // everything else is removed
                     entity.remove();
                 }

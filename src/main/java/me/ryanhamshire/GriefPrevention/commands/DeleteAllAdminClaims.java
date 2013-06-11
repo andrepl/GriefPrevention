@@ -24,7 +24,7 @@ public class DeleteAllAdminClaims extends BaseCommand {
             return true;
         }
         //empty string for owner name indicates an administrative claim
-        plugin.dataStore.deleteClaimsForPlayer("", true, true);
+        plugin.getDataStore().deleteClaimsForPlayer("", true, true);
         plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AllAdminDeleted);
         if (sender != null) {
             GriefPrevention.addLogEntry(sender.getName() + " deleted all administrative claims.");

@@ -72,7 +72,7 @@ public class GriefPrevention extends JavaPlugin {
 
 
     // this handles data storage, like player and region data
-    public DataStore dataStore;
+    private DataStore dataStore;
 
     // reference to the economy plugin, if economy integration is enabled
     public static Economy economy = null;
@@ -457,10 +457,7 @@ public class GriefPrevention extends JavaPlugin {
         return flagManager;
     }
 
-    public static DataStore getDataStore() {
-        if (instance == null) {
-            return null;
-        }
-        return instance.getDataStore();
+    public DataStore getDataStore() {
+        return dataStore;
     }
 }

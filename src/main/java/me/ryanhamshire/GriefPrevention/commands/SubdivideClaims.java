@@ -24,7 +24,7 @@ public class SubdivideClaims extends BaseCommand {
             return true;
         }
         Player player = (Player) sender;
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         playerData.setShovelMode(ShovelMode.SUBDIVIDE);
         playerData.setClaimSubdividing(null);
         plugin.sendMessage(player, TextMode.INSTR, Messages.SubdivisionMode);

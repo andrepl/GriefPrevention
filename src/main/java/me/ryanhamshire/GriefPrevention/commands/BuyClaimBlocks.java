@@ -49,7 +49,7 @@ public class BuyClaimBlocks extends BaseCommand {
             return false;
         } else {
             //determine max purchasable blocks
-            PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
             int maxPurchasable = plugin.configuration.getMaxAccruedBlocks() - playerData.getAccruedClaimBlocks();
 
             //if the player is at his max, tell him so
@@ -88,7 +88,7 @@ public class BuyClaimBlocks extends BaseCommand {
 
                 //add blocks
                 playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + blockCount);
-                plugin.dataStore.savePlayerData(player.getName(), playerData);
+                plugin.getDataStore().savePlayerData(player.getName(), playerData);
 
                 //inform player
                 plugin.sendMessage(player, TextMode.SUCCESS, Messages.PurchaseConfirmation, String.valueOf(totalCost), String.valueOf(playerData.getRemainingClaimBlocks()));

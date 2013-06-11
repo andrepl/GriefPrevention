@@ -34,7 +34,7 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
         //if granting blocks to all players with a specific permission
         if (args.peek().startsWith("[") && args.peek().endsWith("]")) {
             String permissionIdentifier = args.peek().substring(1, args.peek().length() - 1);
-            int newTotal = plugin.dataStore.adjustGroupBonusBlocks(permissionIdentifier, adjustment);
+            int newTotal = plugin.getDataStore().adjustGroupBonusBlocks(permissionIdentifier, adjustment);
 
             if (sender instanceof Player) {
                 plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustGroupBlocksSuccess, permissionIdentifier, String.valueOf(adjustment), String.valueOf(newTotal));
@@ -51,9 +51,9 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
         }
 
         //give blocks to player
-        PlayerData playerData = plugin.dataStore.getPlayerData(targetPlayer.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(targetPlayer.getName());
         playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks() + adjustment);
-        plugin.dataStore.savePlayerData(targetPlayer.getName(), playerData);
+        plugin.getDataStore().savePlayerData(targetPlayer.getName(), playerData);
         plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.getBonusClaimBlocks()));
         if (sender instanceof Player) {
             GriefPrevention.addLogEntry(sender.getName() + " adjusted " + targetPlayer.getName() + "'s bonus claim blocks by " + adjustment + ".");

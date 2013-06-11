@@ -397,13 +397,13 @@ public class Claim {
         }
 
         // no building while in pvp combat
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         if (playerData.inPvpCombat()) {
             return plugin.getMessageManager().getMessage(Messages.NoBuildPvP);
         }
 
         // owners can make changes, or admins with ignore claims mode enabled
-        if (this.ownerName.equals(player.getName()) || plugin.dataStore.getPlayerData(player.getName()).isIgnoreClaims())
+        if (this.ownerName.equals(player.getName()) || plugin.getDataStore().getPlayerData(player.getName()).isIgnoreClaims())
             return null;
 
         // anyone with explicit build permission can make changes
@@ -516,7 +516,7 @@ public class Claim {
         }
 
         // claim owner and admins in ignoreclaims mode have access
-        if (this.ownerName.equals(player.getName()) || plugin.dataStore.getPlayerData(player.getName()).isIgnoreClaims())
+        if (this.ownerName.equals(player.getName()) || plugin.getDataStore().getPlayerData(player.getName()).isIgnoreClaims())
             return null;
 
         // look for explicit individual access, inventory, or build permission
@@ -551,7 +551,7 @@ public class Claim {
         if (player == null) return "";
 
         // owner and administrators in ignoreclaims mode have access
-        if (this.ownerName.equals(player.getName()) || plugin.dataStore.getPlayerData(player.getName()).isIgnoreClaims())
+        if (this.ownerName.equals(player.getName()) || plugin.getDataStore().getPlayerData(player.getName()).isIgnoreClaims())
             return null;
 
         // admin claims need adminclaims permission only.

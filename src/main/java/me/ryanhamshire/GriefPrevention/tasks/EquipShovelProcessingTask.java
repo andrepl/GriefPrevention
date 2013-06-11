@@ -46,7 +46,7 @@ public class EquipShovelProcessingTask implements Runnable {
         // if he's not holding the golden shovel anymore, do nothing
         if (player.getItemInHand().getType() != wc.getClaimsModificationTool()) return;
 
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
 
         int remainingBlocks = playerData.getRemainingClaimBlocks();
 

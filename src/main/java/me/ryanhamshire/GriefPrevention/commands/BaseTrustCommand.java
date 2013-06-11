@@ -72,7 +72,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
         //determine which claims should be modified
         ArrayList<Claim> targetClaims = new ArrayList<Claim>();
         if (claim == null) {
-            PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
             for (int i = 0; i < playerData.getClaims().size(); i++) {
                 targetClaims.add(playerData.getClaims().get(i));
             }
@@ -134,7 +134,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
             } else {
                 currentClaim.setPermission(recipientName, permissionLevel);
             }
-            plugin.dataStore.saveClaim(currentClaim);
+            plugin.getDataStore().saveClaim(currentClaim);
         }
 
         //notify player

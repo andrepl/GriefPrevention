@@ -117,7 +117,7 @@ public class BlockEventHandler implements Listener {
         // exception: administrators in ignore claims mode and special player accounts created by server mods
         if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
         if (claim == null) {
-            claim = plugin.dataStore.getClaimAt(location, true, playerData.getLastClaim());
+            claim = plugin.getDataStore().getClaimAt(location, true, playerData.getLastClaim());
         }
         // wilderness rules
         if (claim == null) {
@@ -302,7 +302,7 @@ public class BlockEventHandler implements Listener {
         WorldConfig wc = plugin.getWorldCfg(block.getWorld());
         if (wc.getApplyTrashBlockRules()) {
             // if set, then we only allow Trash Blocks to be placed, and only in the allowed places.
-            Claim testclaim = plugin.dataStore.getClaimAt(block.getLocation(), true, null);
+            Claim testclaim = plugin.getDataStore().getClaimAt(block.getLocation(), true, null);
             if (testclaim == null) {
                 if (wc.getTrashBlockPlacementBehaviour().allowed(block.getLocation(), player).allowed()) {
                     if (wc.getTrashBlocks().contains(block.getType())) {

@@ -25,7 +25,7 @@ public class AbandonClaim extends BaseClaimCommand {
 
         boolean deleteTopLevel = args.size() == 1 && args.peek().equalsIgnoreCase("toplevel");
 
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
 
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
 
@@ -76,7 +76,7 @@ public class AbandonClaim extends BaseClaimCommand {
             // retrieve area of this claim...
 
 
-            if (!plugin.dataStore.deleteClaim(claim, player, true)) {
+            if (!plugin.getDataStore().deleteClaim(claim, player, true)) {
                 // cancelled!
                 // assume the event called will show an appropriate message...
                 return false;

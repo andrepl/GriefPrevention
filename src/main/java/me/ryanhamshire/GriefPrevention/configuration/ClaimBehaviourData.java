@@ -47,10 +47,10 @@ public class ClaimBehaviourData {
             WorldConfig wc = plugin.getWorldCfg(testLocation.getWorld());
             PlayerData pd = null;
             if (testPlayer == null) return true;
-            if (testPlayer != null) pd = plugin.dataStore.getPlayerData(testPlayer.getName());
+            if (testPlayer != null) pd = plugin.getDataStore().getPlayerData(testPlayer.getName());
             if ((pd != null) && pd.isIgnoreClaims() || this == REQUIRE_NONE) return true;
             String result = null;
-            Claim atPosition  = plugin.dataStore.getClaimAt(testLocation, false, null);
+            Claim atPosition  = plugin.getDataStore().getClaimAt(testLocation, false, null);
             if(atPosition == null) return true; //unexpected...
             switch(this) {
                 case DISABLED:
@@ -161,7 +161,7 @@ public class ClaimBehaviourData {
         PlayerData pd = null;
         boolean ignoringClaims = false;
         if (relevantPlayer != null) {
-            pd = plugin.dataStore.getPlayerData(relevantPlayer.getName());
+            pd = plugin.getDataStore().getPlayerData(relevantPlayer.getName());
         }
         if (pd != null) {
             ignoringClaims = pd.isIgnoreClaims();
@@ -169,7 +169,7 @@ public class ClaimBehaviourData {
         if (ignoringClaims) {
             return ClaimAllowanceConstants.ALLOW;
         }
-		Claim testClaim = plugin.dataStore.getClaimAt(position, true, null);
+		Claim testClaim = plugin.getDataStore().getClaimAt(position, true, null);
 		if (testClaim != null) {
             if (!this.claimBehaviour.performTest(plugin, position, relevantPlayer, displayMessages)) {
                 return ClaimAllowanceConstants.DENY;

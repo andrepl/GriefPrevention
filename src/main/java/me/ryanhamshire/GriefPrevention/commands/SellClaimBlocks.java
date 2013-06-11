@@ -44,7 +44,7 @@ public class SellClaimBlocks extends BaseCommand {
         }
 
         //load player data
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         int availableBlocks = playerData.getRemainingClaimBlocks();
 
         //if no amount provided, just tell player value per block sold, and how many he can sell
@@ -75,7 +75,7 @@ public class SellClaimBlocks extends BaseCommand {
 
             //subtract blocks
             playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks()-blockCount);
-            plugin.dataStore.savePlayerData(player.getName(), playerData);
+            plugin.getDataStore().savePlayerData(player.getName(), playerData);
 
             //inform player
             plugin.sendMessage(player, TextMode.SUCCESS, Messages.BlockSaleConfirmation, String.valueOf(totalValue), String.valueOf(playerData.getRemainingClaimBlocks()));

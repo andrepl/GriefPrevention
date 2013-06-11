@@ -112,7 +112,7 @@ public class PlayerEventHandler implements Listener {
                 showclaimmessage = Messages.SurvivalBasicsDemoAdvertisement;
             }
             // retrieve the data on this player...
-            final PlayerData pdata = plugin.dataStore.getPlayerData(player.getName());
+            final PlayerData pdata = plugin.getDataStore().getPlayerData(player.getName());
             // if they are currently set to ignore, do not send anything.
             if (!pdata.isIgnoreClaimMessage()) {
                 // otherwise, set IgnoreClaimMessage and use a anonymous runnable to reset it after the timeout.
@@ -136,7 +136,7 @@ public class PlayerEventHandler implements Listener {
         // FEATURE: automatically educate players about the /trapped command
         // check for "trapped" or "stuck" to educate players about the /trapped command
         if (!message.contains("/trapped") && (message.contains("trapped") || message.contains("stuck") || message.contains(plugin.getMessageManager().getMessage(Messages.TrappedChatKeyword)))) {
-            final PlayerData pdata = plugin.dataStore.getPlayerData(player.getName());
+            final PlayerData pdata = plugin.getDataStore().getPlayerData(player.getName());
             // if not set to ignore the stuck message, show it, set the ignore flag, and set an anonymous runnable to reset it after the
             // configured delay.
             if (!pdata.isIgnoreStuckMessage()) {
@@ -180,7 +180,7 @@ public class PlayerEventHandler implements Listener {
     // when a player spawns, conditionally apply temporary pvp protection 
     @EventHandler(ignoreCancelled = true)
     void onPlayerRespawn(PlayerRespawnEvent event) {
-        PlayerData playerData = plugin.dataStore.getPlayerData(event.getPlayer().getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(event.getPlayer().getName());
         playerData.setLastSpawn(Calendar.getInstance().getTimeInMillis());
         plugin.checkPvpProtectionNeeded(event.getPlayer());
     }
@@ -441,7 +441,7 @@ public class PlayerEventHandler implements Listener {
         // if he's switching to the golden shovel
         ItemStack newItemStack = player.getInventory().getItem(event.getNewSlot());
         if (newItemStack != null && newItemStack.getType() == wc.getClaimsModificationTool()) {
-            PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
 
             // always reset to basic claims mode
             if (playerData.getShovelMode() != ShovelMode.BASIC) {
@@ -470,9 +470,9 @@ public class PlayerEventHandler implements Listener {
                     event.getFrom().getBlockZ() != event.getTo().getBlockZ() ||
                     event.getFrom().getWorld().getName().equals(event.getTo().getWorld().getName())) {
 
-                PlayerData playerData = plugin.dataStore.getPlayerData(event.getPlayer().getName());
-                Claim oldClaim = plugin.dataStore.getClaimAt(event.getFrom(), true, playerData.getLastClaim());
-                Claim newClaim = plugin.dataStore.getClaimAt(event.getTo(), true, oldClaim);
+                PlayerData playerData = plugin.getDataStore().getPlayerData(event.getPlayer().getName());
+                Claim oldClaim = plugin.getDataStore().getClaimAt(event.getFrom(), true, playerData.getLastClaim());
+                Claim newClaim = plugin.getDataStore().getClaimAt(event.getTo(), true, oldClaim);
                 if ((oldClaim == null) != (newClaim == null) ||
                         oldClaim != null && !oldClaim.equals(newClaim)) {
                     PlayerChangeClaimEvent claimChangeEvent = new PlayerChangeClaimEvent(event.getPlayer(), oldClaim, newClaim);
@@ -989,7 +989,7 @@ public class PlayerEventHandler implements Listener {
             
             if (playerData.getClaimResizing() == null) {
                 // see if the player has clicked inside one of their claims.
-                Claim checkclaim = plugin.dataStore.getClaimAt(clickedBlock.getLocation(), true, null);
+                Claim checkclaim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), true, null);
                 // is there even a claim here?
                 if (checkclaim != null) {
                     // there is a claim; make sure it belongs to this player.
@@ -1089,7 +1089,7 @@ public class PlayerEventHandler implements Listener {
                 }
 
                 // ask the datastore to try and resize the claim, this checks for conflicts with other claims
-                CreateClaimResult result = plugin.dataStore.resizeClaim(playerData.getClaimResizing(), newx1, newx2, newy1, newy2, newz1, newz2, player);
+                CreateClaimResult result = plugin.getDataStore().resizeClaim(playerData.getClaimResizing(), newx1, newx2, newy1, newy2, newz1, newz2, player);
 
                 if (result.succeeded == CreateClaimResult.Result.SUCCESS) {
                     // TODO: Raise a ClaimResizeEvent here.

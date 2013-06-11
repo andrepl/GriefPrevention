@@ -23,7 +23,7 @@ public class ClaimInfo extends BaseCommand {
         Claim claim = null;
         if (args.size() == 1) {
             UUID claimid = UUID.fromString(args.peek());
-            claim = plugin.dataStore.getClaim(claimid);
+            claim = plugin.getDataStore().getClaim(claimid);
             if (claim == null) {
                 plugin.sendMessage(sender, TextMode.ERROR, "Invalid Claim ID:" + claimid);
                 return true;
@@ -32,7 +32,7 @@ public class ClaimInfo extends BaseCommand {
             plugin.sendMessage(sender, TextMode.ERROR, Messages.CommandRequiresPlayer);
             return true;
         } else {
-            claim = plugin.dataStore.getClaimAt(((Player) sender).getLocation(), true, null);
+            claim = plugin.getDataStore().getClaimAt(((Player) sender).getLocation(), true, null);
         }
 
         if (claim == null) {

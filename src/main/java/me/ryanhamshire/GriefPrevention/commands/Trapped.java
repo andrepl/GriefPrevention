@@ -33,7 +33,7 @@ public class Trapped extends BaseClaimCommand {
     @Override
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
 
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         //if another /trapped is pending, ignore this slash command
         if (playerData.isPendingTrapped()) {

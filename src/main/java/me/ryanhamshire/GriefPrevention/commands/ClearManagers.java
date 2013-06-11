@@ -20,7 +20,7 @@ public class ClearManagers extends BaseClaimCommand {
 
     @Override
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
-        PlayerData pdata = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData pdata = plugin.getDataStore().getPlayerData(player.getName());
         if (claim != null) {
             if (claim.isAdminClaim()) {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotAdmin);

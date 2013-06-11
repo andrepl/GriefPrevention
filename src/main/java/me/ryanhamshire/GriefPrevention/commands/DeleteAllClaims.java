@@ -37,7 +37,7 @@ public class DeleteAllClaims extends BaseCommand {
         }
 
         //delete all that player's claims
-        plugin.dataStore.deleteClaimsForPlayer(otherPlayer.getName(), true, deletelocked);
+        plugin.getDataStore().deleteClaimsForPlayer(otherPlayer.getName(), true, deletelocked);
 
         if (deletelocked) {
             plugin.sendMessage(sender, TextMode.SUCCESS, Messages.DeleteAllSuccessIncludingLocked, otherPlayer.getName());

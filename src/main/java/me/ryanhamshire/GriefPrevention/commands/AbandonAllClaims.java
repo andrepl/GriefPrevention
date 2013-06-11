@@ -44,7 +44,7 @@ public class AbandonAllClaims extends BaseCommand {
         }
 
         //count claims
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         int originalClaimCount = playerData.getClaims().size();
 
         //check count
@@ -54,7 +54,7 @@ public class AbandonAllClaims extends BaseCommand {
         }
 
         //delete them
-        plugin.dataStore.deleteClaimsForPlayer(player.getName(), false, deleteLocked);
+        plugin.getDataStore().deleteClaimsForPlayer(player.getName(), false, deleteLocked);
 
         //inform the player
         int remainingBlocks = playerData.getRemainingClaimBlocks();

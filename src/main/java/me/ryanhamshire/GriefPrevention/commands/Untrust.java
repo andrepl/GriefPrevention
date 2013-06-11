@@ -31,7 +31,7 @@ public class Untrust extends BaseCommand {
         }
         Player player = (Player) sender;
         //determine which claim the player is standing in
-        Claim claim = plugin.dataStore.getClaimAt(player.getLocation(), true /*ignore height*/, null);
+        Claim claim = plugin.getDataStore().getClaimAt(player.getLocation(), true /*ignore height*/, null);
 
         //bracket any permissions
         if (target.contains(".")) {
@@ -71,7 +71,7 @@ public class Untrust extends BaseCommand {
 
         //if no claim here, apply changes to all his claims
         if (claim == null) {
-            PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
             for (int i = 0; i < playerData.getClaims().size(); i++) {
                 claim = playerData.getClaims().get(i);
                 //if untrusting "all" drop all permissions
@@ -83,7 +83,7 @@ public class Untrust extends BaseCommand {
                     //claim.managers.remove(target);
                 }
                 //save changes
-                plugin.dataStore.saveClaim(claim);
+                plugin.getDataStore().saveClaim(claim);
             }
             //beautify for output
             if (target.equals("public")) {
@@ -120,7 +120,7 @@ public class Untrust extends BaseCommand {
                 }
             }
             //save changes
-            plugin.dataStore.saveClaim(claim);
+            plugin.getDataStore().saveClaim(claim);
         }
         return true;
     }

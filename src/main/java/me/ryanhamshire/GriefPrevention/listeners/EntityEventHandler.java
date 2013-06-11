@@ -107,7 +107,7 @@ public class EntityEventHandler implements Listener {
             Arrow arrow = (Arrow) event.getEntity();
             if (arrow.getShooter() instanceof Player) {
                 Player shooter = (Player) arrow.getShooter();
-                Claim claim = plugin.dataStore.getClaimAt(event.getBlock().getLocation(), false, null);
+                Claim claim = plugin.getDataStore().getClaimAt(event.getBlock().getLocation(), false, null);
                 if (claim != null) {
                     String noAccessReason = claim.allowAccess(shooter);
                     if (noAccessReason != null) {
@@ -156,7 +156,7 @@ public class EntityEventHandler implements Listener {
                 blocks.remove(i--);
             } else {
                 // it is allowed, however, if it is on a claim only allow if explosions are enabled for that claim.
-                claimPos = plugin.dataStore.getClaimAt(block.getLocation(), false, claimPos);
+                claimPos = plugin.getDataStore().getClaimAt(block.getLocation(), false, claimPos);
                 if (claimPos != null && !claimPos.isExplosivesAllowed()) {
                     blocks.remove(i--);
                 } else if (block.getType() == Material.LOG) {
@@ -298,7 +298,7 @@ public class EntityEventHandler implements Listener {
 
         // if the player doesn't have build permission, don't allow the breakage
         Player playerRemover = (Player) entityEvent.getRemover();
-        String noBuildReason = plugin.getBlockEventHandler().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.dataStore.getPlayerData(playerRemover.getName()), null);
+        String noBuildReason = plugin.getBlockEventHandler().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(playerRemover.getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
             plugin.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
@@ -311,7 +311,7 @@ public class EntityEventHandler implements Listener {
         // FEATURE: similar to above, placing a painting requires build permission in the claim
 
         // if the player doesn't have permission, don't allow the placement
-        String noBuildReason = plugin.getBlockEventHandler().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.dataStore.getPlayerData(event.getPlayer().getName()), null);
+        String noBuildReason = plugin.getBlockEventHandler().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(event.getPlayer().getName()), null);
         if (noBuildReason != null) {
             event.setCancelled(true);
             plugin.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);

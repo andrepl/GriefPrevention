@@ -49,7 +49,7 @@ public class DeliverClaimBlocksTask implements Runnable {
 
             int accruedBlocks = Math.max(1, (int)(wc.getClaimBlocksAccruedPerHour() / 12));
 
-            DataStore dataStore = plugin.dataStore;
+            DataStore dataStore = plugin.getDataStore();
             PlayerData playerData = dataStore.getPlayerData(player.getName());
 
             Location lastLocation = playerData.getLastAfkCheckLocation();

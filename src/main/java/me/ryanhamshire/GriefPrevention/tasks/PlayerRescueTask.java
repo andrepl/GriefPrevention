@@ -49,7 +49,7 @@ public class PlayerRescueTask implements Runnable {
         if (!player.isOnline()) return;
 
         // he no longer has a pending /trapped slash command, so he can try to use it again now
-        PlayerData playerData = plugin.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         playerData.setPendingTrapped(false);
 
         // if the player moved three or more blocks from where he used /trapped, admonish him and don't save him

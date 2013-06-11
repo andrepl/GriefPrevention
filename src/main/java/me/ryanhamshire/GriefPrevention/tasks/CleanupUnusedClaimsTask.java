@@ -45,14 +45,14 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
     @Override
     public void run() {
-        if (plugin.dataStore.claimCount() == 0) return;
+        if (plugin.getDataStore().claimCount() == 0) return;
         if (this.claimIds.isEmpty()) {
             // Get a list of top level claim id's and shuffle it.
-            claimIds = new LinkedList<UUID>(Arrays.asList(plugin.dataStore.getTopLevelClaimIDs()));
+            claimIds = new LinkedList<UUID>(Arrays.asList(plugin.getDataStore().getTopLevelClaimIDs()));
             Collections.shuffle(claimIds);
             return;
         }
-        Claim claim = plugin.dataStore.getClaim(claimIds.pop());
+        Claim claim = plugin.getDataStore().getClaim(claimIds.pop());
         // skip administrative claims
         if (claim.isAdminClaim()) return;
         WorldConfig wc = plugin.getWorldCfg(claim.getLesserBoundaryCorner().getWorld());
@@ -60,7 +60,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
         boolean cleanupChunks = false;
 
         // get data for the player, especially last login timestamp
-        PlayerData playerData = plugin.dataStore.getPlayerData(claim.getOwnerName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(claim.getOwnerName());
 
         // determine area of the default chest claim
         int areaOfDefaultClaim = 0;
@@ -78,7 +78,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
             // if that's a chest claim and those are set to expire
             if (claim.getArea() <= areaOfDefaultClaim && wc.getChestClaimExpirationDays() > 0) {
                 claim.removeSurfaceFluids(null);
-                plugin.dataStore.deleteClaim(claim, null, true);
+                plugin.getDataStore().deleteClaim(claim, null, true);
                 cleanupChunks = true;
 
                 // if configured to do so, restore the land to natural
@@ -103,7 +103,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 }
 
                 // delete them
-                plugin.dataStore.deleteClaimsForPlayer(claim.getOwnerName(), true, false);
+                plugin.getDataStore().deleteClaimsForPlayer(claim.getOwnerName(), true, false);
                 GriefPrevention.addLogEntry(" All of " + claim.getOwnerName() + "'s claims have expired. Removing all but the locked claims.");
 
                 for (int i = 0; i < claims.size(); i++) {
@@ -148,7 +148,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 }
 
                 if (removeClaim) {
-                    plugin.dataStore.deleteClaim(claim, null, true);
+                    plugin.getDataStore().deleteClaim(claim, null, true);
                     GriefPrevention.addLogEntry("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
 
                     // if configured to do so, restore the claim area to natural state
