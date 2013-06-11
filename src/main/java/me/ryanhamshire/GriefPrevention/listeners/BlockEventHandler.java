@@ -279,7 +279,7 @@ public class BlockEventHandler implements Listener {
         // if not empty and wasn't the same as the last sign, log it and remember it for later
         PlayerData playerData = this.dataStore.getPlayerData(player.getName());
         if (notEmpty && playerData.getLastMessage() != null && !playerData.getLastMessage().equals(signMessage)) {
-            GriefPrevention.addLogEntry("[Sign Placement] <" + player.getName() + "> " + lines.toString() + " @ " + GriefPrevention.getfriendlyLocationString(event.getBlock().getLocation()));
+            plugin.getLogger().info("[Sign Placement] <" + player.getName() + "> " + lines.toString() + " @ " + GriefPrevention.getfriendlyLocationString(event.getBlock().getLocation()));
             playerData.setLastMessage(signMessage);
 
             if (!player.hasPermission("griefprevention.eavesdrop") && wc.getSignEavesdrop()) {

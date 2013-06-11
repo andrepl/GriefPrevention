@@ -37,8 +37,6 @@ public class SerializationUtil {
 
             // null value returned indicates an error parsing the string from the config file
             if (materialInfo == null) {
-                // show error in log
-                GriefPrevention.addLogEntry("ERROR: Unable to read a material entry from the config file.  Please update your config.yml.");
                 // update string, which will go out to config file to help user find the error entry
                 if (!stringsToParse.get(i).contains("can't")) {
                     stringsToParse.set(i, stringsToParse.get(i) + "     <-- can't understand this entry, see BukkitDev documentation");

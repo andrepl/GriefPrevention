@@ -86,7 +86,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
                     plugin.restoreClaim(claim, 0);
                 }
 
-                GriefPrevention.addLogEntry(" " + claim.getOwnerName() + "'s new player claim expired.");
+                plugin.getLogger().info(" " + claim.getOwnerName() + "'s new player claim expired.");
             }
         }
 
@@ -104,7 +104,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
                 // delete them
                 plugin.getDataStore().deleteClaimsForPlayer(claim.getOwnerName(), true, false);
-                GriefPrevention.addLogEntry(" All of " + claim.getOwnerName() + "'s claims have expired. Removing all but the locked claims.");
+                plugin.getLogger().info(" All of " + claim.getOwnerName() + "'s claims have expired. Removing all but the locked claims.");
 
                 for (int i = 0; i < claims.size(); i++) {
                     // if configured to do so, restore the land to natural
@@ -149,7 +149,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
                 if (removeClaim) {
                     plugin.getDataStore().deleteClaim(claim, null, true);
-                    GriefPrevention.addLogEntry("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+                    plugin.getLogger().info("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
 
                     // if configured to do so, restore the claim area to natural state
                     if (wc.getClaimsAutoNatureRestoration()) {

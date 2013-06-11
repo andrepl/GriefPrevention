@@ -92,12 +92,6 @@ public class GriefPrevention extends JavaPlugin {
     private MessageManager messageManager;
     private BlockEventHandler blockEventHandler;
 
-
-    // adds a server log entry
-    public static void addLogEntry(String entry) {
-        instance.getLogger().info(entry);
-    }
-
     /**
      * Retrieves a World Configuration given the World. if the World Configuration is not loaded,
      * it will be loaded from the plugins/GriefPreventionData/WorldConfigs folder. If a file is not present for the world,
@@ -147,8 +141,8 @@ public class GriefPrevention extends JavaPlugin {
             this.dataStore = new DataStore(this);
             this.dataStore.onEnable();
         } catch (Exception e) {
-            GriefPrevention.addLogEntry("Unable to initialize the file system data store.  Details:");
-            GriefPrevention.addLogEntry(e.getMessage());
+            getLogger().info("Unable to initialize the file system data store.  Details:");
+            getLogger().info(e.getMessage());
         }
 
         boolean entitycleanupEnabled = false;
@@ -176,12 +170,12 @@ public class GriefPrevention extends JavaPlugin {
         if (this.configuration.getClaimBlocksPurchaseCost() > 0 || this.configuration.getClaimBlocksSellValue() > 0) {
             // try to load Vault
             RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-            GriefPrevention.addLogEntry("Vault loaded successfully!");
+            getLogger().info("Vault loaded successfully!");
             // ask Vault to hook into an economy plugin
             if (economyProvider != null) {
                 GriefPrevention.economy = economyProvider.getProvider();
             } else {
-                GriefPrevention.addLogEntry("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
+                getLogger().info("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
             }
         }
         try {
@@ -363,7 +357,7 @@ public class GriefPrevention extends JavaPlugin {
     // sends a color-coded message to a player
     public void sendMessage(CommandSender player, TextMode color, String message) {
         if (player == null) {
-            GriefPrevention.addLogEntry(removeColors(message));
+            getLogger().info(removeColors(message));
         } else {
             player.sendMessage(instance.configuration.getColor(color) + message);
         }
@@ -372,7 +366,7 @@ public class GriefPrevention extends JavaPlugin {
     // sends a color-coded message to a player
     public void sendMessage(CommandSender player, ChatColor color, String message) {
         if (player == null) {
-            GriefPrevention.addLogEntry(removeColors(message));
+            getLogger().info(removeColors(message));
         } else {
             player.sendMessage(color + message);
         }
@@ -447,9 +441,9 @@ public class GriefPrevention extends JavaPlugin {
         return blockEventHandler;
     }
 
-    public static void debug(String s) {
-        if (instance.configuration.isDebugMode()) {
-            instance.getLogger().info(s);
+    public void debug(String s) {
+        if (configuration.isDebugMode()) {
+            getLogger().info(s);
         }
     }
 

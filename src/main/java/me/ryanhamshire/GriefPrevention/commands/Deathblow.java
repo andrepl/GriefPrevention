@@ -61,9 +61,9 @@ public class Deathblow extends BaseCommand {
 
         //log entry
         if (sender instanceof Player) {
-            GriefPrevention.addLogEntry(sender.getName() + " used /DeathBlow to kill " + targetPlayer.getName() + ".");
+            plugin.getLogger().info(sender.getName() + " used /DeathBlow to kill " + targetPlayer.getName() + ".");
         } else {
-            GriefPrevention.addLogEntry("Killed " + targetPlayer.getName() + ".");
+            plugin.getLogger().info("Killed " + targetPlayer.getName() + ".");
         }
         return true;
     }

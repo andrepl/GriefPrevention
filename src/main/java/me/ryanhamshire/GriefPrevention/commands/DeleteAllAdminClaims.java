@@ -27,7 +27,7 @@ public class DeleteAllAdminClaims extends BaseCommand {
         plugin.getDataStore().deleteClaimsForPlayer("", true, true);
         plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AllAdminDeleted);
         if (sender != null) {
-            GriefPrevention.addLogEntry(sender.getName() + " deleted all administrative claims.");
+            plugin.getLogger().info(sender.getName() + " deleted all administrative claims.");
             if (sender instanceof Player) {
                 //revert any current visualization
                 Visualization.Revert(plugin, (Player) sender);

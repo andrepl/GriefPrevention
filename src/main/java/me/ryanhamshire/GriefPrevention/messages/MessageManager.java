@@ -215,7 +215,7 @@ public class MessageManager {
 
             // if default is missing, log an error and use some fake data for now so that the plugin can run
             if (messageData == null) {
-                GriefPrevention.addLogEntry("Missing message for " + messageID.name() + ".  Please contact the developer.");
+                plugin.getLogger().info("Missing message for " + messageID.name() + ".  Please contact the developer.");
                 messageData = new CustomizableMessage(messageID, "Missing message!  ID: " + messageID.name() + ".  Please contact a server admin.", null);
             }
 
@@ -233,7 +233,7 @@ public class MessageManager {
         try {
             config.save(new File(plugin.getDataFolder(), "messages.yml"));
         } catch (IOException exception) {
-            GriefPrevention.addLogEntry("Unable to write to the configuration file at \"" + new File(plugin.getDataFolder(), "messages.yml") + "\"");
+            plugin.getLogger().info("Unable to write to the configuration file at \"" + new File(plugin.getDataFolder(), "messages.yml") + "\"");
         }
 
         defaults.clear();

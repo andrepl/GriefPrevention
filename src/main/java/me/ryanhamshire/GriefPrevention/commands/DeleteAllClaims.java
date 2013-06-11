@@ -45,7 +45,7 @@ public class DeleteAllClaims extends BaseCommand {
             plugin.sendMessage(sender, TextMode.SUCCESS, Messages.DeleteAllSuccessExcludingLocked, otherPlayer.getName());
         }
         if (sender != null) {
-            GriefPrevention.addLogEntry(sender.getName() + " deleted all claims belonging to " + otherPlayer.getName() + ".");
+            plugin.getLogger().info(sender.getName() + " deleted all claims belonging to " + otherPlayer.getName() + ".");
 
              if (sender instanceof Player) {
                 //revert any current visualization

@@ -77,7 +77,7 @@ public class DataStore {
         Claim[] dirtyClaims = new Claim[dirtyClaimIds.size()];
         int i = 0;
         for (UUID uuid: dirtyClaimIds) {
-            GriefPrevention.debug("Saving dirty claim[" + uuid + "]: " + claims.get(uuid));
+            plugin.debug("Saving dirty claim[" + uuid + "]: " + claims.get(uuid));
             dirtyClaims[i++] = (claims.get(uuid));
         }
         persistence.writeClaimDataSync(dirtyClaims);

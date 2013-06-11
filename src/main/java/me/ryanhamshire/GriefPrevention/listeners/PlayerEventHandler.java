@@ -1101,14 +1101,14 @@ public class PlayerEventHandler implements Listener {
 
                     // if resizing someone else's claim, make a log entry
                     if (!playerData.getClaimResizing().getOwnerName().equals(playerName)) {
-                        GriefPrevention.addLogEntry(playerName + " resized " + playerData.getClaimResizing().getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getLesserBoundaryCorner()) + ".");
+                        plugin.getLogger().info(playerName + " resized " + playerData.getClaimResizing().getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getLesserBoundaryCorner()) + ".");
                     }
 
                     // if in a creative mode world and shrinking an existing claim, restore any unclaimed area
                     if (smaller && wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(oldClaim.getLesserBoundaryCorner())) {
                         plugin.sendMessage(player, TextMode.WARN, Messages.UnclaimCleanupWarning);
                         plugin.restoreClaim(oldClaim, 20L * 60 * 2);  // 2 minutes
-                        GriefPrevention.addLogEntry(player.getName() + " shrank a claim @ " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getLesserBoundaryCorner()));
+                        plugin.getLogger().info(player.getName() + " shrank a claim @ " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getLesserBoundaryCorner()));
                     }
 
                     // clean up

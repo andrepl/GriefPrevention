@@ -38,7 +38,7 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
 
             if (sender instanceof Player) {
                 plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustGroupBlocksSuccess, permissionIdentifier, String.valueOf(adjustment), String.valueOf(newTotal));
-                GriefPrevention.addLogEntry(sender.getName() + " adjusted " + permissionIdentifier + "'s bonus claim blocks by " + adjustment + ".");
+                plugin.getLogger().info(sender.getName() + " adjusted " + permissionIdentifier + "'s bonus claim blocks by " + adjustment + ".");
             }
             return true;
         }
@@ -56,7 +56,7 @@ public class AdjustBonusClaimBlocks extends BaseCommand {
         plugin.getDataStore().savePlayerData(targetPlayer.getName(), playerData);
         plugin.sendMessage(sender, TextMode.SUCCESS, Messages.AdjustBlocksSuccess, targetPlayer.getName(), String.valueOf(adjustment), String.valueOf(playerData.getBonusClaimBlocks()));
         if (sender instanceof Player) {
-            GriefPrevention.addLogEntry(sender.getName() + " adjusted " + targetPlayer.getName() + "'s bonus claim blocks by " + adjustment + ".");
+            plugin.getLogger().info(sender.getName() + " adjusted " + targetPlayer.getName() + "'s bonus claim blocks by " + adjustment + ".");
         }
         return true;
     }

@@ -316,7 +316,7 @@ public class WorldConfig {
                      configTrashBlocks.add(parsed);
 				 } catch (IllegalArgumentException iae) {
 					 // nothing special, log though.
-					 GriefPrevention.addLogEntry("failed to parse trashmaterial Entry:" + trashmaterial.toUpperCase());
+					 plugin.getLogger().info("failed to parse trashmaterial Entry:" + trashmaterial.toUpperCase());
 				 }
 			}
 		}
@@ -560,7 +560,7 @@ public class WorldConfig {
 		this.configClaimsInvestigationTool = Material.getMaterial(investigationToolMaterialName);
 		if(this.configClaimsInvestigationTool == null)
 		{
-			GriefPrevention.addLogEntry("ERROR: Material " + investigationToolMaterialName + " not found.  Defaulting to the stick.  Please update your config.yml.");
+			plugin.getLogger().info("ERROR: Material " + investigationToolMaterialName + " not found.  Defaulting to the stick.  Please update your config.yml.");
 			this.configClaimsInvestigationTool = Material.STICK;
 		}
 
@@ -574,7 +574,7 @@ public class WorldConfig {
 		this.configClaimsModificationTool = Material.getMaterial(modificationToolMaterialName);
 		if(this.configClaimsModificationTool == null)
 		{
-			GriefPrevention.addLogEntry("ERROR: Material " + modificationToolMaterialName + " not found.  Defaulting to the golden shovel.  Please update your config.yml.");
+			plugin.getLogger().info("ERROR: Material " + modificationToolMaterialName + " not found.  Defaulting to the golden shovel.  Please update your config.yml.");
 			this.configClaimsModificationTool = Material.GOLD_SPADE;
 		}
 

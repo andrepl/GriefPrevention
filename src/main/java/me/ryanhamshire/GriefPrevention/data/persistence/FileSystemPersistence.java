@@ -154,7 +154,7 @@ public class FileSystemPersistence implements IPersistence {
 
     @Override
     public PlayerData loadOrCreatePlayerData(String playerName) {
-        GriefPrevention.debug("loadOrCreatePlayerData: " + playerName);
+        plugin.debug("loadOrCreatePlayerData: " + playerName);
         PlayerData playerData;
         YamlConfiguration cfg;
         File playerFile = null;
@@ -192,7 +192,7 @@ public class FileSystemPersistence implements IPersistence {
     public void writePlayerDataSync(PlayerData... players) {
         File playerFile;
         for (PlayerData pd: players) {
-            GriefPrevention.debug("Saving player data: " + pd.getPlayerName());
+            plugin.debug("Saving player data: " + pd.getPlayerName());
             YamlConfiguration cfg = new YamlConfiguration();
             cfg.set("accruedClaimBlocks", pd.getAccruedClaimBlocks());
             cfg.set("bonusClaimBlocks", pd.getBonusClaimBlocks());
@@ -213,7 +213,7 @@ public class FileSystemPersistence implements IPersistence {
     public void writeClaimDataSync(Claim... claims) {
         File claimFile;
         for (Claim c: claims) {
-            GriefPrevention.debug("Saving Claim: " + c);
+            plugin.debug("Saving Claim: " + c);
             YamlConfiguration cfg = new YamlConfiguration();
             cfg.set("minimumPoint", SerializationUtil.locationToString(c.getLesserBoundaryCorner()));
             cfg.set("maximumPoint", SerializationUtil.locationToString(c.getGreaterBoundaryCorner()));
