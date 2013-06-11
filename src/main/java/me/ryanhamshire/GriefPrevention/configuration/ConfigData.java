@@ -38,6 +38,7 @@ public class ConfigData {
     private String databaseUrl;
     private String databaseUserName;
     private String databasePassword;
+    private String blockBankAccount;
 
     /**
      * Constructs a new ConfigData instance from the given core configuration location
@@ -68,14 +69,18 @@ public class ConfigData {
         outConfig.set("GriefPrevention.ChatColors.Warning", colors.get(TextMode.WARN).name());
 
         // economy / block accrual
-        this.maxAccruedBlocks = coreConfig.getInt("GriefPrevention.Claims.MaxAccruedBlocks", 5000);
+        maxAccruedBlocks = coreConfig.getInt("GriefPrevention.Claims.MaxAccruedBlocks", 5000);
         outConfig.set("GriefPrevention.Claims.MaxAccruedBlocks", maxAccruedBlocks);
-        this.claimBlocksPurchaseCost = coreConfig.getDouble("GriefPrevention.Economy.ClaimBlocksPurchaseCost", 0);
-        outConfig.set("GriefPrevention.Economy.ClaimBlocksPurchaseCost", this.claimBlocksPurchaseCost);
-        this.claimBlocksSellValue = coreConfig.getDouble("GriefPrevention.Economy.ClaimBlocksSellValue", 0);
-        outConfig.set("GriefPrevention.Economy.ClaimBlocksSellValue", this.claimBlocksSellValue);
-        this.initialBlocks = coreConfig.getInt("GriefPrevention.Claims.InitialBlocks", 100);
+        claimBlocksPurchaseCost = coreConfig.getDouble("GriefPrevention.Economy.ClaimBlocksPurchaseCost", 0);
+        outConfig.set("GriefPrevention.Economy.ClaimBlocksPurchaseCost", claimBlocksPurchaseCost);
+        claimBlocksSellValue = coreConfig.getDouble("GriefPrevention.Economy.ClaimBlocksSellValue", 0);
+        outConfig.set("GriefPrevention.Economy.ClaimBlocksSellValue", claimBlocksSellValue);
+        initialBlocks = coreConfig.getInt("GriefPrevention.Claims.InitialBlocks", 100);
         outConfig.set("GriefPrevention.Claims.InitialBlocks", initialBlocks);
+        blockBankAccount = coreConfig.getString("GriefPrevention.Economy.BlockBankAccount", "");
+        outConfig.set("GriefPrevention.Economy.BlockBank.Account", blockBankAccount);
+
+
 
         // Database Settings
         databaseUrl = coreConfig.getString("GriefPrevention.Database.URL", "");
@@ -271,5 +276,9 @@ public class ConfigData {
 
     public boolean isDebugMode() {
         return debugMode;
+    }
+
+    public String getBlockBankAccount() {
+        return blockBankAccount;
     }
 }
