@@ -38,3 +38,8 @@ What's Planned?
  - more command consolidation
  - Suggestions welcome, but quite possibly ignored.
 
+API Usage
+---------
+
+It's still early days, there is no documentation, but there is a plugin which uses the api to add 2 new flags, as well as custom entry/exit messges.
+http://github.com/andrepl/GPExtras/
