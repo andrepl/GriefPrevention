@@ -417,7 +417,6 @@ public class Claim {
      * @return
      */
     private boolean isApplicablePlayer(String identifier, String pName) {
-        // System.out.println("Checking player " + pName + " matches " + identifier);
         if (identifier.equalsIgnoreCase(pName)) return true;
         if (identifier.toUpperCase().startsWith("G:")) {
             identifier = identifier.substring(2);

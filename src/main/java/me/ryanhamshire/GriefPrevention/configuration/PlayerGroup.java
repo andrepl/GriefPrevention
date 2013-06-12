@@ -59,7 +59,6 @@ public class PlayerGroup {
         //System.out.println("Attempting to read groups from" + SourceNode);
         ArrayList<PlayerGroup> results = new ArrayList<PlayerGroup>();
         List<String> GroupNames = Source.getStringList(SourceNode + ".Names");
-        System.out.println("Found " + GroupNames.size() + " Groups");
         for (String iterategroup : GroupNames) {
             //create Group Name.
             String GroupPath = SourceNode + "." + iterategroup;
@@ -82,20 +81,14 @@ public class PlayerGroup {
     }
 
     private PlayerGroup(FileConfiguration source, String sourceNode) {
-        //System.out.println("reading group from " + SourceNode);
         //Source is the Config to load from.
         //Node is the first node. An example of the Groups:
-		
         //SourceNode will be "GriefPrevention.Groups.Donator" when loading the Donator Group.
-
         //First: parse out the Group name. This is everything past the last period.
-
-
         GroupName = sourceNode.substring(sourceNode.lastIndexOf('.') + 1);
         //now we want the list at this Node.
         PlayerNames = new ArrayList<String>();
         for (String iterNames: source.getStringList(sourceNode)) {
-            System.out.println("Group-" + sourceNode + " " + iterNames);
             PlayerNames.add(iterNames);
         }
     }

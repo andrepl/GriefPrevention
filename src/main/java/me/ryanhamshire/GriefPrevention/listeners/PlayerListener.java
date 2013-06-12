@@ -1,67 +1,64 @@
-    /*
-    GriefPrevention Server Plugin for Minecraft
-    Copyright (C) 2011 Ryan Hamshire
+/*
+GriefPrevention Server Plugin for Minecraft
+Copyright (C) 2011 Ryan Hamshire
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http:// www.gnu.org/licenses/>.
- */
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http:// www.gnu.org/licenses/>.
+*/
 
 package me.ryanhamshire.GriefPrevention.listeners;
 
-    import me.ryanhamshire.GriefPrevention.BlockSnapshot;
-    import me.ryanhamshire.GriefPrevention.CreateClaimResult;
-    import me.ryanhamshire.GriefPrevention.GriefPrevention;
-    import me.ryanhamshire.GriefPrevention.ShovelMode;
-    import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
-    import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
-    import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
-    import me.ryanhamshire.GriefPrevention.data.Claim;
-    import me.ryanhamshire.GriefPrevention.data.DataStore;
-    import me.ryanhamshire.GriefPrevention.data.PlayerData;
-    import me.ryanhamshire.GriefPrevention.events.PlayerChangeClaimEvent;
-    import me.ryanhamshire.GriefPrevention.messages.Messages;
-    import me.ryanhamshire.GriefPrevention.messages.TextMode;
-    import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
-    import me.ryanhamshire.GriefPrevention.tasks.RestoreNatureProcessingTask;
-    import me.ryanhamshire.GriefPrevention.visualization.Visualization;
-    import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
-    import org.bukkit.Bukkit;
-    import org.bukkit.Chunk;
-    import org.bukkit.Location;
-    import org.bukkit.Material;
-    import org.bukkit.World.Environment;
-    import org.bukkit.block.Block;
-    import org.bukkit.block.BlockFace;
-    import org.bukkit.entity.*;
-    import org.bukkit.entity.minecart.HopperMinecart;
-    import org.bukkit.entity.minecart.PoweredMinecart;
-    import org.bukkit.entity.minecart.StorageMinecart;
-    import org.bukkit.event.EventHandler;
-    import org.bukkit.event.EventPriority;
-    import org.bukkit.event.Listener;
-    import org.bukkit.event.block.Action;
-    import org.bukkit.event.entity.PlayerDeathEvent;
-    import org.bukkit.event.player.*;
-    import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-    import org.bukkit.inventory.InventoryHolder;
-    import org.bukkit.inventory.ItemStack;
+import me.ryanhamshire.GriefPrevention.CreateClaimResult;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.ShovelMode;
+import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
+import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
+import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
+import me.ryanhamshire.GriefPrevention.data.Claim;
+import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.data.PlayerData;
+import me.ryanhamshire.GriefPrevention.events.PlayerChangeClaimEvent;
+import me.ryanhamshire.GriefPrevention.messages.Messages;
+import me.ryanhamshire.GriefPrevention.messages.TextMode;
+import me.ryanhamshire.GriefPrevention.tasks.EquipShovelProcessingTask;
+import me.ryanhamshire.GriefPrevention.visualization.Visualization;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World.Environment;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.*;
+import org.bukkit.entity.minecart.HopperMinecart;
+import org.bukkit.entity.minecart.PoweredMinecart;
+import org.bukkit.entity.minecart.StorageMinecart;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
-    import java.util.*;
-    import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class PlayerListener implements Listener {
     private final GriefPrevention plugin;
-    private DataStore dataStore;
     private EnumSet<Material> containerBlocks;
 
     // number of milliseconds in a day
@@ -72,10 +69,15 @@ public class PlayerListener implements Listener {
 
     // regex pattern for the "how do i claim land?" scanner
     private Pattern howToClaimPattern = null;
+    private static final EnumSet<Material> WOODEN_DOOR_MATERIALS = EnumSet.of(Material.TRAP_DOOR, Material.WOODEN_DOOR, Material.FENCE_GATE);
+    private EnumSet<Material> BUTTON_MATERIALS = EnumSet.of(Material.STONE_BUTTON, Material.WOOD_BUTTON, Material.LEVER);
+    private EnumSet<Material> TWEAKABLE_MATERIALS = EnumSet.of(Material.NOTE_BLOCK, Material.DIODE_BLOCK_ON,
+            Material.DIODE_BLOCK_OFF, Material.REDSTONE_COMPARATOR_OFF, Material.REDSTONE_COMPARATOR_ON);
+    private EnumSet<Material> MINECART_MATERIALS = EnumSet.of(Material.MINECART, Material.POWERED_MINECART, Material.STORAGE_MINECART,
+            Material.HOPPER_MINECART, Material.EXPLOSIVE_MINECART);
 
     // typical constructor, yawn
-    public PlayerListener(DataStore dataStore, GriefPrevention plugin) {
-        this.dataStore = dataStore;
+    public PlayerListener(GriefPrevention plugin) {
         this.plugin = plugin;
         containerBlocks = EnumSet.of(Material.WORKBENCH, Material.ENDER_CHEST, Material.DISPENSER, Material.ANVIL,
                 Material.BREWING_STAND, Material.JUKEBOX, Material.ENCHANTMENT_TABLE, Material.CAKE_BLOCK,
@@ -157,7 +159,7 @@ public class PlayerListener implements Listener {
         WorldConfig wc = plugin.getWorldCfg(event.getPlayer().getWorld());
         String command = args[0].toLowerCase();
         // if in pvp, block any pvp-banned slash commands
-        PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(event.getPlayer().getName());
         if (playerData.inPvpCombat() && wc.getPvPBlockedCommands().contains(command)) {
             event.setCancelled(true);
             plugin.sendMessage(event.getPlayer(), TextMode.ERROR, Messages.CommandBannedInPvP);
@@ -170,7 +172,7 @@ public class PlayerListener implements Listener {
     void onPlayerLogin(PlayerLoginEvent event) {
         Player player = event.getPlayer();
         // remember the player's ip address
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         playerData.setIpAddress(event.getAddress());
     }
 
@@ -190,10 +192,10 @@ public class PlayerListener implements Listener {
         String playerName = player.getName();
         // note login time
         long now = Calendar.getInstance().getTimeInMillis();
-        final PlayerData playerData = this.dataStore.getPlayerData(playerName);
+        final PlayerData playerData = plugin.getDataStore().getPlayerData(playerName);
         playerData.setLastSpawn(now);
         playerData.setLastLogin(new Date());
-        this.dataStore.savePlayerData(playerName, playerData);
+        plugin.getDataStore().savePlayerData(playerName, playerData);
 
         // if player has never played on the server before, may need pvp protection
         if (!player.hasPlayedBefore()) {
@@ -209,7 +211,7 @@ public class PlayerListener implements Listener {
     // when a player dies...
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerDeath(PlayerDeathEvent event) {
-        PlayerData playerData = this.dataStore.getPlayerData(event.getEntity().getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(event.getEntity().getName());
         long now = Calendar.getInstance().getTimeInMillis();
         playerData.setLastDeathTimeStamp(now);
     }
@@ -220,7 +222,7 @@ public class PlayerListener implements Listener {
 
         Player player = event.getPlayer();
         // WorldConfig wc = plugin.getWorldCfg(player.getWorld());
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
 
         // silence notifications when they're coming too fast
         if (event.getQuitMessage() != null && this.shouldSilenceNotification()) {
@@ -228,7 +230,7 @@ public class PlayerListener implements Listener {
         }
 
         // make sure his data is all saved - he might have accrued some claim blocks while playing that were not saved immediately
-        this.dataStore.savePlayerData(player.getName(), playerData);
+        plugin.getDataStore().savePlayerData(player.getName(), playerData);
 
         this.onPlayerDisconnect(event.getPlayer(), event.getQuitMessage());
     }
@@ -236,7 +238,7 @@ public class PlayerListener implements Listener {
     // helper for above
     private void onPlayerDisconnect(Player player, String notificationMessage) {
         String playerName = player.getName();
-        PlayerData playerData = this.dataStore.getPlayerData(playerName);
+        PlayerData playerData = plugin.getDataStore().getPlayerData(playerName);
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         // FEATURE: claims where players have allowed explosions will revert back to not allowing them when the owner logs out
         for (Claim claim : playerData.getClaims()) {
@@ -280,7 +282,7 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         // if in combat, don't let him drop it
         if (!wc.getAllowCombatItemDrop() && playerData.inPvpCombat()) {
             plugin.sendMessage(player, TextMode.ERROR, Messages.PvPNoDrop);
@@ -293,11 +295,11 @@ public class PlayerListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
 
         // FEATURE: prevent players from using ender pearls to gain access to secured claims
         if (event.getCause() == TeleportCause.ENDER_PEARL && wc.getEnderPearlsRequireAccessTrust()) {
-            Claim toClaim = this.dataStore.getClaimAt(player.getLocation(), false, playerData.getLastClaim());
+            Claim toClaim = plugin.getDataStore().getClaimAt(player.getLocation(), false, playerData.getLastClaim());
             if (toClaim != null) {
                 playerData.setLastClaim(toClaim);
                 String noAccessReason = toClaim.allowAccess(player);
@@ -328,7 +330,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         // don't allow interaction with item frames in claimed areas without build permission
         if (entity instanceof Hanging) {
             String noBuildReason = plugin.getBlockListener().allowBuild(player, entity.getLocation(), playerData, playerData.getLastClaim());
@@ -364,7 +366,7 @@ public class PlayerListener implements Listener {
         // if the entity is a vehicle and we're preventing theft in claims		
         if (wc.getClaimsPreventTheft() && entity instanceof Vehicle) {
             // if the entity is in a claim
-            Claim claim = this.dataStore.getClaimAt(entity.getLocation(), false, null);
+            Claim claim = plugin.getDataStore().getClaimAt(entity.getLocation(), false, null);
             if (claim != null) {
                 // for storage, hopper, and powered minecarts, apply container rules (this is a potential theft)
                 if (entity instanceof StorageMinecart || entity instanceof PoweredMinecart || entity instanceof HopperMinecart) {
@@ -411,7 +413,7 @@ public class PlayerListener implements Listener {
         // if we're preventing spawn camping and the player was previously empty handed...
         if (wc.getProtectFreshSpawns() && (player.getItemInHand().getType() == Material.AIR)) {
             // if that player is currently immune to pvp
-            PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(event.getPlayer().getName());
             if (playerData.isPvpImmune()) {
                 // if it's been less than 10 seconds since the last time he spawned, don't pick up the item
                 long now = Calendar.getInstance().getTimeInMillis();
@@ -490,7 +492,7 @@ public class PlayerListener implements Listener {
         WorldConfig wc = plugin.getWorldCfg(block.getWorld());
         if (!wc.getClaimsPreventButtonsSwitches()) return;
         // if the bed is in a claim 
-        Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, null);
+        Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
         if (claim != null) {
             // if the player doesn't have access in that claim, tell him so and prevent him from sleeping in the bed
             if (claim.allowAccess(player) != null) {
@@ -515,18 +517,18 @@ public class PlayerListener implements Listener {
         } else if (bucketEvent.getBucket() == Material.WATER_BUCKET) {
             bucketBehaviour = wc.getWaterBucketBehaviour().allowed(block.getLocation(), player);
         }
-        switch(bucketBehaviour) {
-        case ALLOW_FORCED:
-            return;
-        case DENY_FORCED:
-            bucketEvent.setCancelled(true);
-            return;
-        default:
+        switch (bucketBehaviour) {
+            case ALLOW_FORCED:
+                return;
+            case DENY_FORCED:
+                bucketEvent.setCancelled(true);
+                return;
+            default:
         }
 
         // if the bucket is being used in a claim, allow for dumping lava closer to other players
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
+        Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, playerData.getLastClaim());
 
         // make sure the player is allowed to build at the location
         String noBuildReason = plugin.getBlockListener().allowBuild(player, block.getLocation(), playerData, claim);
@@ -618,31 +620,12 @@ public class PlayerListener implements Listener {
         // determine target block.  FEATURE: shovel and stick can be used from a distance away
         Block clickedBlock = null;
 
-        try {
-            clickedBlock = event.getClickedBlock();  // null returned here means interacting with air
-            if (clickedBlock == null || clickedBlock.getType() == Material.SNOW) {
-                // try to find a far away non-air block along line of sight
-                HashSet<Byte> transparentMaterials = new HashSet<Byte>();
-                transparentMaterials.add((byte) Material.AIR.getId());
-                transparentMaterials.add((byte) Material.SNOW.getId());
-                transparentMaterials.add((byte) Material.LONG_GRASS.getId());
-                clickedBlock = player.getTargetBlock(transparentMaterials, 200);
-            }
-        } catch (Exception e) {
-            return;
-        }
-
-        // if no block, stop here
-        if (clickedBlock == null) {
-            return;
-        }
-
         Material clickedBlockType = clickedBlock.getType();
 
         // apply rules for putting out fires (requires build permission)
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         if (event.getClickedBlock() != null && event.getClickedBlock().getRelative(event.getBlockFace()).getType() == Material.FIRE) {
-            Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+            Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
             if (claim != null) {
                 playerData.setLastClaim(claim);
                 String noBuildReason = claim.allowBuild(player);
@@ -654,34 +637,49 @@ public class PlayerListener implements Listener {
             }
         }
 
+        if (handleBlockInteract(wc, playerData, event)) {
+            return;
+        }
+
+        handleClaimsTool(wc, playerData, event);
+    }
+
+    /**
+     * Checks for players interacting with blocks.
+     *
+     * @param wc         the active WorldConfig
+     * @param playerData the current player's data
+     * @param event      a PlayerInteractEvent
+     * @return true if the event should be cancelled, otherwise false
+     */
+    public boolean handleBlockInteract(WorldConfig wc, PlayerData playerData, PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        Block clickedBlock = event.getClickedBlock();
         // apply rules for containers and crafting blocks
         if (wc.getClaimsPreventTheft() && event.getClickedBlock() != null && (
-            event.getAction() == Action.RIGHT_CLICK_BLOCK && (
-                clickedBlock.getState() instanceof InventoryHolder ||
-                    containerBlocks.contains(clickedBlockType) ||
-                    wc.getModsContainerTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null))))) {
+                event.getAction() == Action.RIGHT_CLICK_BLOCK && (
+                        clickedBlock.getState() instanceof InventoryHolder ||
+                                containerBlocks.contains(clickedBlock.getType()) ||
+                                wc.getModsContainerTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null))))) {
 
             // block container use during pvp combat, same reason
             if (playerData.inPvpCombat() && wc.getPvPBlockContainers()) {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.PvPNoContainers);
                 event.setCancelled(true);
-                return;
+                return true;
             }
 
             // otherwise check permissions for the claim the player is in
-            Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+            Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
             if (claim != null) {
                 playerData.setLastClaim(claim);
-
                 String noContainersReason = claim.allowContainers(player);
                 if (noContainersReason != null) {
-
                     event.setCancelled(true);
                     plugin.sendMessage(player, TextMode.ERROR, noContainersReason);
-                    return;
+                    return true;
                 }
             }
-
             // if the event hasn't been cancelled, then the player is allowed to use the container
             // so drop any pvp protection
             if (playerData.isPvpImmune()) {
@@ -691,10 +689,8 @@ public class PlayerListener implements Listener {
         }
 
         // otherwise apply rules for doors, if configured that way
-        else if (event.getClickedBlock() != null && ((wc.getClaimsLockWoodenDoors() && clickedBlockType == Material.WOODEN_DOOR) ||
-                (wc.getClaimsLockTrapDoors() && clickedBlockType == Material.TRAP_DOOR) ||
-                (wc.getClaimsLockFenceGates() && clickedBlockType == Material.FENCE_GATE))) {
-            Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+        else if (clickedBlock != null && ((wc.getClaimsLockWoodenDoors() && WOODEN_DOOR_MATERIALS.contains(clickedBlock.getType())))) {
+            Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
             if (claim != null) {
                 playerData.setLastClaim(claim);
 
@@ -703,13 +699,14 @@ public class PlayerListener implements Listener {
 
                     event.setCancelled(true);
                     plugin.sendMessage(player, TextMode.ERROR, noAccessReason);
-                    return;
+                    return true;
                 }
             }
         }
         // otherwise apply rules for buttons and switches
-        else if (event.getClickedBlock() != null && wc.getClaimsPreventButtonsSwitches() && (clickedBlockType == null || clickedBlockType == Material.STONE_BUTTON || clickedBlockType == Material.WOOD_BUTTON || clickedBlockType == Material.LEVER || wc.getModsAccessTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null)))) {
-            Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+        else if (wc.getClaimsPreventButtonsSwitches() && BUTTON_MATERIALS.contains(clickedBlock.getType()) ||
+                wc.getModsAccessTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null))) {
+            Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
             if (claim != null) {
                 playerData.setLastClaim(claim);
 
@@ -717,47 +714,49 @@ public class PlayerListener implements Listener {
                 if (noAccessReason != null) {
                     event.setCancelled(true);
                     plugin.sendMessage(player, TextMode.ERROR, noAccessReason);
-                    return;
+                    return true;
                 }
             }
         }
 
         // apply rule for players trampling tilled soil back to dirt (never allow it)
         // NOTE: that this event applies only to players.  monsters and animals can still trample.
-        else if (event.getAction() == Action.PHYSICAL && clickedBlockType == Material.SOIL) {
+        else if (event.getAction() == Action.PHYSICAL && clickedBlock.getType() == Material.SOIL) {
             if (wc.getPlayerTrampleRules().allowed(event.getPlayer().getLocation(), event.getPlayer()).denied()) {
                 event.setCancelled(true);
-                return;
+                return true;
             }
         }
 
         // apply rule for note blocks and repeaters
-        else if (event.getClickedBlock() != null && clickedBlockType == Material.NOTE_BLOCK || clickedBlockType == Material.DIODE_BLOCK_ON || clickedBlockType == Material.DIODE_BLOCK_OFF) {
-            Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+        else if (TWEAKABLE_MATERIALS.contains(clickedBlock.getType())) {
+            Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
             if (claim != null) {
                 String noBuildReason = claim.allowBuild(player);
                 if (noBuildReason != null) {
                     event.setCancelled(true);
                     plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
-                    return;
+                    return true;
                 }
             }
         } else { // otherwise handle right click (shovel, stick, bonemeal)
             // ignore all actions except right-click on a block or in the air
             Action action = event.getAction();
-            if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) return;
+            if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
+                return false;
+            }
 
             // what's the player holding?
             Material materialInHand = player.getItemInHand().getType();
 
-            // if it's bonemeal, check for build permission (ink sac == bone meal, must be a Bukkit bug?)
-            if (materialInHand == Material.INK_SACK) {
+            // if it's bonemeal, check for build permission
+            if (materialInHand == Material.INK_SACK && event.getItem().getData().getData() == 15) {
                 if (wc.getBonemealGrassRules().allowed(event.getClickedBlock().getLocation(), event.getPlayer()).denied()) {
                     event.setCancelled(true);
                 }
-                return;
+                return true;
             } else if (materialInHand == Material.BOAT) {
-                Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+                Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
                 if (claim != null) {
                     String noAccessReason = claim.allowAccess(player);
                     if (noAccessReason != null) {
@@ -765,96 +764,126 @@ public class PlayerListener implements Listener {
                         event.setCancelled(true);
                     }
                 }
-                return;
-            } else if ((materialInHand == Material.MONSTER_EGG || materialInHand == Material.MINECART || materialInHand == Material.POWERED_MINECART || materialInHand == Material.STORAGE_MINECART
-                    || materialInHand == Material.HOPPER_MINECART || materialInHand == Material.EXPLOSIVE_MINECART || materialInHand == Material.BOAT) && plugin.creativeRulesApply(clickedBlock.getLocation())) {
+                return true;
+            } else if ((materialInHand == Material.MONSTER_EGG || MINECART_MATERIALS.contains(materialInHand)) && plugin.creativeRulesApply(clickedBlock.getLocation())) {
                 // if it's a spawn egg, minecart, or boat, and this is a creative world, apply special rules
                 // player needs build permission at this location
                 String noBuildReason = plugin.getBlockListener().allowBuild(player, clickedBlock.getLocation(), playerData, null);
                 if (noBuildReason != null) {
                     plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
-                    System.out.println("CANCELLING Container Access.");
                     event.setCancelled(true);
-                    return;
+                    return true;
                 }
 
                 // enforce limit on total number of entities in this claim
-                Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
-                if (claim == null) return;
+                Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+                if (claim == null) {
+                    return true;
+                }
 
                 String noEntitiesReason = claim.allowMoreEntities();
                 if (noEntitiesReason != null) {
                     plugin.sendMessage(player, TextMode.ERROR, noEntitiesReason);
                     event.setCancelled(true);
-                    return;
+                    return true;
                 }
-                return;
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Handles the usage either the gold shovel, or the stick for claim management/investigation
+     * 
+     * @param wc the active WorldConfig
+     * @param playerData Current player's data
+     * @param event a PlayerInteractEvent
+     * @return true if the event was handled, false otherwise
+     */
+    public boolean handleClaimsTool(WorldConfig wc, PlayerData playerData, PlayerInteractEvent event) {
+        // if he's investigating a claim
+        Material materialInHand = event.getItem().getType();
+        Player player = event.getPlayer();
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null) {
+            try {
+                if (clickedBlock == null || clickedBlock.getType() == Material.SNOW) {
+                    // try to find a far away non-air block along line of sight
+                    HashSet<Byte> transparentMaterials = new HashSet<Byte>();
+                    transparentMaterials.add((byte) Material.AIR.getId());
+                    transparentMaterials.add((byte) Material.SNOW.getId());
+                    transparentMaterials.add((byte) Material.LONG_GRASS.getId());
+                    clickedBlock = player.getTargetBlock(transparentMaterials, 200);
+                }
+            } catch (Exception e) {
+                return true;
+            }
+        }
+
+        if (clickedBlock == null) {
+            return true;
+        }
+
+        if (materialInHand == wc.getClaimsInvestigationTool()) {
+            // air indicates too far away
+            if (clickedBlock.getType() == Material.AIR) {
+                plugin.sendMessage(player, TextMode.ERROR, Messages.TooFarAway);
+                return true;
             }
 
-            // if he's investigating a claim			
-            else if (materialInHand == wc.getClaimsInvestigationTool()) {
-                // air indicates too far away
-                if (clickedBlockType == Material.AIR) {
-                    plugin.sendMessage(player, TextMode.ERROR, Messages.TooFarAway);
-                    return;
-                }
+            Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false /*ignore height*/, playerData.getLastClaim());
 
-                Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false /*ignore height*/, playerData.getLastClaim());
-
-                // no claim case
-                if (claim == null) {
-                    plugin.sendMessage(player, TextMode.INFO, Messages.BlockNotClaimed);
-                    Visualization.Revert(plugin, player);
-                }
-
-                // claim case
-                else {
-                    playerData.setLastClaim(claim);
-                    plugin.sendMessage(player, TextMode.INFO, Messages.BlockClaimed, claim.getOwnerName());
-
-                    // visualize boundary
-                    Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
-                    Visualization.apply(plugin, player, visualization);
-
-                    // if can resize this claim, tell about the boundaries
-                    if (claim.allowEdit(player) == null) {
-                        plugin.sendMessage(player, TextMode.INFO, "  " + claim.getWidth() + "x" + claim.getHeight() + "=" + claim.getArea());
-                    }
-
-                    // if deleteclaims permission, tell about the player's offline time
-                    if (!claim.isAdminClaim() && player.hasPermission("griefprevention.deleteclaims")) {
-                        PlayerData otherPlayerData = this.dataStore.getPlayerData(claim.getOwnerName());
-                        Date lastLogin = otherPlayerData.getLastLogin();
-                        Date now = new Date();
-                        long daysElapsed = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24);
-
-                        plugin.sendMessage(player, TextMode.INFO, Messages.PlayerOfflineTime, String.valueOf(daysElapsed));
-                    }
-                }
-                return;
+            // no claim case
+            if (claim == null) {
+                plugin.sendMessage(player, TextMode.INFO, Messages.BlockNotClaimed);
+                Visualization.Revert(plugin, player);
             }
 
-            // if it's a golden shovel
-            else if (materialInHand != wc.getClaimsModificationTool()) return;
+            // claim case
+            else {
+                playerData.setLastClaim(claim);
+                plugin.sendMessage(player, TextMode.INFO, Messages.BlockClaimed, claim.getOwnerName());
+
+                // visualize boundary
+                Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
+                Visualization.apply(plugin, player, visualization);
+
+                // if can resize this claim, tell about the boundaries
+                if (claim.allowEdit(player) == null) {
+                    plugin.sendMessage(player, TextMode.INFO, "  " + claim.getWidth() + "x" + claim.getHeight() + "=" + claim.getArea());
+                }
+
+                // if deleteclaims permission, tell about the player's offline time
+                if (!claim.isAdminClaim() && player.hasPermission("griefprevention.deleteclaims")) {
+                    PlayerData otherPlayerData = plugin.getDataStore().getPlayerData(claim.getOwnerName());
+                    Date lastLogin = otherPlayerData.getLastLogin();
+                    Date now = new Date();
+                    long daysElapsed = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24);
+
+                    plugin.sendMessage(player, TextMode.INFO, Messages.PlayerOfflineTime, String.valueOf(daysElapsed));
+                }
+            }
+            return false;
+        } else if (materialInHand != wc.getClaimsModificationTool()) {
 
             // can't use the shovel from too far away
-            if (clickedBlockType == Material.AIR) {
+            if (clickedBlock.getType() == Material.AIR) {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.TooFarAway);
-                return;
+                return true;
             }
-
-            // TODO Gold Shovel Starts Here. Make this method manageable.
             // if the player is in restore nature mode, do only that
             String playerName = player.getName();
-            playerData = this.dataStore.getPlayerData(player.getName());
+            playerData = plugin.getDataStore().getPlayerData(player.getName());
             if (playerData.getShovelMode() == ShovelMode.RESTORE_NATURE || playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_AGGRESSIVE) {
                 // if the clicked block is in a claim, visualize that claim and deliver an error message
-                Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
+                Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
                 if (claim != null) {
                     plugin.sendMessage(player, TextMode.ERROR, Messages.BlockClaimed, claim.getOwnerName());
                     Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.apply(plugin, player, visualization);
-                    return;
+                    return true;
                 }
 
                 // figure out which chunk to repair
@@ -873,7 +902,7 @@ public class PlayerListener implements Listener {
                 }
 
                 plugin.restoreChunk(chunk, miny, playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_AGGRESSIVE, 0, player);
-                return;
+                return true;
             }
 
             // if in restore nature fill mode
@@ -934,7 +963,7 @@ public class PlayerListener implements Listener {
                             Block block = centerBlock.getWorld().getBlockAt(x, y, z);
 
                             // respect claims
-                            Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, cachedClaim);
+                            Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, cachedClaim);
                             if (claim != null) {
                                 cachedClaim = claim;
                                 break;
@@ -972,16 +1001,13 @@ public class PlayerListener implements Listener {
                         }
                     }
                 }
-                return;
+                return true;
             }
-
             // if the player doesn't have claims permission, don't do anything
             if (wc.getCreateClaimRequiresPermission() && !player.hasPermission("griefprevention.createclaims")) {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.NoCreateClaimPermission);
-                return;
+                return true;
             }
-            plugin.debug("We are creating/resizing " + playerData.getClaimResizing());
-            // TODO Claim Create / Resize Starts Here.
             if (playerData.getClaimResizing() == null) {
                 // see if the player has clicked inside one of their claims.
                 Claim checkclaim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), true, null);
@@ -999,11 +1025,10 @@ public class PlayerListener implements Listener {
                     }
                 }
             }
-            
+
             // if he's resizing a claim and that claim hasn't been deleted since he started resizing it
             if (playerData.getClaimResizing() != null && playerData.getClaimResizing().isInDataStore()) {
-                if (clickedBlock.getLocation().equals(playerData.getLastShovelLocation())) return;
-                plugin.debug("We are resizing " + playerData.getClaimResizing());
+                if (clickedBlock.getLocation().equals(playerData.getLastShovelLocation())) return true;
                 // figure out what the coords of his new claim would be
                 int newx1, newx2, newz1, newz2, newy1, newy2;
                 if (playerData.getLastShovelLocation().getBlockX() == playerData.getClaimResizing().getLesserBoundaryCorner().getBlockX()) {
@@ -1041,7 +1066,7 @@ public class PlayerListener implements Listener {
 
                     if (!playerData.getClaimResizing().isAdminClaim() && (newWidth < wc.getMinClaimSize() || newHeight < wc.getMinClaimSize())) {
                         plugin.sendMessage(player, TextMode.ERROR, Messages.ResizeClaimTooSmall, String.valueOf(wc.getMinClaimSize()));
-                        return;
+                        return true;
                     }
 
                     // make sure player has enough blocks to make up the difference
@@ -1051,7 +1076,7 @@ public class PlayerListener implements Listener {
 
                         if (blocksRemainingAfter < 0) {
                             plugin.sendMessage(player, TextMode.ERROR, Messages.ResizeNeedMoreBlocks, String.valueOf(Math.abs(blocksRemainingAfter)));
-                            return;
+                            return true;
                         }
                     }
                 }
@@ -1063,7 +1088,7 @@ public class PlayerListener implements Listener {
                 boolean smaller = false;
                 if (oldClaim.getParent() == null) {
                     // temporary claim instance, just for checking contains()
-                    Claim newClaim = new Claim(plugin, 
+                    Claim newClaim = new Claim(plugin,
                             new Location(oldClaim.getLesserBoundaryCorner().getWorld(), newx1, newy1, newz1),
                             new Location(oldClaim.getLesserBoundaryCorner().getWorld(), newx2, newy2, newz2),
                             "", new String[]{}, new String[]{}, new String[]{}, new String[]{}, null, false);
@@ -1075,7 +1100,7 @@ public class PlayerListener implements Listener {
                         // enforce creative mode rule
                         if (!wc.getAllowUnclaim()) {
                             plugin.sendMessage(player, TextMode.ERROR, Messages.NoCreativeUnClaim);
-                            return;
+                            return true;
                         }
 
                         // remove surface fluids about to be unclaimed
@@ -1117,13 +1142,11 @@ public class PlayerListener implements Listener {
                     Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.apply(plugin, player, visualization);
                 }
-                return;
-            } else {
-                plugin.getLogger().info("Player is resizing but... ClaimResizing: " + playerData.getClaimResizing());
+                return true;
             }
 
             // otherwise, since not currently resizing a claim, must be starting a resize, creating a new claim, or creating a subdivision
-            Claim claim = this.dataStore.getClaimAt(clickedBlock.getLocation(), true /*ignore height*/, playerData.getLastClaim());
+            Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), true /*ignore height*/, playerData.getLastClaim());
 
             // if within an existing claim, he's not creating a new one
             if (claim != null) {
@@ -1156,11 +1179,11 @@ public class PlayerListener implements Listener {
                             if (!playerData.getLastShovelLocation().getWorld().equals(clickedBlock.getWorld())) {
                                 playerData.setLastShovelLocation(null);
                                 this.onPlayerInteract(event);
-                                return;
+                                return true;
                             }
 
                             // try to create a new claim (will return null if this subdivision overlaps another)
-                            CreateClaimResult result = this.dataStore.createClaim(
+                            CreateClaimResult result = plugin.getDataStore().createClaim(
                                     player.getWorld(),
                                     playerData.getLastShovelLocation().getBlockX(), clickedBlock.getX(),
                                     playerData.getLastShovelLocation().getBlockY() - wc.getClaimsExtendIntoGroundDistance(), clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance(),
@@ -1174,12 +1197,11 @@ public class PlayerListener implements Listener {
 
                                 Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                                 Visualization.apply(plugin, player, visualization);
-
-                                return;
+                                return true;
                             } else if (result.succeeded == CreateClaimResult.Result.CANCELED) {
                                 // It was canceled by a plugin, just return, as the plugin should put out a 
                                 // custom error message.
-                                return;
+                                return true;
                             } else { // otherwise, advise him on the /trust command and show him his new subdivision
                                 plugin.sendMessage(player, TextMode.SUCCESS, Messages.SubdivisionSuccess);
                                 Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
@@ -1201,7 +1223,7 @@ public class PlayerListener implements Listener {
                     Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.apply(plugin, player, visualization);
                 }
-                return;
+                return true;
             }
 
             // otherwise, the player isn't in an existing claim!
@@ -1211,12 +1233,12 @@ public class PlayerListener implements Listener {
                 // if claims are not enabled in this world and it's not an administrative claim, display an error message and stop
                 if (!plugin.claimsEnabledForWorld(player.getWorld()) && playerData.getShovelMode() != ShovelMode.ADMIN) {
                     plugin.sendMessage(player, TextMode.ERROR, Messages.ClaimsDisabledWorld);
-                    return;
+                    return true;
                 } else if (wc.getClaimsPerPlayerLimit() > 0 && !(player.hasPermission("griefprevention.ignoreclaimslimit"))) {
                     // get the number of claims the player has in this world.
                     if (wc.getClaimsPerPlayerLimit() >= playerData.getWorldClaims(clickedBlock.getWorld()).size()) {
                         plugin.sendMessage(player, TextMode.ERROR, Messages.PlayerClaimLimit, String.valueOf(wc.getClaimsPerPlayerLimit()));
-                        return;
+                        return true;
                     }
                 }
                 // remember it, and start him on the new claim
@@ -1231,7 +1253,7 @@ public class PlayerListener implements Listener {
                 if (!lastShovelLocation.getWorld().equals(clickedBlock.getWorld())) {
                     playerData.setLastShovelLocation(null);
                     this.onPlayerInteract(event);
-                    return;
+                    return true;
                 }
 
                 // apply minimum claim dimensions rule
@@ -1240,7 +1262,7 @@ public class PlayerListener implements Listener {
 
                 if (playerData.getShovelMode() != ShovelMode.ADMIN && (newClaimWidth < wc.getMinClaimSize() || newClaimHeight < wc.getMinClaimSize())) {
                     plugin.sendMessage(player, TextMode.ERROR, Messages.NewClaimTooSmall, String.valueOf(wc.getMinClaimSize()));
-                    return;
+                    return true;
                 }
 
                 // if not an administrative claim, verify the player has enough claim blocks for this new claim
@@ -1250,14 +1272,14 @@ public class PlayerListener implements Listener {
                     if (newClaimArea > remainingBlocks) {
                         plugin.sendMessage(player, TextMode.ERROR, Messages.CreateClaimInsufficientBlocks, String.valueOf(newClaimArea - remainingBlocks));
                         plugin.sendMessage(player, TextMode.INSTR, Messages.AbandonClaimAdvertisement);
-                        return;
+                        return true;
                     }
                 } else {
                     playerName = "";
                 }
 
                 // try to create a new claim (will return null if this claim overlaps another)
-                CreateClaimResult result = this.dataStore.createClaim(
+                CreateClaimResult result = plugin.getDataStore().createClaim(
                         player.getWorld(),
                         lastShovelLocation.getBlockX(), clickedBlock.getX(),
                         lastShovelLocation.getBlockY() - wc.getClaimsExtendIntoGroundDistance(), clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance(),
@@ -1267,7 +1289,6 @@ public class PlayerListener implements Listener {
                 // if it didn't succeed, tell the player why
                 if (result.succeeded == CreateClaimResult.Result.CLAIM_OVERLAP) {
                     // if the claim it overlaps is owned by the player...
-                    System.out.println("Claim owned by:" + result.claim.getOwnerName());
                     if (result.claim.getOwnerName().equalsIgnoreCase(playerName)) {
                         // owned by the player. make sure our larger 
                         // claim entirely contains the smaller one.
@@ -1282,7 +1303,7 @@ public class PlayerListener implements Listener {
                             plugin.sendMessage(player, TextMode.SUCCESS, Messages.ClaimResizeSuccess, String.valueOf(playerData.getRemainingClaimBlocks()));
                             Visualization visualization = Visualization.FromClaim(result.claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
                             Visualization.apply(plugin, player, visualization);
-                            return;
+                            return true;
                         }
                     }
                     plugin.sendMessage(player, TextMode.ERROR, Messages.CreateClaimFailOverlapShort);
@@ -1301,5 +1322,6 @@ public class PlayerListener implements Listener {
                 }
             }
         }
+        return true;
     }
 }
