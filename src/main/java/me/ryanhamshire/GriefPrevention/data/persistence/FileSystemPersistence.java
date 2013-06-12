@@ -10,12 +10,14 @@ import me.ryanhamshire.GriefPrevention.exceptions.WorldNotFoundException;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitTask;
 
 import javax.persistence.PersistenceException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FileSystemPersistence implements IPersistence {
 
@@ -23,6 +25,35 @@ public class FileSystemPersistence implements IPersistence {
     private File dataFolder;
     private File playerFolder;
     private File claimFolder;
+    private ConcurrentHashMap<UUID, Map<String, Object>> dirtyClaims = new ConcurrentHashMap<UUID, Map<String, Object>>();
+    private BukkitTask saveTask;
+
+    private Runnable saver = new Runnable() {
+        @Override
+        public void run() {
+            Iterator<Map.Entry<UUID,Map<String,Object>>> dirtyClaimIter = dirtyClaims.entrySet().iterator();
+            while (dirtyClaimIter.hasNext()) {
+                Map.Entry<UUID, Map<String, Object>> entry = dirtyClaimIter.next();
+                writeSerializedClaim(entry.getKey().toString(), entry.getValue());
+                dirtyClaimIter.remove();
+            }
+        }
+    };
+
+    private void writeSerializedClaim(String id, Map<String, Object> data) {
+        YamlConfiguration cfg = new YamlConfiguration();
+        for (Map.Entry<String, Object> e: data.entrySet()) {
+            cfg.set(e.getKey(), e.getValue());
+        }
+        try {
+            File claimFile = getClaimDataFile(id, true);
+            cfg.save(claimFile);
+        } catch (DatastoreException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private FilenameFilter claimFileFilter = new FilenameFilter() {
         @Override
@@ -36,6 +67,7 @@ public class FileSystemPersistence implements IPersistence {
         }
     };
 
+
     public FileSystemPersistence(GriefPrevention plugin) {
         this.plugin = plugin;
     }
@@ -48,7 +80,7 @@ public class FileSystemPersistence implements IPersistence {
         } catch (IOException ex) {
             throw new PersistenceException(ex);
         }
-
+        saveTask = plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this.saver, 400, 400);
     }
 
     private void verifyDirectoryStructure() throws IOException {
@@ -68,7 +100,9 @@ public class FileSystemPersistence implements IPersistence {
     }
 
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        saveTask.cancel();
+    }
 
     @Override
     public Collection<Claim> loadClaimData() {
@@ -184,8 +218,9 @@ public class FileSystemPersistence implements IPersistence {
 
     @Override
     public void writeClaimData(Claim... claims) {
-        // TODO Don't Be Lazy
-        writeClaimDataSync(claims);
+        for (Claim claim: claims) {
+            this.dirtyClaims.put(claim.getId(), claim.serialize());
+        }
     }
 
     @Override
@@ -215,33 +250,8 @@ public class FileSystemPersistence implements IPersistence {
         for (Claim c: claims) {
             plugin.debug("Saving Claim: " + c);
             YamlConfiguration cfg = new YamlConfiguration();
-            cfg.set("modifiedDate", c.getModifiedDate());
-            cfg.set("minimumPoint", SerializationUtil.locationToString(c.getMin()));
-            cfg.set("maximumPoint", SerializationUtil.locationToString(c.getMax()));
-            cfg.set("ownerName", c.getOwnerName());
-            cfg.set("neverDelete", c.isNeverDelete());
-            ConfigurationSection flagSec = cfg.getConfigurationSection("flags");
-            if (flagSec == null) {
-                flagSec = cfg.createSection("flags");
-            }
-            for (Map.Entry<String, String> entry: c.getFlags().entrySet()) {
-                flagSec.set(entry.getKey(), entry.getValue());
-            }
-            if (c.getParent() != null) {
-                cfg.set("parentId", c.getParent().getId().toString());
-            }
-            ArrayList<String> builders = new ArrayList<String>();
-            ArrayList<String> containers = new ArrayList<String>();
-            ArrayList<String> accessors = new ArrayList<String>();
-            ArrayList<String> managers = new ArrayList<String>();
-            c.getPermissions(builders, containers, accessors, managers);
-            cfg.set("builders", builders);
-            cfg.set("containers", containers);
-            cfg.set("accessors", accessors);
-            cfg.set("managers", managers);
-            HashMap<String, PluginClaimMeta> claimMeta = c.getAllClaimMeta();
-            if (claimMeta != null) {
-                cfg.set("meta", claimMeta);
+            for (Map.Entry<String, Object> e: c.serialize().entrySet()) {
+                cfg.set(e.getKey(), e.getValue());
             }
             try {
                 claimFile = getClaimDataFile(c.getId().toString(), true);

@@ -103,7 +103,15 @@ public class PluginClaimMeta implements ConfigurationSerializable {
 
     @Override
     public Map<String, Object> serialize() {
-        return new HashMap<String, Object>(this.data);
+        HashMap<String, Object> clone = new HashMap <String, Object>();
+        for (Map.Entry<String, Object> e: this.data.entrySet()) {
+            if (e.getValue() instanceof ConfigurationSerializable) {
+                clone.put(e.getKey(), ((ConfigurationSerializable) e.getValue()).serialize());
+            } else {
+                clone.put(e.getKey(), e.getValue());
+            }
+        }
+        return clone;
     }
 
     public static PluginClaimMeta deserialize(Map<String, Object> data) {

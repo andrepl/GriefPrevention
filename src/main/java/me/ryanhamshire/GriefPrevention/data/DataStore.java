@@ -44,7 +44,6 @@ public class DataStore {
     HashSet<String> dirtyPlayerNames;
 
     ClaimMap claims;
-    HashSet<UUID> dirtyClaimIds;
 
     public DataStore(GriefPrevention plugin) {
         this.plugin = plugin;
@@ -58,7 +57,6 @@ public class DataStore {
         playerData = new HashMap<String, PlayerData>();
         dirtyPlayerNames = new HashSet<String>();
         claims = new ClaimMap();
-        dirtyClaimIds = new HashSet<UUID>();
 
         for (PlayerData pd: persistence.loadPlayerData()) {
             playerData.put(pd.getPlayerName(), pd);
@@ -76,15 +74,8 @@ public class DataStore {
     }
 
     public void onDisable() {
-        Claim[] dirtyClaims = new Claim[dirtyClaimIds.size()];
-        int i = 0;
-        for (UUID uuid: dirtyClaimIds) {
-            plugin.debug("Saving dirty claim[" + uuid + "]: " + claims.get(uuid));
-            dirtyClaims[i++] = (claims.get(uuid));
-        }
-        persistence.writeClaimDataSync(dirtyClaims);
         PlayerData[] dirtyPlayerData = new PlayerData[dirtyPlayerNames.size()];
-        i = 0;
+        int i = 0;
         for (String name: dirtyPlayerNames) {
             dirtyPlayerData[i++] = playerData.get(name);
         }
@@ -170,7 +161,7 @@ public class DataStore {
             }
         }
         claim.setModifiedDate(System.currentTimeMillis());
-        this.dirtyClaimIds.add(claim.getId());
+        persistence.writeClaimData(claim);
     }
 
     /**

@@ -34,6 +34,7 @@ import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -1168,5 +1169,36 @@ public class Claim {
 
     public void setMax(Location max) {
         this.max = max;
+    }
+
+    public Map<String, Object> serialize() {
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("modifiedDate", this.getModifiedDate());
+        data.put("minimumPoint", this.getMin());
+        data.put("maximumPoint", this.getMax());
+        data.put("ownerName", this.getOwnerName());
+        data.put("neverDelete", this.isNeverDelete());
+        HashMap<String, String> flagMap = new HashMap<String, String>(flags);
+        data.put("flags", flagMap);
+        if (this.getParent() != null) {
+            data.put("parentId", this.getParent().getId().toString());
+        }
+        ArrayList<String> builders = new ArrayList<String>();
+        ArrayList<String> containers = new ArrayList<String>();
+        ArrayList<String> accessors = new ArrayList<String>();
+        ArrayList<String> managers = new ArrayList<String>();
+        getPermissions(builders, containers, accessors, managers);
+        data.put("builders", builders);
+        data.put("containers", containers);
+        data.put("accessors", accessors);
+        data.put("managers", managers);
+        if (!this.getAllClaimMeta().isEmpty()) {
+            HashMap<String, Object> meta = new HashMap<String, Object>();
+            for (String key: this.getAllClaimMeta().keySet()) {
+                meta.put(key, this.getAllClaimMeta().get(key).serialize());
+            }
+            data.put("meta", meta);
+        }
+        return data;
     }
 }
