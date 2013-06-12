@@ -55,7 +55,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
         Claim claim = plugin.getDataStore().getClaim(claimIds.pop());
         // skip administrative claims
         if (claim.isAdminClaim()) return;
-        WorldConfig wc = plugin.getWorldCfg(claim.getLesserBoundaryCorner().getWorld());
+        WorldConfig wc = plugin.getWorldCfg(claim.getMin().getWorld());
         // track whether we do any important work which would require cleanup afterward
         boolean cleanupChunks = false;
 
@@ -119,7 +119,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
             Calendar earliestAllowedLoginDate = Calendar.getInstance();
             earliestAllowedLoginDate.add(Calendar.DATE, -wc.getUnusedClaimExpirationDays());
             boolean needsInvestmentScan = earliestAllowedLoginDate.getTime().after(playerData.getLastLogin());
-            boolean creativerules = plugin.creativeRulesApply(claim.getLesserBoundaryCorner());
+            boolean creativerules = plugin.creativeRulesApply(claim.getMin());
             boolean sizelimitreached = (creativerules && claim.getWidth() > wc.getClaimCleanupMaximumSize());
 
 
@@ -138,7 +138,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
                 // in creative mode, a build which is almost entirely lava above sea level will be automatically removed, even if the owner is an active player
                 // lava above the surface deducts 10 points per block from the investment score
                 // so 500 blocks of lava without anything built to offset all that potential mess would be cleaned up automatically
-                if (plugin.creativeRulesApply(claim.getLesserBoundaryCorner()) && investmentScore < -5000) {
+                if (plugin.creativeRulesApply(claim.getMin()) && investmentScore < -5000) {
                     removeClaim = true;
                 }
 
@@ -149,7 +149,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
                 if (removeClaim) {
                     plugin.getDataStore().deleteClaim(claim, null, true);
-                    plugin.getLogger().info("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+                    plugin.getLogger().info("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getMin()));
 
                     // if configured to do so, restore the claim area to natural state
                     if (wc.getClaimsAutoNatureRestoration()) {
@@ -161,7 +161,7 @@ public class CleanupUnusedClaimsTask implements Runnable {
 
         // since we're potentially loading a lot of chunks to scan parts of the world where there are no players currently playing, be mindful of memory usage
         if (cleanupChunks) {
-            World world = claim.getLesserBoundaryCorner().getWorld();
+            World world = claim.getMin().getWorld();
             Chunk[] chunks = world.getLoadedChunks();
             for (Chunk chunk : chunks) {
                 chunk.unload(true, true);

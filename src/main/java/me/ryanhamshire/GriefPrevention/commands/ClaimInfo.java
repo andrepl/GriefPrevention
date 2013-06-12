@@ -43,8 +43,8 @@ public class ClaimInfo extends BaseCommand {
             //we do not show trust, since that can be shown with /trustlist.
             //first, get the upper and lower boundary.
             //see that it has Children.
-            String lowerBoundary = GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner());
-            String upperBoundary = GriefPrevention.getfriendlyLocationString(claim.getGreaterBoundaryCorner());
+            String lowerBoundary = GriefPrevention.getfriendlyLocationString(claim.getMin());
+            String upperBoundary = GriefPrevention.getfriendlyLocationString(claim.getMax());
             String sizeString = "(" + String.valueOf(claim.getWidth()) + ", " + String.valueOf(claim.getHeight()) + ")";
             String ClaimOwner = claim.getOwnerName();
             plugin.sendMessage(sender, TextMode.INFO, "ID: " + claim.getId());

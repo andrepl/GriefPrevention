@@ -58,27 +58,15 @@ public class SerializationUtil {
         if (elements.length != 4) {
             throw new SerializationException("Expected four distinct parts to the location string:{" + string + "}");
         }
-
-        String worldName = elements[0];
-        String xString = elements[1];
-        String yString = elements[2];
-        String zString = elements[3];
-
         // identify world the claim is in
-        World world = Bukkit.getServer().getWorld(worldName);
+        World world = Bukkit.getServer().getWorld(elements[0]);
         if (world == null) {
             // try to load it...
-            world = Bukkit.createWorld(new WorldCreator(worldName));
+            world = Bukkit.createWorld(new WorldCreator(elements[0]));
             if (world == null) { // well... we tried!
-                throw new WorldNotFoundException("World not found: \"" + worldName + "\"");
+                throw new WorldNotFoundException("World not found: \"" + elements[0] + "\"");
             }
         }
-
-        // convert those numerical strings to integer values
-        int x = Integer.parseInt(xString);
-        int y = Integer.parseInt(yString);
-        int z = Integer.parseInt(zString);
-
-        return new Location(world, x, y, z);
+        return new Location(world, Integer.parseInt(elements[1]), Integer.parseInt(elements[2]), Integer.parseInt(elements[3]));
     }
 }

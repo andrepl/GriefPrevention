@@ -40,7 +40,7 @@ public class ClaimMap {
         }
 
         Long[] chunkKeys = getChunks(claim);
-        String worldName = claim.getLesserBoundaryCorner().getWorld().getName();
+        String worldName = claim.getMin().getWorld().getName();
         if (!byChunk.containsKey(worldName)) {
             byChunk.put(worldName, new HashMap<Long, ArrayList<Claim>>());
         }
@@ -74,7 +74,7 @@ public class ClaimMap {
             // top level claims must their children removed
             byId.remove(claim.getId());
             // and be removed from the chunk map
-            HashMap<Long, ArrayList<Claim>> worldMap = byChunk.get(claim.getLesserBoundaryCorner().getWorld().getName());
+            HashMap<Long, ArrayList<Claim>> worldMap = byChunk.get(claim.getMin().getWorld().getName());
             if (worldMap != null) {
                 for (long point: getChunks(claim)) {
                     if (worldMap.containsKey(point)) {
@@ -139,10 +139,10 @@ public class ClaimMap {
 
 
     public static Long[] getChunks(Claim claim) {
-        int lx = claim.getLesserBoundaryCorner().getBlockX();
-        int lz = claim.getLesserBoundaryCorner().getBlockZ();
-        int gx = claim.getGreaterBoundaryCorner().getBlockX();
-        int gz = claim.getGreaterBoundaryCorner().getBlockZ();
+        int lx = claim.getMin().getBlockX();
+        int lz = claim.getMin().getBlockZ();
+        int gx = claim.getMax().getBlockX();
+        int gz = claim.getMax().getBlockZ();
 
         ArrayList<Long> chunks = new ArrayList<Long>();
 
@@ -185,7 +185,7 @@ public class ClaimMap {
     public Collection<Claim> getPossiblyOverlappingClaims(Claim claim) {
         Long[] chunks = getChunks(claim);
         HashSet<Claim> claims = new HashSet<Claim>();
-        HashMap<Long, ArrayList<Claim>> worldMap = byChunk.get(claim.getLesserBoundaryCorner().getWorld().getName());
+        HashMap<Long, ArrayList<Claim>> worldMap = byChunk.get(claim.getMin().getWorld().getName());
         for (long point: chunks) {
             if (worldMap.containsKey(point)) {
                 claims.addAll(worldMap.get(point));

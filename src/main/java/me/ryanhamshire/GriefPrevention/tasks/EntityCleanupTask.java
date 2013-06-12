@@ -113,7 +113,7 @@ public class EntityCleanupTask implements Runnable {
             Claim claim = plugin.getDataStore().getClaim(claims[j]);
 
             // if it's a creative mode claim
-            if (plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
+            if (plugin.creativeRulesApply(claim.getMin())) {
                 // check its entity count and remove any extras
                 claim.allowMoreEntities();
             }

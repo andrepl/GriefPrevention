@@ -88,7 +88,7 @@ public class AbandonClaim extends BaseClaimCommand {
             // or if we are in a survival world and the creative Abandon Nature restore option is enabled,
             // then perform the restoration.
             if ((wc.getClaimsAbandonNatureRestoration())) {
-                plugin.getLogger().info(player.getName() + " abandoned a claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+                plugin.getLogger().info(player.getName() + " abandoned a claim @ " + GriefPrevention.getfriendlyLocationString(claim.getMin()));
                 plugin.sendMessage(player, TextMode.WARN, Messages.UnclaimCleanupWarning);
                 plugin.restoreClaim(claim, 20L * 60 * 2);
             }

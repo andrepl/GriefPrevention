@@ -37,11 +37,11 @@ public class DeleteClaim extends BaseClaimCommand {
                 plugin.getDataStore().deleteClaim(claim, null, true);
 
                 //if in a creative mode world, /restorenature the claim
-                if (wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
+                if (wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(claim.getMin())) {
                     plugin.restoreClaim(claim, 0);
                 }
                 plugin.sendMessage(player, TextMode.SUCCESS, Messages.DeleteSuccess);
-                plugin.getLogger().info(player.getName() + " deleted " + claim.getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
+                plugin.getLogger().info(player.getName() + " deleted " + claim.getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(claim.getMin()));
 
                 //revert any current visualization
                 Visualization.Revert(plugin, player);

@@ -25,7 +25,6 @@ import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
 import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.Claim;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.events.PlayerChangeClaimEvent;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
@@ -48,6 +47,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -59,10 +59,6 @@ import java.util.regex.Pattern;
 
 public class PlayerListener implements Listener {
     private final GriefPrevention plugin;
-    private EnumSet<Material> containerBlocks;
-
-    // number of milliseconds in a day
-    private final long MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
 
     // timestamps of login and logout notifications in the last minute
     private ArrayList<Long> recentLoginLogoutNotifications = new ArrayList<Long>();
@@ -70,18 +66,17 @@ public class PlayerListener implements Listener {
     // regex pattern for the "how do i claim land?" scanner
     private Pattern howToClaimPattern = null;
     private static final EnumSet<Material> WOODEN_DOOR_MATERIALS = EnumSet.of(Material.TRAP_DOOR, Material.WOODEN_DOOR, Material.FENCE_GATE);
-    private EnumSet<Material> BUTTON_MATERIALS = EnumSet.of(Material.STONE_BUTTON, Material.WOOD_BUTTON, Material.LEVER);
-    private EnumSet<Material> TWEAKABLE_MATERIALS = EnumSet.of(Material.NOTE_BLOCK, Material.DIODE_BLOCK_ON,
+    private static final EnumSet<Material> ALLOWED_FILL_BLOCKS = EnumSet.of(Material.SAND, Material.ICE, Material.SANDSTONE, Material.STONE, Material.DIRT, Material.GRASS);
+    private static final EnumSet<Material> BUTTON_MATERIALS = EnumSet.of(Material.STONE_BUTTON, Material.WOOD_BUTTON, Material.LEVER);
+    private static final EnumSet<Material> TWEAKABLE_MATERIALS = EnumSet.of(Material.NOTE_BLOCK, Material.DIODE_BLOCK_ON,
             Material.DIODE_BLOCK_OFF, Material.REDSTONE_COMPARATOR_OFF, Material.REDSTONE_COMPARATOR_ON);
-    private EnumSet<Material> MINECART_MATERIALS = EnumSet.of(Material.MINECART, Material.POWERED_MINECART, Material.STORAGE_MINECART,
+    private static final EnumSet<Material> MINECART_MATERIALS = EnumSet.of(Material.MINECART, Material.POWERED_MINECART, Material.STORAGE_MINECART,
             Material.HOPPER_MINECART, Material.EXPLOSIVE_MINECART);
-
+    private static final EnumSet<Material> CONTAINER_BLOCKS = EnumSet.of(Material.WORKBENCH, Material.ENDER_CHEST, Material.DISPENSER, Material.ANVIL,
+            Material.BREWING_STAND, Material.JUKEBOX, Material.ENCHANTMENT_TABLE, Material.CAKE_BLOCK, Material.DROPPER, Material.HOPPER);
     // typical constructor, yawn
     public PlayerListener(GriefPrevention plugin) {
         this.plugin = plugin;
-        containerBlocks = EnumSet.of(Material.WORKBENCH, Material.ENDER_CHEST, Material.DISPENSER, Material.ANVIL,
-                Material.BREWING_STAND, Material.JUKEBOX, Material.ENCHANTMENT_TABLE, Material.CAKE_BLOCK,
-                Material.DROPPER, Material.HOPPER);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -644,6 +639,20 @@ public class PlayerListener implements Listener {
         handleClaimsTool(wc, playerData, event);
     }
 
+    @EventHandler
+    public void onEntityCombust(EntityCombustEvent event) {
+        if (event.getEntity().getType() == EntityType.DROPPED_ITEM) {
+            if (event.getEntity().getLocation().getBlock().getType() == Material.FIRE) {
+                ItemStack item = ((Item) event.getEntity()).getItemStack();
+                if (item.getType() == Material.RAW_BEEF) {
+                    ((Item) event.getEntity()).setItemStack(new ItemStack(Material.COOKED_BEEF));
+                    event.setCancelled(true);
+                } else if (item.getType() == Material.COOKED_BEEF) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
     /**
      * Checks for players interacting with blocks.
      *
@@ -659,7 +668,7 @@ public class PlayerListener implements Listener {
         if (wc.getClaimsPreventTheft() && event.getClickedBlock() != null && (
                 event.getAction() == Action.RIGHT_CLICK_BLOCK && (
                         clickedBlock.getState() instanceof InventoryHolder ||
-                                containerBlocks.contains(clickedBlock.getType()) ||
+                                CONTAINER_BLOCKS.contains(clickedBlock.getType()) ||
                                 wc.getModsContainerTrustIds().contains(new MaterialInfo(clickedBlock.getTypeId(), clickedBlock.getData(), null))))) {
 
             // block container use during pvp combat, same reason
@@ -789,7 +798,6 @@ public class PlayerListener implements Listener {
                 }
                 return true;
             }
-            return false;
         }
         return false;
     }
@@ -900,30 +908,23 @@ public class PlayerListener implements Listener {
                         miny = plugin.getWorldCfg(chunk.getWorld()).getSeaLevelOverride() - 10;
                     }
                 }
-
                 plugin.restoreChunk(chunk, miny, playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_AGGRESSIVE, 0, player);
                 return true;
             }
 
             // if in restore nature fill mode
             if (playerData.getShovelMode() == ShovelMode.RESTORE_NATURE_FILL) {
-                ArrayList<Material> allowedFillBlocks = new ArrayList<Material>();
                 Environment environment = clickedBlock.getWorld().getEnvironment();
+                EnumSet<Material> allowedFillBlocks = ALLOWED_FILL_BLOCKS.clone();
+                Material defaultFiller = Material.GRASS;
                 if (environment == Environment.NETHER) {
                     allowedFillBlocks.add(Material.NETHERRACK);
+                    defaultFiller = Material.NETHERRACK;
                 } else if (environment == Environment.THE_END) {
                     allowedFillBlocks.add(Material.ENDER_STONE);
-                } else {
-                    allowedFillBlocks.add(Material.GRASS);
-                    allowedFillBlocks.add(Material.DIRT);
-                    allowedFillBlocks.add(Material.STONE);
-                    allowedFillBlocks.add(Material.SAND);
-                    allowedFillBlocks.add(Material.SANDSTONE);
-                    allowedFillBlocks.add(Material.ICE);
+                    defaultFiller = Material.ENDER_STONE;
                 }
-
                 Block centerBlock = clickedBlock;
-
                 int maxHeight = centerBlock.getY();
                 int minx = centerBlock.getX() - playerData.getFillRadius();
                 int maxx = centerBlock.getX() + playerData.getFillRadius();
@@ -940,11 +941,11 @@ public class PlayerListener implements Listener {
                         if (location.distance(centerBlock.getLocation()) > playerData.getFillRadius()) continue;
 
                         // default fill block is initially the first from the allowed fill blocks list above
-                        Material defaultFiller = allowedFillBlocks.get(0);
+                        Material filler = defaultFiller;
 
                         // prefer to use the block the player clicked on, if it's an acceptable fill block
                         if (allowedFillBlocks.contains(centerBlock.getType())) {
-                            defaultFiller = centerBlock.getType();
+                            filler = centerBlock.getType();
                         }
 
                         // if the player clicks on water, try to sink through the water to find something underneath that's useful for a filler
@@ -954,7 +955,7 @@ public class PlayerListener implements Listener {
                                 block = block.getRelative(BlockFace.DOWN);
                             }
                             if (allowedFillBlocks.contains(block.getType())) {
-                                defaultFiller = block.getType();
+                                filler = block.getType();
                             }
                         }
 
@@ -973,7 +974,7 @@ public class PlayerListener implements Listener {
                             if (block.getType() == Material.AIR || block.getType() == Material.SNOW || (block.getType() == Material.STATIONARY_WATER && block.getData() != 0) || block.getType() == Material.LONG_GRASS) {
                                 // if the top level, always use the default filler picked above
                                 if (y == maxHeight) {
-                                    block.setType(defaultFiller);
+                                    block.setType(filler);
                                 } else {
                                     // otherwise look to neighbors for an appropriate fill block
                                     Block eastBlock = block.getRelative(BlockFace.EAST);
@@ -994,7 +995,7 @@ public class PlayerListener implements Listener {
 
                                     // if all else fails, use the default filler selected above
                                     else {
-                                        block.setType(defaultFiller);
+                                        block.setType(filler);
                                     }
                                 }
                             }
@@ -1031,31 +1032,31 @@ public class PlayerListener implements Listener {
                 if (clickedBlock.getLocation().equals(playerData.getLastShovelLocation())) return true;
                 // figure out what the coords of his new claim would be
                 int newx1, newx2, newz1, newz2, newy1, newy2;
-                if (playerData.getLastShovelLocation().getBlockX() == playerData.getClaimResizing().getLesserBoundaryCorner().getBlockX()) {
+                if (playerData.getLastShovelLocation().getBlockX() == playerData.getClaimResizing().getMin().getBlockX()) {
                     newx1 = clickedBlock.getX();
                 } else {
-                    newx1 = playerData.getClaimResizing().getLesserBoundaryCorner().getBlockX();
+                    newx1 = playerData.getClaimResizing().getMin().getBlockX();
                 }
 
-                if (playerData.getLastShovelLocation().getBlockX() == playerData.getClaimResizing().getGreaterBoundaryCorner().getBlockX()) {
+                if (playerData.getLastShovelLocation().getBlockX() == playerData.getClaimResizing().getMax().getBlockX()) {
                     newx2 = clickedBlock.getX();
                 } else {
-                    newx2 = playerData.getClaimResizing().getGreaterBoundaryCorner().getBlockX();
+                    newx2 = playerData.getClaimResizing().getMax().getBlockX();
                 }
 
-                if (playerData.getLastShovelLocation().getBlockZ() == playerData.getClaimResizing().getLesserBoundaryCorner().getBlockZ()) {
+                if (playerData.getLastShovelLocation().getBlockZ() == playerData.getClaimResizing().getMin().getBlockZ()) {
                     newz1 = clickedBlock.getZ();
                 } else {
-                    newz1 = playerData.getClaimResizing().getLesserBoundaryCorner().getBlockZ();
+                    newz1 = playerData.getClaimResizing().getMin().getBlockZ();
                 }
 
-                if (playerData.getLastShovelLocation().getBlockZ() == playerData.getClaimResizing().getGreaterBoundaryCorner().getBlockZ()) {
+                if (playerData.getLastShovelLocation().getBlockZ() == playerData.getClaimResizing().getMax().getBlockZ()) {
                     newz2 = clickedBlock.getZ();
                 } else {
-                    newz2 = playerData.getClaimResizing().getGreaterBoundaryCorner().getBlockZ();
+                    newz2 = playerData.getClaimResizing().getMax().getBlockZ();
                 }
 
-                newy1 = playerData.getClaimResizing().getLesserBoundaryCorner().getBlockY();
+                newy1 = playerData.getClaimResizing().getMin().getBlockY();
                 newy2 = clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance();
 
                 // for top level claims, apply size rules and claim blocks requirement
@@ -1089,12 +1090,12 @@ public class PlayerListener implements Listener {
                 if (oldClaim.getParent() == null) {
                     // temporary claim instance, just for checking contains()
                     Claim newClaim = new Claim(plugin,
-                            new Location(oldClaim.getLesserBoundaryCorner().getWorld(), newx1, newy1, newz1),
-                            new Location(oldClaim.getLesserBoundaryCorner().getWorld(), newx2, newy2, newz2),
+                            new Location(oldClaim.getMin().getWorld(), newx1, newy1, newz1),
+                            new Location(oldClaim.getMin().getWorld(), newx2, newy2, newz2),
                             "", new String[]{}, new String[]{}, new String[]{}, new String[]{}, null, false);
 
                     // if the new claim is smaller
-                    if (!newClaim.contains(oldClaim.getLesserBoundaryCorner(), true, false) || !newClaim.contains(oldClaim.getGreaterBoundaryCorner(), true, false)) {
+                    if (!newClaim.contains(oldClaim.getMin(), true, false) || !newClaim.contains(oldClaim.getMax(), true, false)) {
                         smaller = true;
 
                         // enforce creative mode rule
@@ -1121,14 +1122,14 @@ public class PlayerListener implements Listener {
 
                     // if resizing someone else's claim, make a log entry
                     if (!playerData.getClaimResizing().getOwnerName().equals(playerName)) {
-                        plugin.getLogger().info(playerName + " resized " + playerData.getClaimResizing().getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getLesserBoundaryCorner()) + ".");
+                        plugin.getLogger().info(playerName + " resized " + playerData.getClaimResizing().getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getMin()) + ".");
                     }
 
                     // if in a creative mode world and shrinking an existing claim, restore any unclaimed area
-                    if (smaller && wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(oldClaim.getLesserBoundaryCorner())) {
+                    if (smaller && wc.getAutoRestoreUnclaimed() && plugin.creativeRulesApply(oldClaim.getMin())) {
                         plugin.sendMessage(player, TextMode.WARN, Messages.UnclaimCleanupWarning);
                         plugin.restoreClaim(oldClaim, 20L * 60 * 2);  // 2 minutes
-                        plugin.getLogger().info(player.getName() + " shrank a claim @ " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getLesserBoundaryCorner()));
+                        plugin.getLogger().info(player.getName() + " shrank a claim @ " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getMin()));
                     }
 
                     // clean up
@@ -1154,7 +1155,7 @@ public class PlayerListener implements Listener {
                 String noEditReason = claim.allowEdit(player);
                 if (noEditReason == null) {
                     // if he clicked on a corner, start resizing it
-                    if ((clickedBlock.getX() == claim.getLesserBoundaryCorner().getBlockX() || clickedBlock.getX() == claim.getGreaterBoundaryCorner().getBlockX()) && (clickedBlock.getZ() == claim.getLesserBoundaryCorner().getBlockZ() || clickedBlock.getZ() == claim.getGreaterBoundaryCorner().getBlockZ())) {
+                    if ((clickedBlock.getX() == claim.getMin().getBlockX() || clickedBlock.getX() == claim.getMax().getBlockX()) && (clickedBlock.getZ() == claim.getMin().getBlockZ() || clickedBlock.getZ() == claim.getMax().getBlockZ())) {
                         playerData.setClaimResizing(claim);
                         playerData.setLastShovelLocation(clickedBlock.getLocation());
                         // TODO: Raise ClaimResizeBegin Event here
@@ -1293,8 +1294,8 @@ public class PlayerListener implements Listener {
                         // owned by the player. make sure our larger 
                         // claim entirely contains the smaller one.
 
-                        if ((Claim.contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getLesserBoundaryCorner(), true) &&
-                                (Claim.contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getGreaterBoundaryCorner(), true)))) {
+                        if ((Claim.contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getMin(), true) &&
+                                (Claim.contains(lastShovelLocation, clickedBlock.getLocation(), result.claim.getMax(), true)))) {
                             // it contains it
                             // resize the other claim
                             result.claim.setLocation(lastShovelLocation, clickedBlock.getLocation());

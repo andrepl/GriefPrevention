@@ -22,7 +22,6 @@ import me.ryanhamshire.GriefPrevention.CreateClaimResult;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.Claim;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
@@ -234,9 +233,9 @@ public class BlockListener implements Listener {
         // if there's a claim here
         if (claim != null) {
             // if breaking UNDER the claim and the player has permission to build in the claim
-            if (block.getY() < claim.getLesserBoundaryCorner().getBlockY() && claim.allowBuild(player) == null) {
+            if (block.getY() < claim.getMin().getBlockY() && claim.allowBuild(player) == null) {
                 // extend the claim downward beyond the breakage point
-                plugin.getDataStore().extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
+                plugin.getDataStore().extendClaim(claim, claim.getMin().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
 
             }
         }
@@ -332,9 +331,9 @@ public class BlockListener implements Listener {
             }
 
             // if the player has permission for the claim and he's placing UNDER the claim
-            if (block.getY() < claim.getLesserBoundaryCorner().getBlockY() && claim.allowBuild(player) == null) {
+            if (block.getY() < claim.getMin().getBlockY() && claim.allowBuild(player) == null) {
                 // extend the claim downward
-                plugin.getDataStore().extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
+                plugin.getDataStore().extendClaim(claim, claim.getMin().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
             }
 
             // reset the counter for warning the player when he places outside his claims

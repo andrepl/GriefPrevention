@@ -93,8 +93,8 @@ public class Visualization {
     // handy for combining several visualizations together, as when visualization a top level claim with several subdivisions inside
     // locality is a performance consideration.  only create visualization blocks for around 100 blocks of the locality
     private void addClaimElements(Claim claim, int height, VisualizationType visualizationType, Location locality) {
-        Location smallXsmallZ = claim.getLesserBoundaryCorner();
-        Location bigXbigZ = claim.getGreaterBoundaryCorner();
+        Location smallXsmallZ = claim.getMin();
+        Location bigXbigZ = claim.getMax();
         World world = smallXsmallZ.getWorld();
 
         int smallx = smallXsmallZ.getBlockX();

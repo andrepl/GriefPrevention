@@ -20,7 +20,6 @@ package me.ryanhamshire.GriefPrevention.data;
 
 import me.ryanhamshire.GriefPrevention.CreateClaimResult;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.persistence.FileSystemPersistence;
 import me.ryanhamshire.GriefPrevention.data.persistence.IPersistence;
@@ -126,7 +125,7 @@ public class DataStore {
         // the claims list is ordered by greater boundary corner
         // create a temporary "fake" claim in memory for comparison purposes
         Claim tempClaim = new Claim();
-        tempClaim.lesserBoundaryCorner = location;
+        tempClaim.min = location;
         // Let's get all the claims in this block's chunk
         ArrayList<Claim> aclaims = claims.getForChunk(location.getChunk());
 
@@ -170,6 +169,7 @@ public class DataStore {
                 getPlayerData(owner.getName()).getClaims().add(claim);
             }
         }
+        claim.setModifiedDate(System.currentTimeMillis());
         this.dirtyClaimIds.add(claim.getId());
     }
 
@@ -203,7 +203,6 @@ public class DataStore {
     synchronized public CreateClaimResult createClaim(World world, int x1, int x2, int y1, int y2, int z1, int z2,
                                                        String ownerName, Claim parent, UUID id, boolean neverdelete,
                                                        Claim oldclaim,Player claimcreator,boolean doRaiseEvent) {
-        plugin.debug(String.format("claimCreate(%s, %d, %d, %d, %d, %d, %d, %s, %s, %s, %s, %s, %s, %s", world, x1, x2, y1, y1, z1, z2, ownerName, parent, id, neverdelete, oldclaim, claimcreator, doRaiseEvent));
         CreateClaimResult result = new CreateClaimResult();
         WorldConfig wc = plugin.getWorldCfg(world);
         int smallx, bigx, smally, bigy, smallz, bigz;
@@ -315,8 +314,8 @@ public class DataStore {
      */
     public CreateClaimResult resizeClaim(Claim claimResizing, int newx1, int newx2, int newy1, int newy2, int newz1, int newz2, Player player) {
         plugin.debug(String.format("resizeClaim(%s, %d, %d, %d, %d, %d, %d, %s)", claimResizing, newx1, newx2, newy1, newy2, newz1, newz2, player));
-        Location newLesser = new Location(claimResizing.getLesserBoundaryCorner().getWorld(), newx1, newy1, newz1);
-        Location newGreater = new Location(claimResizing.getLesserBoundaryCorner().getWorld(), newx2, newy2, newz2);
+        Location newLesser = new Location(claimResizing.getMin().getWorld(), newx1, newy1, newz1);
+        Location newGreater = new Location(claimResizing.getMin().getWorld(), newx2, newy2, newz2);
         ClaimResizeEvent cre = new ClaimResizeEvent(claimResizing, newLesser, newGreater, player);
         Bukkit.getPluginManager().callEvent(cre);
         CreateClaimResult res = new CreateClaimResult();
@@ -347,8 +346,8 @@ public class DataStore {
                 return res;
             }
         }
-        claimResizing.setGreaterBoundaryCorner(newGreater);
-        claimResizing.setLesserBoundaryCorner(newLesser);
+        claimResizing.setMax(newGreater);
+        claimResizing.setMin(newLesser);
 
         saveClaim(claimResizing);
         res.succeeded = CreateClaimResult.Result.SUCCESS;
@@ -386,7 +385,7 @@ public class DataStore {
     }
 
     public void extendClaim(Claim claim, int newDepth) {
-        WorldConfig wc = plugin.getWorldCfg(claim.getLesserBoundaryCorner().getWorld());
+        WorldConfig wc = plugin.getWorldCfg(claim.getMin().getWorld());
 
         if(newDepth < wc.getClaimsMaxDepth()) newDepth = wc.getClaimsMaxDepth();
 
@@ -394,12 +393,12 @@ public class DataStore {
             claim = claim.getParent();
         }
 
-        claim.getLesserBoundaryCorner().setY(newDepth);
-        claim.getGreaterBoundaryCorner().setY(newDepth);
+        claim.getMin().setY(newDepth);
+        claim.getMax().setY(newDepth);
 
         for (Claim child: claim.getChildren()) {
-            child.getLesserBoundaryCorner().setY(newDepth);
-            child.getGreaterBoundaryCorner().setY(newDepth);
+            child.getMin().setY(newDepth);
+            child.getMax().setY(newDepth);
         }
         saveClaim(claim);
     }
@@ -416,7 +415,7 @@ public class DataStore {
         ArrayList<Claim> claimsToDelete = new ArrayList<Claim>();
         for (Claim claim: this.claims.getAllTopLevel()) {
             if(claim.getOwnerName().equals(ownerName) &&
-                    (deleteCreativeClaims || !plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) &&
+                    (deleteCreativeClaims || !plugin.creativeRulesApply(claim.getMin())) &&
                     (!claim.isNeverDelete()|| deleteLockedClaims)) {
                 claimsToDelete.add(claim);
             }
@@ -427,7 +426,7 @@ public class DataStore {
             claim.removeSurfaceFluids(null);
             this.deleteClaim(claim, null, true);
             // if in a creative mode world, delete the claim
-            if (plugin.creativeRulesApply(claim.getLesserBoundaryCorner())) {
+            if (plugin.creativeRulesApply(claim.getMin())) {
                 plugin.restoreClaim(claim, 0);
             }
         }

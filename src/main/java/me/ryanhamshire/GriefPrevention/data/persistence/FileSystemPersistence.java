@@ -96,6 +96,7 @@ public class FileSystemPersistence implements IPersistence {
             String[] managers = cfg.getStringList("managers").toArray(new String[0]);
             boolean neverDelete = cfg.getBoolean("neverDelete", false);
             claim = new Claim(plugin, min, max, ownerName, builders, containers, accessors, managers, id, neverDelete);
+            claim.setModifiedDate(cfg.getLong("modifiedDate", System.currentTimeMillis()));
             if (cfg.contains("flags")) {
                 ConfigurationSection flagSec = cfg.getConfigurationSection("flags");
                 claim.loadFlags(flagSec.getValues(false));
@@ -214,8 +215,9 @@ public class FileSystemPersistence implements IPersistence {
         for (Claim c: claims) {
             plugin.debug("Saving Claim: " + c);
             YamlConfiguration cfg = new YamlConfiguration();
-            cfg.set("minimumPoint", SerializationUtil.locationToString(c.getLesserBoundaryCorner()));
-            cfg.set("maximumPoint", SerializationUtil.locationToString(c.getGreaterBoundaryCorner()));
+            cfg.set("modifiedDate", c.getModifiedDate());
+            cfg.set("minimumPoint", SerializationUtil.locationToString(c.getMin()));
+            cfg.set("maximumPoint", SerializationUtil.locationToString(c.getMax()));
             cfg.set("ownerName", c.getOwnerName());
             cfg.set("neverDelete", c.isNeverDelete());
             ConfigurationSection flagSec = cfg.getConfigurationSection("flags");

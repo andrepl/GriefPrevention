@@ -31,7 +31,6 @@ import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Vector;
 
 // holds all of GriefPrevention's player-tied data
 @SuppressWarnings("unused")
@@ -48,7 +47,7 @@ public class PlayerData {
     public HashSet<Claim> getWorldClaims(World p) {
         HashSet<Claim> makeresult = new HashSet<Claim>();
         for (Claim cc : claims) {
-            if (cc.getLesserBoundaryCorner().getWorld().equals(p)) {
+            if (cc.getMin().getWorld().equals(p)) {
                 makeresult.add(cc);
             }
         }

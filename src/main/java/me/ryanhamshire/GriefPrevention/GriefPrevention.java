@@ -78,6 +78,8 @@ public class GriefPrevention extends JavaPlugin {
     private MessageManager messageManager;
 
     private BlockListener blockListener;
+    private PlayerListener playerListener;
+    private EntityListener entityListener;
 
     /**
      * Retrieves a World Configuration given the World. if the World Configuration is not loaded,
@@ -144,20 +146,20 @@ public class GriefPrevention extends JavaPlugin {
             eventsRegistered = true;
             PluginManager pluginManager = this.getServer().getPluginManager();
             // player events
-            PlayerListener playerEventHandler = new PlayerListener(this);
-            pluginManager.registerEvents(playerEventHandler, this);
+            playerListener = new PlayerListener(this);
+            pluginManager.registerEvents(playerListener, this);
             // block events
             blockListener = new BlockListener(this);
             pluginManager.registerEvents(blockListener, this);
             // entity events
-            EntityListener entityEventHandler = new EntityListener(this.dataStore, this);
-            pluginManager.registerEvents(entityEventHandler, this);
+            entityListener = new EntityListener(this);
+            pluginManager.registerEvents(entityListener, this);
         }
 
         // if economy is enabled
         if (this.configuration.getClaimBlocksPurchaseCost() > 0 || this.configuration.getClaimBlocksSellValue() > 0) {
             // try to load Vault
-            RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+            RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
             getLogger().info("Vault loaded successfully!");
             // ask Vault to hook into an economy plugin
             if (economyProvider != null) {
@@ -175,8 +177,8 @@ public class GriefPrevention extends JavaPlugin {
     }
 
     public void handleClaimClean(Claim c, MaterialInfo source, MaterialInfo target, Player player) {
-        Location lesser = c.getLesserBoundaryCorner();
-        Location upper = c.getGreaterBoundaryCorner();
+        Location lesser = c.getMin();
+        Location upper = c.getMax();
         for (int x = lesser.getBlockX(); x <= upper.getBlockX(); x++) {
             for (int y = 0; y <= 255; y++) {
                 for (int z = lesser.getBlockZ(); z <= upper.getBlockZ(); z++) {
@@ -279,7 +281,7 @@ public class GriefPrevention extends JavaPlugin {
 
             // if there's a claim here, keep looking
             if (claim != null) {
-                candidateLocation = new Location(claim.getLesserBoundaryCorner().getWorld(), claim.getLesserBoundaryCorner().getBlockX() - 1, claim.getLesserBoundaryCorner().getBlockY(), claim.getLesserBoundaryCorner().getBlockZ() - 1);
+                candidateLocation = new Location(claim.getMin().getWorld(), claim.getMin().getBlockX() - 1, claim.getMin().getBlockY(), claim.getMin().getBlockZ() - 1);
             } else {
                 // find a safe height, a couple of blocks above the surface
                 guaranteeChunkLoaded(candidateLocation);
@@ -356,8 +358,8 @@ public class GriefPrevention extends JavaPlugin {
         // it's too expensive to do this for huge claims
         if (claim.getArea() > 10000) return;
 
-        Chunk lesserChunk = claim.getLesserBoundaryCorner().getChunk();
-        Chunk greaterChunk = claim.getGreaterBoundaryCorner().getChunk();
+        Chunk lesserChunk = claim.getMin().getChunk();
+        Chunk greaterChunk = claim.getMax().getChunk();
 
         for (int x = lesserChunk.getX(); x <= greaterChunk.getX(); x++)
             for (int z = lesserChunk.getZ(); z <= greaterChunk.getZ(); z++) {

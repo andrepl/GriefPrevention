@@ -49,11 +49,9 @@ import java.util.List;
 // handles events related to entities
 public class EntityListener implements Listener {
     // convenience reference for the singleton datastore
-    private DataStore dataStore;
     GriefPrevention plugin;
     
-    public EntityListener(DataStore dataStore, GriefPrevention griefPrevention) {
-        this.dataStore = dataStore;
+    public EntityListener(GriefPrevention griefPrevention) {
         this.plugin = griefPrevention;
     }
 
@@ -219,7 +217,7 @@ public class EntityListener implements Listener {
         if (!plugin.creativeRulesApply(entity.getLocation())) return;
 
         // otherwise, just apply the limit on total entities per claim
-        Claim claim = this.dataStore.getClaimAt(event.getLocation(), false, null);
+        Claim claim = plugin.getDataStore().getClaimAt(event.getLocation(), false, null);
         if (claim != null && claim.allowMoreEntities() != null) {
             event.setCancelled(true);
             return;
@@ -243,7 +241,7 @@ public class EntityListener implements Listener {
         if (!(entity instanceof Player)) return;  // only tracking players
 
         Player player = (Player) entity;
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
     }
 
     // when an entity picks up an item
@@ -254,7 +252,7 @@ public class EntityListener implements Listener {
         // if its an enderman
         if (event.getEntity() instanceof Enderman) {
             // and the block is claimed
-            if (this.dataStore.getClaimAt(event.getBlock().getLocation(), false, null) != null) {
+            if (plugin.getDataStore().getClaimAt(event.getBlock().getLocation(), false, null) != null) {
                 // he doesn't get to steal it
                 event.setCancelled(true);
             }
@@ -304,8 +302,8 @@ public class EntityListener implements Listener {
             plugin.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);
         } else if (plugin.creativeRulesApply(event.getEntity().getLocation())) {
             // otherwise, apply entity-count limitations for creative worlds
-            PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
-            Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, playerData.getLastClaim());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(event.getPlayer().getName());
+            Claim claim = plugin.getDataStore().getClaimAt(event.getBlock().getLocation(), false, playerData.getLastClaim());
             if (claim == null) return;
 
             String noEntitiesReason = claim.allowMoreEntities();
@@ -322,7 +320,7 @@ public class EntityListener implements Listener {
     public void onEntityDamage(EntityDamageEvent event) {
         // environmental damage
         if (event.getEntity() instanceof Hanging) { // hanging objects are not destroyed by explosions inside claims.
-            Claim claimatpos = dataStore.getClaimAt(event.getEntity().getLocation(), false, null);
+            Claim claimatpos = plugin.getDataStore().getClaimAt(event.getEntity().getLocation(), false, null);
             if (claimatpos != null) {
                 if (!claimatpos.isExplosivesAllowed()) {
                     event.setCancelled(true);
@@ -361,8 +359,8 @@ public class EntityListener implements Listener {
 
             Player defender = (Player) (event.getEntity());
 
-            PlayerData defenderData = this.dataStore.getPlayerData(((Player) event.getEntity()).getName());
-            PlayerData attackerData = this.dataStore.getPlayerData(attacker.getName());
+            PlayerData defenderData = plugin.getDataStore().getPlayerData(((Player) event.getEntity()).getName());
+            PlayerData attackerData = plugin.getDataStore().getPlayerData(attacker.getName());
 
             // otherwise if protecting spawning players
             if (wc.getProtectFreshSpawns()) {
@@ -381,7 +379,7 @@ public class EntityListener implements Listener {
 
             // FEATURE: prevent players from engaging in PvP combat inside land claims (when it's disabled)
             if (wc.getPvPNoCombatInPlayerClaims() || wc.getNoPvPCombatInAdminClaims()) {
-                Claim attackerClaim = this.dataStore.getClaimAt(attacker.getLocation(), false, attackerData.getLastClaim());
+                Claim attackerClaim = plugin.getDataStore().getClaimAt(attacker.getLocation(), false, attackerData.getLastClaim());
                 if (attackerClaim != null &&
                         (attackerClaim.isAdminClaim() && wc.getNoPvPCombatInAdminClaims() ||
                                 !attackerClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
@@ -391,7 +389,7 @@ public class EntityListener implements Listener {
                     return;
                 }
 
-                Claim defenderClaim = this.dataStore.getClaimAt(defender.getLocation(), false, defenderData.getLastClaim());
+                Claim defenderClaim = plugin.getDataStore().getClaimAt(defender.getLocation(), false, defenderData.getLastClaim());
                 if (defenderClaim != null &&
                         (defenderClaim.isAdminClaim() && wc.getNoPvPCombatInAdminClaims() ||
                                 !defenderClaim.isAdminClaim() && wc.getPvPNoCombatInPlayerClaims())) {
@@ -425,11 +423,11 @@ public class EntityListener implements Listener {
                 Claim cachedClaim = null;
                 PlayerData playerData = null;
                 if (attacker != null) {
-                    playerData = this.dataStore.getPlayerData(attacker.getName());
+                    playerData = plugin.getDataStore().getPlayerData(attacker.getName());
                     cachedClaim = playerData.getLastClaim();
                 }
 
-                Claim claim = this.dataStore.getClaimAt(event.getEntity().getLocation(), false, cachedClaim);
+                Claim claim = plugin.getDataStore().getClaimAt(event.getEntity().getLocation(), false, cachedClaim);
 
                 // if it's claimed
                 if (claim != null) {
@@ -505,11 +503,11 @@ public class EntityListener implements Listener {
         Claim cachedClaim = null;
         PlayerData playerData = null;
         if (attacker != null) {
-            playerData = this.dataStore.getPlayerData(attacker.getName());
+            playerData = plugin.getDataStore().getPlayerData(attacker.getName());
             cachedClaim = playerData.getLastClaim();
         }
 
-        Claim claim = this.dataStore.getClaimAt(event.getVehicle().getLocation(), false, cachedClaim);
+        Claim claim = plugin.getDataStore().getClaimAt(event.getVehicle().getLocation(), false, cachedClaim);
 
         // if it's claimed
         if (claim != null) {

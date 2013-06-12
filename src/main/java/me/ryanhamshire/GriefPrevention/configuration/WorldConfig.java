@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -103,7 +104,7 @@ public class WorldConfig {
     private double configClaimsAbandonReturnRatio;                // return ratio when abandoning a claim- .80 will result in players getting 80% of the used claim blocks back.
     
     private String WorldName;
-    private List<Material> configTrashBlocks = null;
+    private EnumSet<Material> configTrashBlocks = null;
     private List<String> configModsIgnoreClaimsAccounts;			// list of player names which ALWAYS ignore claims
     private MaterialCollection configModsExplodableIds;			// list of block IDs which can be destroyed by explosions, even in claimed areas
     private Material configClaimsInvestigationTool;				// which material will be used to investigate claims with a right click
@@ -143,7 +144,7 @@ public class WorldConfig {
      *
 	 * @return the List of Trash block materials for this world.
 	 */
-	public List<Material> getTrashBlocks() { return configTrashBlocks; }
+	public EnumSet<Material> getTrashBlocks() { return configTrashBlocks; }
     public double getClaimsAbandonReturnRatio() { return configClaimsAbandonReturnRatio; }
 	public int getMessageCooldownClaims() { return configMessageCooldownClaims; }
 	public int getMessageCooldownStuck() { return configMessageCooldownStuck; }
@@ -292,21 +293,12 @@ public class WorldConfig {
 
 		// read trash blocks.
 		// Cobblestone,Torch,Dirt,Sapling,Gravel,Sand,TNT,Workbench
-		this.configTrashBlocks = new ArrayList<Material>();
-		for(Material trashblock:new Material[]{Material.COBBLESTONE, Material.TORCH, Material.DIRT, Material.SAPLING,
-                Material.GRAVEL, Material.SAND, Material.TNT, Material.WORKBENCH}) {
-		    this.configTrashBlocks.add(trashblock);
-		}
-		List<String> trashBlocks= config.getStringList("GriefPrevention.Claims.TrashBlocks");
-		if(trashBlocks == null || trashBlocks.size() == 0) {
-		// go with the default, which we already set.
-			trashBlocks = new ArrayList<String>();
-			for(String iterate:new String[] {"COBBLESTONE", "TORCH", "DIRT", "SAPLING", "GRAVEL", "SAND", "TNT", "WORKBENCH"}) {
-				trashBlocks.add(iterate);
-			}
-		} else {
-			// reset...
-			this.configTrashBlocks = new ArrayList<Material>();
+		this.configTrashBlocks = EnumSet.of(Material.COBBLESTONE, Material.TORCH, Material.DIRT, Material.SAPLING,
+                Material.GRAVEL, Material.SAND, Material.TNT, Material.WORKBENCH);
+
+		List<String> trashBlocks = config.getStringList("GriefPrevention.Claims.TrashBlocks");
+		if(trashBlocks != null && !trashBlocks.isEmpty()) {
+			this.configTrashBlocks = EnumSet.noneOf(Material.class);
 			for(String trashmaterial: trashBlocks) {
 				 try {
                      // replace spaces with underscores...
