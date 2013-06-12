@@ -59,15 +59,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class BlockListener implements Listener {
     // convenience reference to singleton datastore
-    private DataStore dataStore;
     private GriefPrevention plugin;
 
     // how far away to search from a tree trunk for its branch blocks
     private static final int TREE_RADIUS = 5;
 
     // constructor
-    public BlockListener(DataStore dataStore, GriefPrevention plugin) {
-        this.dataStore = dataStore;
+    public BlockListener(GriefPrevention plugin) {
         this.plugin = plugin;
     }
 
@@ -165,10 +163,10 @@ public class BlockListener implements Listener {
             if (stackInHand == null || stackInHand.getType() == Material.AIR) return;
 
             // only care if the chest is in a claim, and the player does not have access to the chest
-            Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, null);
+            Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
             if (claim == null || claim.allowContainers(player) == null) return;
 
-            PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getName());
+            PlayerData playerData = plugin.getDataStore().getPlayerData(event.getPlayer().getName());
             // if a player is in pvp combat, he can't give away items
             if (playerData.inPvpCombat()) return;
 
@@ -223,8 +221,8 @@ public class BlockListener implements Listener {
         }
 
         // make sure the player is allowed to break at the location
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(breakEvent.getBlock().getLocation(), false, playerData.getLastClaim());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
+        Claim claim = plugin.getDataStore().getClaimAt(breakEvent.getBlock().getLocation(), false, playerData.getLastClaim());
 
         String noBuildReason = allowBreak(player, block.getLocation(), playerData, claim);
         if (noBuildReason != null) {
@@ -232,13 +230,13 @@ public class BlockListener implements Listener {
             breakEvent.setCancelled(true);
             return;
         }
-        claim = this.dataStore.getClaimAt(block.getLocation(), true, claim);
+        claim = plugin.getDataStore().getClaimAt(block.getLocation(), true, claim);
         // if there's a claim here
         if (claim != null) {
             // if breaking UNDER the claim and the player has permission to build in the claim
             if (block.getY() < claim.getLesserBoundaryCorner().getBlockY() && claim.allowBuild(player) == null) {
                 // extend the claim downward beyond the breakage point
-                this.dataStore.extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
+                plugin.getDataStore().extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
 
             }
         }
@@ -267,7 +265,7 @@ public class BlockListener implements Listener {
         String signMessage = lines.toString();
 
         // if not empty and wasn't the same as the last sign, log it and remember it for later
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         if (notEmpty && playerData.getLastMessage() != null && !playerData.getLastMessage().equals(signMessage)) {
             plugin.getLogger().info("[Sign Placement] <" + player.getName() + "> " + lines.toString() + " @ " + GriefPrevention.getfriendlyLocationString(event.getBlock().getLocation()));
             playerData.setLastMessage(signMessage);
@@ -314,8 +312,8 @@ public class BlockListener implements Listener {
                 }
             }
         }
-        PlayerData playerData = this.dataStore.getPlayerData(player.getName());
-        Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim());
+        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
+        Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, playerData.getLastClaim());
         // make sure the player is allowed to build at the location
         String noBuildReason = allowBuild(player, block.getLocation(), playerData, claim);
         if (noBuildReason != null) {
@@ -325,7 +323,7 @@ public class BlockListener implements Listener {
         }
 
         // if the block is being placed within an existing claim
-        claim = this.dataStore.getClaimAt(block.getLocation(), true, claim);
+        claim = plugin.getDataStore().getClaimAt(block.getLocation(), true, claim);
         if (claim != null) {
             // warn about TNT not destroying claimed blocks
             if (block.getType() == Material.TNT && !claim.isExplosivesAllowed()) {
@@ -336,7 +334,7 @@ public class BlockListener implements Listener {
             // if the player has permission for the claim and he's placing UNDER the claim
             if (block.getY() < claim.getLesserBoundaryCorner().getBlockY() && claim.allowBuild(player) == null) {
                 // extend the claim downward
-                this.dataStore.extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
+                plugin.getDataStore().extendClaim(claim, claim.getLesserBoundaryCorner().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
             }
 
             // reset the counter for warning the player when he places outside his claims
@@ -355,12 +353,12 @@ public class BlockListener implements Listener {
             if (playerData.getClaims().size() == 0) {
                 // radius == 0 means protect ONLY the chest
                 if (wc.getAutomaticClaimsForNewPlayerRadius() == 0) {
-                    this.dataStore.createClaim(block.getWorld(), block.getX(), block.getX(), block.getY(), block.getY(), block.getZ(), block.getZ(), player.getName(), null, null, false, null, player, true);
+                    plugin.getDataStore().createClaim(block.getWorld(), block.getX(), block.getX(), block.getY(), block.getY(), block.getZ(), block.getZ(), player.getName(), null, null, false, null, player, true);
                     plugin.sendMessage(player, TextMode.SUCCESS, Messages.ChestClaimConfirmation);
                 } else { // otherwise, create a claim in the area around the chest
                     // as long as the automatic claim overlaps another existing claim, shrink it
                     // note that since the player had permission to place the chest, at the very least, the automatic claim will include the chest
-                    while (radius >= 0 && (this.dataStore.createClaim(block.getWorld(),
+                    while (radius >= 0 && (plugin.getDataStore().createClaim(block.getWorld(),
                             block.getX() - radius, block.getX() + radius,
                             block.getY() - wc.getClaimsExtendIntoGroundDistance(), block.getY(),
                             block.getZ() - radius, block.getZ() + radius,
@@ -372,7 +370,7 @@ public class BlockListener implements Listener {
                     // notify and explain to player
                     plugin.sendMessage(player, TextMode.SUCCESS, Messages.AutomaticClaimNotification);
                     // show the player the protected area
-                    Claim newClaim = this.dataStore.getClaimAt(block.getLocation(), false, null);
+                    Claim newClaim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
                     Visualization visualization = Visualization.FromClaim(newClaim, block.getY(), VisualizationType.CLAIM, player.getLocation());
                     Visualization.apply(plugin, player, visualization);
                 }
@@ -387,7 +385,7 @@ public class BlockListener implements Listener {
             }
 
             // check to see if this chest is in a claim, and warn when it isn't
-            if (plugin.getWorldCfg(player.getWorld()).getClaimsPreventTheft() && this.dataStore.getClaimAt(block.getLocation(), false, playerData.getLastClaim()) == null) {
+            if (plugin.getWorldCfg(player.getWorld()).getClaimsPreventTheft() && plugin.getDataStore().getClaimAt(block.getLocation(), false, playerData.getLastClaim()) == null) {
                 plugin.sendMessage(player, TextMode.WARN, Messages.UnprotectedChestWarning);
             }
         } else if (block.getType() == Material.SAPLING &&
@@ -438,8 +436,8 @@ public class BlockListener implements Listener {
             Block pistonBlock = event.getBlock();
             Block invadedBlock = pistonBlock.getRelative(event.getDirection());
 
-            if (this.dataStore.getClaimAt(pistonBlock.getLocation(), false, null) == null &&
-                    this.dataStore.getClaimAt(invadedBlock.getLocation(), false, null) != null) {
+            if (plugin.getDataStore().getClaimAt(pistonBlock.getLocation(), false, null) == null &&
+                    plugin.getDataStore().getClaimAt(invadedBlock.getLocation(), false, null) != null) {
                 event.setCancelled(true);
             }
             return;
@@ -447,13 +445,13 @@ public class BlockListener implements Listener {
 
         // who owns the piston, if anyone?
         String pistonClaimOwnerName = "_";
-        Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, null);
+        Claim claim = plugin.getDataStore().getClaimAt(event.getBlock().getLocation(), false, null);
         if (claim != null) pistonClaimOwnerName = claim.getOwnerName();
 
         // which blocks are being pushed?
         for (Block block : blocks) {
             // if ANY of the pushed blocks are owned by someone other than the piston owner, cancel the event
-            claim = this.dataStore.getClaimAt(block.getLocation(), false, null);
+            claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
             if (claim != null && !claim.getOwnerName().equals(pistonClaimOwnerName)) {
                 event.setCancelled(true);
                 event.getBlock().getWorld().createExplosion(event.getBlock().getLocation(), 0);
@@ -483,13 +481,13 @@ public class BlockListener implements Listener {
         // if horizontal movement
         if (xchange != 0 || zchange != 0) {
             for (Block block : blocks) {
-                Claim originalClaim = this.dataStore.getClaimAt(block.getLocation(), false, null);
+                Claim originalClaim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
                 String originalOwnerName = "";
                 if (originalClaim != null) {
                     originalOwnerName = originalClaim.getOwnerName();
                 }
 
-                Claim newClaim = this.dataStore.getClaimAt(block.getLocation().add(xchange, 0, zchange), false, null);
+                Claim newClaim = plugin.getDataStore().getClaimAt(block.getLocation().add(xchange, 0, zchange), false, null);
                 String newOwnerName = "";
                 if (newClaim != null) {
                     newOwnerName = newClaim.getOwnerName();
@@ -516,13 +514,13 @@ public class BlockListener implements Listener {
 
         // who owns the moving block, if anyone?
         String movingBlockOwnerName = "_";
-        Claim movingBlockClaim = this.dataStore.getClaimAt(event.getRetractLocation(), false, null);
+        Claim movingBlockClaim = plugin.getDataStore().getClaimAt(event.getRetractLocation(), false, null);
         if (movingBlockClaim != null) movingBlockOwnerName = movingBlockClaim.getOwnerName();
 
         // who owns the piston, if anyone?
         String pistonOwnerName = "_";
         Location pistonLocation = event.getBlock().getLocation();
-        Claim pistonClaim = this.dataStore.getClaimAt(pistonLocation, false, null);
+        Claim pistonClaim = plugin.getDataStore().getClaimAt(pistonLocation, false, null);
         if (pistonClaim != null) pistonOwnerName = pistonClaim.getOwnerName();
 
         // if there are owners for the blocks, they must be the same player
@@ -558,7 +556,7 @@ public class BlockListener implements Listener {
         }
 
         // never spread into a claimed area, regardless of settings
-        if (this.dataStore.getClaimAt(spreadEvent.getBlock().getLocation(), false, null) != null) {
+        if (plugin.getDataStore().getClaimAt(spreadEvent.getBlock().getLocation(), false, null) != null) {
             spreadEvent.setCancelled(true);
 
             // if the source of the spread is not fire on netherrack, put out that source fire to save cpu cycles
@@ -600,7 +598,7 @@ public class BlockListener implements Listener {
         }
 
         // never burn claimed blocks, regardless of settings
-        if (this.dataStore.getClaimAt(burnEvent.getBlock().getLocation(), false, null) != null) {
+        if (plugin.getDataStore().getClaimAt(burnEvent.getBlock().getLocation(), false, null) != null) {
             burnEvent.setCancelled(true);
         }
     }
@@ -619,14 +617,14 @@ public class BlockListener implements Listener {
 
         // from where?
         Block fromBlock = spreadEvent.getBlock();
-        Claim fromClaim = this.dataStore.getClaimAt(fromBlock.getLocation(), false, this.lastSpreadClaim);
+        Claim fromClaim = plugin.getDataStore().getClaimAt(fromBlock.getLocation(), false, this.lastSpreadClaim);
         if (fromClaim != null) {
             this.lastSpreadClaim = fromClaim;
         }
 
         // where to?
         Block toBlock = spreadEvent.getToBlock();
-        Claim toClaim = this.dataStore.getClaimAt(toBlock.getLocation(), false, fromClaim);
+        Claim toClaim = plugin.getDataStore().getClaimAt(toBlock.getLocation(), false, fromClaim);
 
         // if it's within the same claim or wilderness to wilderness, allow it
         if (fromClaim == toClaim) return;
@@ -671,8 +669,8 @@ public class BlockListener implements Listener {
 
         Block toBlock = fromBlock.getRelative(xChange, 0, zChange);
 
-        Claim fromClaim = this.dataStore.getClaimAt(fromBlock.getLocation(), false, null);
-        Claim toClaim = this.dataStore.getClaimAt(toBlock.getLocation(), false, fromClaim);
+        Claim fromClaim = plugin.getDataStore().getClaimAt(fromBlock.getLocation(), false, null);
+        Claim toClaim = plugin.getDataStore().getClaimAt(toBlock.getLocation(), false, fromClaim);
 
         // into wilderness is NOT OK when surface buckets are limited
         Material materialDispensed = dispenseEvent.getItem().getType();
@@ -697,7 +695,7 @@ public class BlockListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onTreeGrow(StructureGrowEvent growEvent) {
         Location rootLocation = growEvent.getLocation();
-        Claim rootClaim = this.dataStore.getClaimAt(rootLocation, false, null);
+        Claim rootClaim = plugin.getDataStore().getClaimAt(rootLocation, false, null);
         String rootOwnerName = null;
 
         // who owns the spreading block, if anyone?
@@ -715,7 +713,7 @@ public class BlockListener implements Listener {
         // for each block growing
         for (int i = 0; i < growEvent.getBlocks().size(); i++) {
             BlockState block = growEvent.getBlocks().get(i);
-            Claim blockClaim = this.dataStore.getClaimAt(block.getLocation(), false, rootClaim);
+            Claim blockClaim = plugin.getDataStore().getClaimAt(block.getLocation(), false, rootClaim);
 
             // if it's growing into a claim
             if (blockClaim != null) {

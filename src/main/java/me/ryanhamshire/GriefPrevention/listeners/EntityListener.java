@@ -110,8 +110,6 @@ public class EntityListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onEntityExplode(EntityExplodeEvent explodeEvent) {
-
-        // System.out.println("EntityExplode:" + explodeEvent.getEntity().getClass().getName());
         List<Block> blocks = explodeEvent.blockList();
         Location location = explodeEvent.getLocation();
         WorldConfig wc = plugin.getWorldCfg(location.getWorld());

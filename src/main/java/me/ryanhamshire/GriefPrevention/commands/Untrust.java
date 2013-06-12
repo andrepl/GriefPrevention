@@ -41,7 +41,6 @@ public class Untrust extends BaseCommand {
         //determine whether a single player or clearing permissions entirely
         boolean clearPermissions = false;
         OfflinePlayer otherPlayer = null;
-        System.out.println("clearing perms for name:" + target);
         if (target.equals("all")) {
             if (claim == null || claim.allowEdit(player) == null) {
                 clearPermissions = true;

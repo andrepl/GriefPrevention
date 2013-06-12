@@ -19,37 +19,40 @@
 package me.ryanhamshire.GriefPrevention.configuration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-// ordered list of material info objects, for fast searching
+//ordered list of material info objects, for fast searching
 public class MaterialCollection {
-    ArrayList<MaterialInfo> materials = new ArrayList<MaterialInfo>();
+    HashMap<Integer, List<MaterialInfo>> materials = new HashMap<Integer, List<MaterialInfo>>();
 
     public void add(MaterialInfo material) {
-        int i;
-        for (i = 0; i < this.materials.size() && this.materials.get(i).getTypeID() <= material.getTypeID(); i++) ;
-        this.materials.add(i, material);
+        if (!materials.containsKey(material.getTypeId())) {
+            materials.put(material.getTypeId(), new ArrayList<MaterialInfo>());
+        }
+        this.materials.get(material.typeId).add(material);
+
     }
 
     public boolean contains(MaterialInfo material) {
-        for (int i = 0; i < this.materials.size(); i++) {
-            MaterialInfo thisMaterial = this.materials.get(i);
-            if (material.getTypeID() == thisMaterial.getTypeID() && (thisMaterial.allDataValues || material.data == thisMaterial.data)) {
-                return true;
-            } else if (thisMaterial.getTypeID() > material.getTypeID()) {
-                return false;
-            }
+        if (this.materials.containsKey(material.typeId)) {
+            return this.materials.get(material.typeId).contains(material);
         }
+
+
         return false;
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < this.materials.size(); i++) {
-            stringBuilder.append(this.materials.get(i).toString());
-            stringBuilder.append(' ');
+        for (List<MaterialInfo> matInfoList : materials.values()) {
+            for (MaterialInfo materialInfo : matInfoList) {
+                stringBuilder.append(materialInfo.toString());
+                stringBuilder.append(" ");
+            }
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().trim();
     }
 
     public int size() {
