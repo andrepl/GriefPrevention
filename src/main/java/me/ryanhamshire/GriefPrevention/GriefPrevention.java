@@ -144,10 +144,10 @@ public class GriefPrevention extends JavaPlugin {
             eventsRegistered = true;
             PluginManager pluginManager = this.getServer().getPluginManager();
             // player events
-            PlayerListener playerEventHandler = new PlayerListener(this.dataStore, this);
+            PlayerListener playerEventHandler = new PlayerListener(this);
             pluginManager.registerEvents(playerEventHandler, this);
             // block events
-            blockListener = new BlockListener(this.dataStore, this);
+            blockListener = new BlockListener(this);
             pluginManager.registerEvents(blockListener, this);
             // entity events
             EntityListener entityEventHandler = new EntityListener(this.dataStore, this);
@@ -182,8 +182,8 @@ public class GriefPrevention extends JavaPlugin {
                 for (int z = lesser.getBlockZ(); z <= upper.getBlockZ(); z++) {
                     Location createloc = new Location(lesser.getWorld(), x, y, z);
                     Block acquired = lesser.getWorld().getBlockAt(createloc);
-                    if (acquired.getTypeId() == source.getTypeID() && acquired.getData() == source.getData()) {
-                        acquired.setTypeIdAndData(target.getTypeID(), target.getData(), true);
+                    if (acquired.getTypeId() == source.getTypeId() && acquired.getData() == source.getData()) {
+                        acquired.setTypeIdAndData(target.getTypeId(), target.getData(), true);
                     }
                 }
             }

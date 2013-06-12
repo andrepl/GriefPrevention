@@ -18,108 +18,106 @@
 
 package me.ryanhamshire.GriefPrevention.configuration;
 
+import org.bukkit.Material;
+
+import java.util.regex.Pattern;
+
 //represents a material or collection of materials
-public class MaterialInfo
-{
-	private int typeID;
-	byte data;
-	boolean allDataValues;
-	String description;
-	
-	public MaterialInfo(int typeID, byte data, String description)
-	{
-		this.setTypeID(typeID);
-		this.data = data;
-		this.allDataValues = false;
-		this.description = description;
-	}
-	
-	public MaterialInfo(int typeID, String description)
-	{
-		this.setTypeID(typeID);
-		this.data = 0;
-		this.allDataValues = true;
-		this.description = description;
-	}
-	
-	private MaterialInfo(int typeID, byte data, boolean allDataValues, String description)
-	{
-		this.setTypeID(typeID);
-		this.data = data;
-		this.allDataValues = allDataValues;
-		this.description = description;
-	}
-	
-	@Override
-	public String toString()
-	{
-		String returnValue = String.valueOf(this.getTypeID()) + ":" + (this.allDataValues?"*":String.valueOf(this.data));
-		if(this.description != null) returnValue += ":" + this.description;
-		
-		return returnValue;
-	}
-	
-	public static MaterialInfo fromString(String string)
-	{
-		if(string == null || string.isEmpty()) return null;
-		
-		String [] parts = string.split(":");
-		if(parts.length < 3) return null;
-		
-		try
-		{
-			int typeID = Integer.parseInt(parts[0]);
-		
-			byte data;
-			boolean allDataValues;
-			if(parts[1].equals("*"))
-			{
-				allDataValues = true;
-				data = 0;
-			}
-			else
-			{
-				allDataValues = false;
-				data = Byte.parseByte(parts[1]);
-			}
-			
-			return new MaterialInfo(typeID, data, allDataValues, parts[2]);
-		}
-		catch(NumberFormatException exception)
-		{
-			return null;
-		}
-	}
+public class MaterialInfo {
+    int typeId;
+    byte data;
+    boolean allDataValues;
+    String description;
+    private Pattern re;
 
-    public int getTypeID() {
-        return typeID;
-    }
-
-    public void setTypeID(int typeID) {
-        this.typeID = typeID;
+    public int getTypeId() {
+        return typeId;
     }
 
     public byte getData() {
         return data;
     }
 
-    public void setData(byte data) {
-        this.data = data;
-    }
-
-    public boolean isAllDataValues() {
+    public boolean getallDataValues() {
         return allDataValues;
-    }
-
-    public void setAllDataValues(boolean allDataValues) {
-        this.allDataValues = allDataValues;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public MaterialInfo(int typeId, byte data, String description) {
+        this.typeId = typeId;
+        this.data = data;
+        this.allDataValues = false;
         this.description = description;
+    }
+
+    public MaterialInfo(int typeId, String description) {
+        this.typeId = typeId;
+        this.data = 0;
+        this.allDataValues = true;
+        if (description == null || description.length() == 0) {
+            description = Material.getMaterial(typeId).name();
+        }
+        this.description = description;
+    }
+
+    private MaterialInfo(int typeId, byte data, boolean allDataValues, String description) {
+        this.typeId = typeId;
+        this.data = data;
+        this.allDataValues = allDataValues;
+        if (description.startsWith("//")) {
+            re = Pattern.compile(description.substring(1));
+        }
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        String returnValue = String.valueOf(this.typeId) + ":" + (this.allDataValues ? "*" : String.valueOf(this.data));
+        if (this.description != null) returnValue += ":" + this.description;
+        return returnValue;
+    }
+
+    @Override
+    public int hashCode() {
+        return (typeId * data) / (typeId + data) ^ data;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof MaterialInfo) {
+            MaterialInfo castedelement = (MaterialInfo) other;
+            if (this.typeId == castedelement.typeId &&
+                    ((this.allDataValues || castedelement.allDataValues) ||
+                            this.data == castedelement.data)) {
+                if (re != null) {
+                    return re.matcher(castedelement.getDescription()).matches();
+                }
+                return true;
+            }
+        }
+        return super.equals(other);
+    }
+
+    public static MaterialInfo fromString(String string) {
+        if (string == null || string.isEmpty()) return null;
+        String[] parts = string.split(":");
+        if (parts.length < 3) return null;
+        try {
+            int typeID = Integer.parseInt(parts[0]);
+
+            byte data;
+            boolean allDataValues;
+            if (parts[1].equals("*")) {
+                return new MaterialInfo(typeID, parts[2]);
+            } else {
+                data = Byte.parseByte(parts[1]);
+                return new MaterialInfo(typeID, data, parts[2]);
+            }
+        } catch (NumberFormatException exception) {
+            return null;
+        }
     }
 }

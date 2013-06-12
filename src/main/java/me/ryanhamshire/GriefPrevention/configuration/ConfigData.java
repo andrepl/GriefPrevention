@@ -174,10 +174,10 @@ public class ConfigData {
 	 * @return WorldConfig instance representing the configuration for the given world.
 	 */
 	public WorldConfig getWorldConfig(String worldName) {
-		World grabfor =null;
+		World world = null;
 		// print log message if the passed world is not currently loaded or present.
 		// it will still go ahead and try to load the configuration.
-		if((grabfor = Bukkit.getWorld(worldName))==null) {
+		if((world = Bukkit.getWorld(worldName))==null) {
 			plugin.getLogger().log(Level.SEVERE, "invalid World:" + worldName);
 		}
 		
@@ -185,18 +185,18 @@ public class ConfigData {
 		if(!worldCfg.containsKey(worldName)) {
 			// special code: it's possible a configuration might already exist for this file, so we'll
 			// check
-			String checkyamlfile = new File(ConfigData.defaultConfigFolder, worldName + ".cfg").getPath();
+			String checkYamlFile = new File(ConfigData.defaultConfigFolder, worldName + ".cfg").getPath();
 			// if it exists...
-			if (new File(checkyamlfile).exists()) {
+			if (new File(checkYamlFile).exists()) {
 				// attempt to load the configuration from the given file.
-				YamlConfiguration existingcfg = YamlConfiguration.loadConfiguration(new File(checkyamlfile));
+				YamlConfiguration existingcfg = YamlConfiguration.loadConfiguration(new File(checkYamlFile));
 				YamlConfiguration outConfiguration = new YamlConfiguration();
 				// place it in the hashmap.
 				worldCfg.put(worldName,new WorldConfig(plugin, worldName, existingcfg, outConfiguration));
 				// try to save it. this can error out for who knows what reason. If it does, we'll
 				// squirt the issue to the log.
 				try {
-                    outConfiguration.save(new File(checkyamlfile));
+                    outConfiguration.save(new File(checkYamlFile));
                 } catch (IOException iex) {
 					plugin.getLogger().log(Level.SEVERE,"Failed to save World Config for world " + worldName);
 				}
@@ -209,11 +209,11 @@ public class ConfigData {
 				// The target save location.
 				FileConfiguration target = new YamlConfiguration();
 				// place it in the hashmap.
-				worldCfg.put(worldName, new WorldConfig(plugin, grabfor.getName(), useSource, target));
+				worldCfg.put(worldName, new WorldConfig(plugin, world.getName(), useSource, target));
 				try {
-					target.save(new File(checkyamlfile));
+					target.save(new File(checkYamlFile));
 				}catch(IOException ioex) {
-					plugin.getLogger().log(Level.SEVERE, "Failed to write world configuration to " + checkyamlfile);
+					plugin.getLogger().log(Level.SEVERE, "Failed to write world configuration to " + checkYamlFile);
 				}		
             }
 			// save target
