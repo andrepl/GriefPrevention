@@ -233,61 +233,61 @@ public class WorldConfig {
 		outConfig.set("GriefPrevention.SeaLevelOverride", configSeaLevelOverride);
 		// read in the data for TNT explosions and Golem/Wither placements.
 
-		this.creeperExplosionBehaviour = new ClaimBehaviourData("Creeper Explosions",config,outConfig,"GriefPrevention.CreeperExplosions",
+		this.creeperExplosionBehaviour = new ClaimBehaviourData(plugin, "Creeper Explosions",config,outConfig,"GriefPrevention.CreeperExplosions",
 				ClaimBehaviourData.getOutsideClaims(plugin, "Creeper Explosions"));
 
-		this.witherExplosionBehaviour = new ClaimBehaviourData("Wither Explosions",config,outConfig,"GriefPrevention.WitherExplosions",
+		this.witherExplosionBehaviour = new ClaimBehaviourData(plugin, "Wither Explosions",config,outConfig,"GriefPrevention.WitherExplosions",
 				ClaimBehaviourData.getOutsideClaims(plugin, "Wither Explosions"));
 
-		this.witherEatBehaviour = new ClaimBehaviourData("Wither Eating",config,outConfig,"GriefPrevention.WitherEating",
+		this.witherEatBehaviour = new ClaimBehaviourData(plugin, "Wither Eating",config,outConfig,"GriefPrevention.WitherEating",
 				ClaimBehaviourData.getOutsideClaims(plugin, "Wither Eating"));
 
-		this.tntExplosionBehaviour = new ClaimBehaviourData("TNT Explosions",config,outConfig,"GriefPrevention.TNTExplosions",
+		this.tntExplosionBehaviour = new ClaimBehaviourData(plugin, "TNT Explosions",config,outConfig,"GriefPrevention.TNTExplosions",
 				ClaimBehaviourData.getOutsideClaims(plugin, "TNTExplosions"));
 
-		this.otherExplosionBehaviour = new ClaimBehaviourData("Other Explosions",config,outConfig,"GriefPrevention.OtherExplosions",
+		this.otherExplosionBehaviour = new ClaimBehaviourData(plugin, "Other Explosions",config,outConfig,"GriefPrevention.OtherExplosions",
 				ClaimBehaviourData.getOutsideClaims(plugin, "Other Explosions"));
 
-		this.waterBucketBehaviour = new ClaimBehaviourData("Water Placement",config,outConfig,"GriefPrevention.WaterBuckets",
+		this.waterBucketBehaviour = new ClaimBehaviourData(plugin, "Water Placement",config,outConfig,"GriefPrevention.WaterBuckets",
 		        ClaimBehaviourData.getAboveSeaLevel(plugin, "Water Placement"));
 
-		this.lavaBucketBehaviour = new ClaimBehaviourData("Lava Placement",config,outConfig,"GriefPrevention.LavaBuckets",
+		this.lavaBucketBehaviour = new ClaimBehaviourData(plugin, "Lava Placement",config,outConfig,"GriefPrevention.LavaBuckets",
 				ClaimBehaviourData.getAboveSeaLevel(plugin, "Lava Placement"));
 
 		// golem spawn rules.
-		this.ironGolemSpawnBehaviour = new ClaimBehaviourData("Iron Golem Spawning",config,outConfig,"GriefPrevention.BuildIronGolem",
+		this.ironGolemSpawnBehaviour = new ClaimBehaviourData(plugin, "Iron Golem Spawning",config,outConfig,"GriefPrevention.BuildIronGolem",
 				ClaimBehaviourData.getInsideClaims(plugin, "Iron Golem Spawning"));
 
-		this.snowGolemSpawnBehaviour = new ClaimBehaviourData("Snow Golem Spawning",config,outConfig,"GriefPrevention.BuildSnowGolem",
+		this.snowGolemSpawnBehaviour = new ClaimBehaviourData(plugin, "Snow Golem Spawning",config,outConfig,"GriefPrevention.BuildSnowGolem",
 				ClaimBehaviourData.getInsideClaims(plugin, "Snow Golem Spawning"));
 
 
-		this.witherSpawnBehaviour = new ClaimBehaviourData("Wither Spawning",config,outConfig,"GriefPrevention.BuildWither",
+		this.witherSpawnBehaviour = new ClaimBehaviourData(plugin, "Wither Spawning",config,outConfig,"GriefPrevention.BuildWither",
 				ClaimBehaviourData.getInsideClaims(plugin, "Wither Spawning"));
 
-		trashBlockPlacementBehaviour = new ClaimBehaviourData("Trash Block Placement",config,outConfig,"GriefPrevention.TrashBlockPlacementRules",
+		trashBlockPlacementBehaviour = new ClaimBehaviourData(plugin, "Trash Block Placement",config,outConfig,"GriefPrevention.TrashBlockPlacementRules",
 				ClaimBehaviourData.getOutsideClaims(plugin, "Trash Block Placement"));
 
-		villagerTrades = new ClaimBehaviourData("Villager Trading",config,outConfig,"GriefPrevention.Claims.VillagerTrading",
+		villagerTrades = new ClaimBehaviourData(plugin, "Villager Trading",config,outConfig,"GriefPrevention.Claims.VillagerTrading",
 				ClaimBehaviourData.getInsideClaims(plugin, "Villager Trading"));
 
-		this.environmentalVehicleDamage = new ClaimBehaviourData("Environmental Vehicle Damage",config,outConfig,"GriefPrevention.Claims.EnvironmentalVehicleDamage",
+		this.environmentalVehicleDamage = new ClaimBehaviourData(plugin, "Environmental Vehicle Damage",config,outConfig,"GriefPrevention.Claims.EnvironmentalVehicleDamage",
 				ClaimBehaviourData.getOutsideClaims(plugin, "Environmental Vehicle Damage"));
 
 
-		this.zombieDoorBreaking = new ClaimBehaviourData("Zombie Door Breaking",config,outConfig,"GriefPrevention.ZombieDoorBreaking",
+		this.zombieDoorBreaking = new ClaimBehaviourData(plugin, "Zombie Door Breaking",config,outConfig,"GriefPrevention.ZombieDoorBreaking",
 				ClaimBehaviourData.getNone(plugin, "Zombie Door Breaking"));
 
-		sheepShearingRules = new ClaimBehaviourData("Sheep Shearing",config,outConfig,"GriefPrevention.SheepShearing",
+		sheepShearingRules = new ClaimBehaviourData(plugin, "Sheep Shearing",config,outConfig,"GriefPrevention.SheepShearing",
 				ClaimBehaviourData.getInsideClaims(plugin, "Sheep Shearing"));
 
-		sheepDyeing = new ClaimBehaviourData("Sheep Dyeing",config,outConfig,"GriefPrevention.SheepDyeing",
+		sheepDyeing = new ClaimBehaviourData(plugin, "Sheep Dyeing",config,outConfig,"GriefPrevention.SheepDyeing",
 				ClaimBehaviourData.getInsideClaims(plugin, "Sheep Dyeing"));
 
-		this.bonemealGrass = new ClaimBehaviourData("Bonemeal",config,outConfig,"GriefPrevention.BonemealGrass",
+		this.bonemealGrass = new ClaimBehaviourData(plugin, "Bonemeal",config,outConfig,"GriefPrevention.BonemealGrass",
 				ClaimBehaviourData.getInsideClaims(plugin, "Bonemeal"));
 
-		this.playerTrampleRules = new ClaimBehaviourData("Crop Trampling",config,outConfig,"GriefPrevention.PlayerCropTrample",
+		this.playerTrampleRules = new ClaimBehaviourData(plugin, "Crop Trampling",config,outConfig,"GriefPrevention.PlayerCropTrample",
 				ClaimBehaviourData.getInsideClaims(plugin, "Crop Trampling"));
 
 		// read trash blocks.

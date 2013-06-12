@@ -757,21 +757,31 @@ public class Claim {
                 contains(otherclaim.greaterBoundaryCorner, ignoreHeight, false));
     }
 
+    public boolean contains(int lx, int lz, int gx, int gz) {
+        if (lx >= this.lesserBoundaryCorner.getBlockX() && lz >= this.lesserBoundaryCorner.getBlockZ()) {
+            return gx <= this.getGreaterBoundaryCorner().getBlockX() && gz <= this.getGreaterBoundaryCorner().getBlockZ();
+        }
+        return false;
+    }
+
     public static boolean contains(Location pA, Location pB, Location target, boolean ignoreHeight) {
 
         int minX = Math.min(pA.getBlockX(), pB.getBlockX());
-        int minY = Math.min(pA.getBlockY(), pB.getBlockY());
-        int minZ = Math.min(pA.getBlockZ(), pB.getBlockZ());
         int maxX = Math.max(pA.getBlockX(), pB.getBlockX());
-        int maxY = Math.max(pA.getBlockY(), pB.getBlockY());
+        int minZ = Math.min(pA.getBlockZ(), pB.getBlockZ());
         int maxZ = Math.max(pA.getBlockZ(), pB.getBlockZ());
 
-        if (target.getBlockX() < minX || target.getBlockZ() > maxX) {
+
+        if (target.getBlockX() < minX || target.getBlockX() > maxX) {
             return false;
-        } if (target.getBlockZ() < minZ || target.getBlockZ() > maxZ) {
+        } else if (target.getBlockZ() < minZ || target.getBlockZ() > maxZ) {
             return false;
-        } if (!ignoreHeight && (target.getBlockY() < minY || target.getBlockY() > maxY)) {
-            return false;
+        } else if (!ignoreHeight) {
+            int minY = Math.min(pA.getBlockY(), pB.getBlockY());
+            int maxY = Math.max(pA.getBlockY(), pB.getBlockY());
+            if (target.getBlockY() < minY || target.getBlockY() > maxY) {
+                return false;
+            }
         }
         return true;
     }
@@ -831,7 +841,7 @@ public class Claim {
 
         if (!this.lesserBoundaryCorner.getWorld().equals(otherClaim.getLesserBoundaryCorner().getWorld())) return false;
 
-        // first, check the corners of this claim aren't inside any existing claims
+        // first, check the corners of this claim aren't inside the other
         if (otherClaim.contains(this.lesserBoundaryCorner, true, false)) return true;
         if (otherClaim.contains(this.greaterBoundaryCorner, true, false)) return true;
         if (otherClaim.contains(new Location(this.lesserBoundaryCorner.getWorld(), this.lesserBoundaryCorner.getBlockX(), 0, this.greaterBoundaryCorner.getBlockZ()), true, false))
@@ -920,7 +930,8 @@ public class Claim {
         if (thisCorner.getBlockX() > otherCorner.getBlockX()) return true;
         if (thisCorner.getBlockX() < otherCorner.getBlockX()) return false;
         if (thisCorner.getBlockZ() > otherCorner.getBlockZ()) return true;
-        return thisCorner.getBlockZ() >= otherCorner.getBlockZ() && thisCorner.getWorld().getName().compareTo(otherCorner.getWorld().getName()) < 0;
+        if (thisCorner.getBlockZ() < otherCorner.getBlockZ()) return false;
+        return thisCorner.getWorld().getName().compareTo(otherCorner.getWorld().getName()) < 0;
     }
 
     public long getPlayerInvestmentScore() {
@@ -1145,5 +1156,18 @@ public class Claim {
         for (Map.Entry<String, Object> entry: rawFlags.entrySet()) {
              flags.put(entry.getKey(), (String) entry.getValue());
         }
+    }
+
+    public String toString() {
+        return String.format("<Claim: %s, p1:%s, p2:%s>", this.id.toString(), this.lesserBoundaryCorner.toVector(), this.greaterBoundaryCorner.toVector());
+
+    }
+
+    public void setLesserBoundaryCorner(Location lesserBoundaryCorner) {
+        this.lesserBoundaryCorner = lesserBoundaryCorner;
+    }
+
+    public void setGreaterBoundaryCorner(Location greaterBoundaryCorner) {
+        this.greaterBoundaryCorner = greaterBoundaryCorner;
     }
 }

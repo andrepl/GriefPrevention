@@ -210,8 +210,9 @@ public class ClaimBehaviourData {
 		return behaviourName + " in the wilderness " + getWildernessRules().toString() + " and in claims " + getClaimsRules().toString();
 	}
 	
-	public ClaimBehaviourData(String pName, FileConfiguration source, FileConfiguration outConfig, String nodePath, ClaimBehaviourData defaults){
-		behaviourName = pName;
+	public ClaimBehaviourData(GriefPrevention plugin, String pName, FileConfiguration source, FileConfiguration outConfig, String nodePath, ClaimBehaviourData defaults) {
+		this.plugin = plugin;
+        behaviourName = pName;
 		// we want to read NodePath.BelowSeaLevelWilderness and whatnot.
 		// bases Defaults off another ClaimBehaviourData instance.
 		wilderness = new PlacementRules(source, outConfig, nodePath + ".Wilderness", defaults.getWildernessRules());

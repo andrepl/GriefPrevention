@@ -72,9 +72,7 @@ public class DataStore {
                     player.getClaims().add(claim);
                 }
             }
-            if (claim.getParent() == null) {
-                claims.add(claim);
-            }
+            claims.add(claim);
         }
     }
 
@@ -165,6 +163,13 @@ public class DataStore {
         if (!claims.contains(claim.getId())) {
             claims.add(claim);
         }
+        if (claim.getParent() == null && !claim.getOwnerName().equals("")) {
+            // re-add top level claims to their owner's collection
+            Player owner = plugin.getServer().getPlayer(claim.getOwnerName());
+            if (owner.isOnline()) {
+                getPlayerData(owner.getName()).getClaims().add(claim);
+            }
+        }
         this.dirtyClaimIds.add(claim.getId());
     }
 
@@ -198,7 +203,7 @@ public class DataStore {
     synchronized public CreateClaimResult createClaim(World world, int x1, int x2, int y1, int y2, int z1, int z2,
                                                        String ownerName, Claim parent, UUID id, boolean neverdelete,
                                                        Claim oldclaim,Player claimcreator,boolean doRaiseEvent) {
-
+        plugin.debug(String.format("claimCreate(%s, %d, %d, %d, %d, %d, %d, %s, %s, %s, %s, %s, %s, %s", world, x1, x2, y1, y1, z1, z2, ownerName, parent, id, neverdelete, oldclaim, claimcreator, doRaiseEvent));
         CreateClaimResult result = new CreateClaimResult();
         WorldConfig wc = plugin.getWorldCfg(world);
         int smallx, bigx, smally, bigy, smallz, bigz;
@@ -249,8 +254,10 @@ public class DataStore {
         //ensure this new claim won't overlap any existing claims
         ArrayList<Claim> claimsToCheck;
         if (newClaim.getParent() != null) {
+            plugin.getLogger().info("Its a child, only check the other children");
             claimsToCheck = newClaim.getParent().getChildren();
         } else {
+            plugin.getLogger().info("Its a top-level claim find others nearyby");
             Long[] claimchunks = ClaimMap.getChunks(newClaim);
             claimsToCheck = new ArrayList<Claim>();
             for (Long chunk: claimchunks) {
@@ -268,6 +275,7 @@ public class DataStore {
 
         for (Claim otherClaim : claimsToCheck) {
             //if we find an existing claim which will be overlapped
+            plugin.getLogger().info("Checking if otherClaim: " + otherClaim + " overlaps newClaim: " + newClaim);
             if (otherClaim.overlaps(newClaim)) {
                 //result = fail, return conflicting claim
                 result.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
@@ -286,7 +294,6 @@ public class DataStore {
             }
         }
         //otherwise add this new claim to the data store to make it effective
-        this.claims.add(newClaim);
         this.saveClaim(newClaim);
 
         //then return success along with reference to new claim
@@ -307,57 +314,46 @@ public class DataStore {
      * @return
      */
     public CreateClaimResult resizeClaim(Claim claimResizing, int newx1, int newx2, int newy1, int newy2, int newz1, int newz2, Player player) {
-
+        plugin.debug(String.format("resizeClaim(%s, %d, %d, %d, %d, %d, %d, %s)", claimResizing, newx1, newx2, newy1, newy2, newz1, newz2, player));
         Location newLesser = new Location(claimResizing.getLesserBoundaryCorner().getWorld(), newx1, newy1, newz1);
         Location newGreater = new Location(claimResizing.getLesserBoundaryCorner().getWorld(), newx2, newy2, newz2);
         ClaimResizeEvent cre = new ClaimResizeEvent(claimResizing, newLesser, newGreater, player);
         Bukkit.getPluginManager().callEvent(cre);
+        CreateClaimResult res = new CreateClaimResult();
         if (cre.isCancelled()) {
-            CreateClaimResult res = new CreateClaimResult();
             res.claim = claimResizing;
             res.succeeded = CreateClaimResult.Result.CANCELED;
             return res;
         }
-        //remove old claim. We don't raise an event for this!
-        this.deleteClaim(claimResizing, player, false);
 
-        //try to create this new claim, ignoring the original when checking for overlap
-        CreateClaimResult result = this.createClaim(claimResizing.getLesserBoundaryCorner().getWorld(), newx1, newx2, newy1, newy2, newz1, newz2,
-                claimResizing.getOwnerName(), claimResizing.getParent(), claimResizing.getId(), claimResizing.isNeverDelete(), claimResizing, player ,false);
-
-        //if succeeded
-        if (result.succeeded == CreateClaimResult.Result.SUCCESS) {
-            //copy permissions from old claim
-            ArrayList<String> builders = new ArrayList<String>();
-            ArrayList<String> containers = new ArrayList<String>();
-            ArrayList<String> accessors = new ArrayList<String>();
-            ArrayList<String> managers = new ArrayList<String>();
-            claimResizing.getPermissions(builders, containers, accessors, managers);
-            for (String builder : builders) {
-                result.claim.setPermission(builder, ClaimPermission.BUILD);
-            }
-            for (String container : containers) {
-                result.claim.setPermission(container, ClaimPermission.INVENTORY);
-            }
-            for (String accessor : accessors) {
-                result.claim.setPermission(accessor, ClaimPermission.ACCESS);
-            }
-            for (String manager : managers) {
-                result.claim.addManager(manager);
-            }
-            //copy subdivisions from old claim
-            for (Claim subdivision: claimResizing.getChildren()) {
-                subdivision.setParent(result.claim);
-                result.claim.getChildren().add(subdivision);
-            }
-            //save those changes
-            this.saveClaim(result.claim);
+        Collection<Claim> claimsToCheck;
+        if (claimResizing.getParent() == null) {
+            claimsToCheck = claims.getPossiblyOverlappingClaims(claimResizing);
         } else {
-            //put original claim back
-            this.claims.add(claimResizing);
-            this.saveClaim(claimResizing);
+            if (!claimResizing.getParent().contains(newx1, newz1, newx2, newz2)) {
+                res.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
+                res.claim = claimResizing.getParent();
+                return res;
+            }
+            claimsToCheck = claimResizing.getParent().getChildren();
         }
-        return result;
+        for (Claim c: claimsToCheck) {
+            if (c.getId().equals(claimResizing.getId())) {
+                continue;
+            }
+            if (claimResizing.overlaps(c)) {
+                res.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
+                res.claim = c;
+                return res;
+            }
+        }
+        claimResizing.setGreaterBoundaryCorner(newGreater);
+        claimResizing.setLesserBoundaryCorner(newLesser);
+
+        saveClaim(claimResizing);
+        res.succeeded = CreateClaimResult.Result.SUCCESS;
+        res.claim = claimResizing;
+        return res;
     }
 
     public boolean deleteClaim(Claim claim, Player player, boolean callEvent) {
@@ -369,6 +365,7 @@ public class DataStore {
                 return false;
             }
         }
+        claim.setInDataStore(false);
         claims.remove(claim);
         persistence.deleteClaim(claim);
         //update player data, except for administrative claims, which have no owner
@@ -476,4 +473,5 @@ public class DataStore {
     public int adjustGroupBonusBlocks(String permissionIdentifier, int adjustment) {
         return 0;  // TODO
     }
+
 }

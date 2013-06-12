@@ -1,5 +1,6 @@
 package me.ryanhamshire.GriefPrevention.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 
 import java.util.*;
@@ -19,14 +20,14 @@ public class ClaimMap {
     }
 
     public void add(Claim claim) {
+        Bukkit.getLogger().info("Adding Claim " + claim.getId().toString() + " to the store.");
         claim.setInDataStore(true);
-        byId.put(claim.getId(), claim);
-
         if (claim.getParent() != null) {
             childrenById.put(claim.getId(), claim);
+            claim.getParent().getChildren().add(claim);
             return;
         }
-
+        byId.put(claim.getId(), claim);
         if (!claim.getOwnerName().equals("")) {
             HashSet<UUID> ownerCollection;
             if (byOwner.containsKey(claim.getOwnerName())) {
@@ -67,8 +68,9 @@ public class ClaimMap {
     }
 
     public void remove(Claim claim) {
+        Bukkit.getLogger().info("Removing Claim " + claim + " from datastore");
+        claim.setInDataStore(false);
         if (claim.getParent() == null) {
-            claim.setInDataStore(false);
             // top level claims must their children removed
             byId.remove(claim.getId());
             // and be removed from the chunk map
@@ -88,12 +90,25 @@ public class ClaimMap {
             }
             // Remove children
             for (Claim childClaim: claim.getChildren()) {
-                claim.setInDataStore(false);
+                childClaim.setInDataStore(false);
                 childrenById.remove(childClaim.getId());
             }
+            claim.getChildren().clear();
         } else {
             childrenById.remove(claim.getId());
+            claim.getParent().getChildren().remove(claim);
         }
+        this.printContents();
+    }
+
+    private void printContents() {
+        Bukkit.getLogger().info("Contents of Claims map");
+        String byids = "";
+        for (UUID id: byId.keySet()) { byids += id.toString() + ","; }
+        Bukkit.getLogger().info("ById: " + byids);
+        byids = "";
+        for (UUID id: childrenById.keySet()) { byids += id.toString() + ","; }
+        Bukkit.getLogger().info("ChildrenById: " + byids);
     }
 
     public int size() {
@@ -116,6 +131,9 @@ public class ClaimMap {
 
     public Claim get(UUID id) {
         Claim c = byId.get(id);
+        if (c == null) {
+            c = childrenById.get(id);
+        }
         return c;
     }
 
@@ -170,7 +188,7 @@ public class ClaimMap {
         HashMap<Long, ArrayList<Claim>> worldMap = byChunk.get(claim.getLesserBoundaryCorner().getWorld().getName());
         for (long point: chunks) {
             if (worldMap.containsKey(point)) {
-                claims.addAll(worldMap.get(chunks));
+                claims.addAll(worldMap.get(point));
             }
         }
         return claims;
@@ -186,7 +204,7 @@ public class ClaimMap {
     }
 
     public boolean contains(UUID id) {
-        return byId.containsKey(id);
+        return byId.containsKey(id) || childrenById.containsKey(id);
     }
 
 }

@@ -70,12 +70,13 @@ public class GiveClaimBlocks extends BaseCommand {
      */
     public synchronized int transferClaimBlocks(String source, String target, int desiredAmount) {
         // transfer claim blocks from source to target, return number of claim blocks transferred.
+
         PlayerData playerData = plugin.getDataStore().getPlayerData(source);
         PlayerData receiverData = plugin.getDataStore().getPlayerData(target);
         if (playerData != null && receiverData != null) {
             int xferamount = Math.min(playerData.getAccruedClaimBlocks(), desiredAmount);
             playerData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() - xferamount);
-            receiverData.setAccruedClaimBlocks(playerData.getAccruedClaimBlocks() + xferamount);
+            receiverData.setAccruedClaimBlocks(receiverData.getAccruedClaimBlocks() + xferamount);
             return xferamount;
         }
         return 0;

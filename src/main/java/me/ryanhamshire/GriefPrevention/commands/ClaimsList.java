@@ -49,8 +49,7 @@ public class ClaimsList extends BaseCommand {
         //load the target player's data
         PlayerData playerData = plugin.getDataStore().getPlayerData(otherPlayer.getName());
         plugin.sendMessage(sender, TextMode.INSTR, " " + playerData.getAccruedClaimBlocks() + "(+" + (playerData.getBonusClaimBlocks() + plugin.getDataStore().getGroupBonusBlocks(otherPlayer.getName())) + ")=" + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks() + plugin.getDataStore().getGroupBonusBlocks(otherPlayer.getName())));
-        for (int i = 0; i < playerData.getClaims().size(); i++) {
-            Claim claim = playerData.getClaims().get(i);
+        for (Claim claim: playerData.getClaims()) {
             plugin.sendMessage(sender, TextMode.INSTR, "  (-" + claim.getArea() + ") " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()));
         }
 

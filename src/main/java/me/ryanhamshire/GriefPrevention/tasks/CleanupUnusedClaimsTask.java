@@ -98,8 +98,8 @@ public class CleanupUnusedClaimsTask implements Runnable {
             if (earliestPermissibleLastLogin.getTime().after(playerData.getLastLogin())) {
                 // make a copy of this player's claim list
                 Vector<Claim> claims = new Vector<Claim>();
-                for (int i = 0; i < playerData.getClaims().size(); i++) {
-                    claims.add(playerData.getClaims().get(i));
+                for (Claim c: playerData.getClaims()) {
+                    claims.add(c);
                 }
 
                 // delete them

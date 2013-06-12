@@ -843,6 +843,7 @@ public class PlayerListener implements Listener {
                 return;
             }
 
+            // TODO Gold Shovel Starts Here. Make this method manageable.
             // if the player is in restore nature mode, do only that
             String playerName = player.getName();
             playerData = this.dataStore.getPlayerData(player.getName());
@@ -979,7 +980,8 @@ public class PlayerListener implements Listener {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.NoCreateClaimPermission);
                 return;
             }
-            
+            plugin.debug("We are creating/resizing " + playerData.getClaimResizing());
+            // TODO Claim Create / Resize Starts Here.
             if (playerData.getClaimResizing() == null) {
                 // see if the player has clicked inside one of their claims.
                 Claim checkclaim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), true, null);
@@ -1001,7 +1003,7 @@ public class PlayerListener implements Listener {
             // if he's resizing a claim and that claim hasn't been deleted since he started resizing it
             if (playerData.getClaimResizing() != null && playerData.getClaimResizing().isInDataStore()) {
                 if (clickedBlock.getLocation().equals(playerData.getLastShovelLocation())) return;
-
+                plugin.debug("We are resizing " + playerData.getClaimResizing());
                 // figure out what the coords of his new claim would be
                 int newx1, newx2, newz1, newz2, newy1, newy2;
                 if (playerData.getLastShovelLocation().getBlockX() == playerData.getClaimResizing().getLesserBoundaryCorner().getBlockX()) {
@@ -1116,6 +1118,8 @@ public class PlayerListener implements Listener {
                     Visualization.apply(plugin, player, visualization);
                 }
                 return;
+            } else {
+                plugin.getLogger().info("Player is resizing but... ClaimResizing: " + playerData.getClaimResizing());
             }
 
             // otherwise, since not currently resizing a claim, must be starting a resize, creating a new claim, or creating a subdivision

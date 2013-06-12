@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Vector;
 
 // holds all of GriefPrevention's player-tied data
@@ -42,10 +43,10 @@ public class PlayerData {
     private String playerName;
 
     // the player's claims
-    private Vector<Claim> claims = new Vector<Claim>();
+    private HashSet<Claim> claims = new HashSet<Claim>();
 
-    public Vector<Claim> getWorldClaims(World p) {
-        Vector<Claim> makeresult = new Vector<Claim>();
+    public HashSet<Claim> getWorldClaims(World p) {
+        HashSet<Claim> makeresult = new HashSet<Claim>();
         for (Claim cc : claims) {
             if (cc.getLesserBoundaryCorner().getWorld().equals(p)) {
                 makeresult.add(cc);
@@ -160,9 +161,12 @@ public class PlayerData {
     // the number of claim blocks a player has available for claiming land
     public int getRemainingClaimBlocks() {
         int remainingBlocks = this.accruedClaimBlocks + this.bonusClaimBlocks;
+        int total = 0;
         for (Claim claim : this.claims) {
-            remainingBlocks -= claim.getArea();
+            total += claim.getArea();
         }
+        plugin.getLogger().info("getRemainingClaimBlocks(" + remainingBlocks + " - " + total + ")");
+        remainingBlocks -= total;
         // add any blocks this player might have based on group membership (permissions)
         // remainingBlocks += GriefPrevention.instance.dataStore.getGroupBonusBlocks(this.playerName);
         return remainingBlocks;
@@ -184,7 +188,7 @@ public class PlayerData {
         this.playerName = playerName;
     }
 
-    public Vector<Claim> getClaims() {
+    public HashSet<Claim> getClaims() {
         return claims;
     }
 
