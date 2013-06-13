@@ -25,20 +25,42 @@ public class FileSystemPersistence implements IPersistence {
     private File dataFolder;
     private File playerFolder;
     private File claimFolder;
+    private ConcurrentHashMap<String, Map<String, Object>> dirtyPlayers = new ConcurrentHashMap<String, Map<String, Object>>();
     private ConcurrentHashMap<UUID, Map<String, Object>> dirtyClaims = new ConcurrentHashMap<UUID, Map<String, Object>>();
     private BukkitTask saveTask;
 
     private Runnable saver = new Runnable() {
         @Override
         public void run() {
-            Iterator<Map.Entry<UUID,Map<String,Object>>> dirtyClaimIter = dirtyClaims.entrySet().iterator();
+            Iterator<Map.Entry<UUID, Map<String, Object>>> dirtyClaimIter = dirtyClaims.entrySet().iterator();
             while (dirtyClaimIter.hasNext()) {
                 Map.Entry<UUID, Map<String, Object>> entry = dirtyClaimIter.next();
                 writeSerializedClaim(entry.getKey().toString(), entry.getValue());
                 dirtyClaimIter.remove();
             }
+            Iterator<Map.Entry<String, Map<String, Object>>> dirtyPlayerIter = dirtyPlayers.entrySet().iterator();
+            while (dirtyPlayerIter.hasNext()) {
+                Map.Entry<String, Map<String, Object>> entry = dirtyPlayerIter.next();
+                writeSerializedPlayer(entry.getKey(), entry.getValue());
+                dirtyPlayerIter.remove();
+            }
         }
     };
+
+    private void writeSerializedPlayer(String playerName, Map<String, Object> data) {
+        YamlConfiguration cfg = new YamlConfiguration();
+        for (Map.Entry<String, Object> e: data.entrySet()) {
+            cfg.set(e.getKey(), e.getValue());
+        }
+        try {
+            File playerFile = getPlayerDataFile(playerName, true);
+            cfg.save(playerFile);
+        } catch (DatastoreException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void writeSerializedClaim(String id, Map<String, Object> data) {
         YamlConfiguration cfg = new YamlConfiguration();
@@ -212,8 +234,9 @@ public class FileSystemPersistence implements IPersistence {
 
     @Override
     public void writePlayerData(PlayerData... players) {
-        // TODO Don't be Lazy
-        writePlayerDataSync(players);
+        for (PlayerData p: players) {
+            this.dirtyPlayers.put(p.getPlayerName(), p.serialize());
+        }
     }
 
     @Override
@@ -229,10 +252,9 @@ public class FileSystemPersistence implements IPersistence {
         for (PlayerData pd: players) {
             plugin.debug("Saving player data: " + pd.getPlayerName());
             YamlConfiguration cfg = new YamlConfiguration();
-            cfg.set("accruedClaimBlocks", pd.getAccruedClaimBlocks());
-            cfg.set("bonusClaimBlocks", pd.getBonusClaimBlocks());
-            cfg.set("lastLogin", pd.getLastLogin().getTime());
-            cfg.set("playerName", pd.getPlayerName());
+            for (Map.Entry<String, Object> e: pd.serialize().entrySet()) {
+                cfg.set(e.getKey(), e.getValue());
+            }
             try {
                 playerFile = getPlayerDataFile(pd.getPlayerName(), true);
                 cfg.save(playerFile);

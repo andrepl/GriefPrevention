@@ -28,9 +28,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.net.InetAddress;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 // holds all of GriefPrevention's player-tied data
 @SuppressWarnings("unused")
@@ -397,5 +395,14 @@ public class PlayerData {
 
     public void setIpAddress(InetAddress ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public Map<String, Object> serialize() {
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("playerName", getPlayerName());
+        data.put("accruedClaimBlocks", getAccruedClaimBlocks());
+        data.put("bonusClaimBlocks", getBonusClaimBlocks());
+        data.put("lastLogin", getLastLogin());
+        return data;
     }
 }

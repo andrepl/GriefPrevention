@@ -41,7 +41,6 @@ public class DataStore {
     IPersistence persistence;
 
     HashMap<String, PlayerData> playerData;
-    HashSet<String> dirtyPlayerNames;
 
     ClaimMap claims;
 
@@ -55,7 +54,6 @@ public class DataStore {
         persistence.onEnable();
 
         playerData = new HashMap<String, PlayerData>();
-        dirtyPlayerNames = new HashSet<String>();
         claims = new ClaimMap();
 
         for (PlayerData pd: persistence.loadPlayerData()) {
@@ -74,12 +72,6 @@ public class DataStore {
     }
 
     public void onDisable() {
-        PlayerData[] dirtyPlayerData = new PlayerData[dirtyPlayerNames.size()];
-        int i = 0;
-        for (String name: dirtyPlayerNames) {
-            dirtyPlayerData[i++] = playerData.get(name);
-        }
-        persistence.writePlayerDataSync(dirtyPlayerData);
         persistence.onDisable();
     }
 
@@ -101,7 +93,7 @@ public class DataStore {
 
     public void savePlayerData(String playerName, PlayerData playerData) {
         this.playerData.put(playerName, playerData);
-        this.dirtyPlayerNames.add(playerName);
+        persistence.writePlayerData(playerData);
     }
 
     public Claim getClaim(UUID id) {
