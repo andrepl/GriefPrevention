@@ -615,8 +615,6 @@ public class PlayerListener implements Listener {
         // determine target block.  FEATURE: shovel and stick can be used from a distance away
         Block clickedBlock = null;
 
-        Material clickedBlockType = clickedBlock.getType();
-
         // apply rules for putting out fires (requires build permission)
         PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         if (event.getClickedBlock() != null && event.getClickedBlock().getRelative(event.getBlockFace()).getType() == Material.FIRE) {

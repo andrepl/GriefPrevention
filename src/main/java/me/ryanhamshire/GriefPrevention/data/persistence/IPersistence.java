@@ -5,13 +5,6 @@ import me.ryanhamshire.GriefPrevention.data.PlayerData;
 
 import java.util.Collection;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andre
- * Date: 6/9/13
- * Time: 8:16 PM
- * To change this template use File | Settings | File Templates.
- */
 public interface IPersistence {
 
     // Called during plugin enable and disable
@@ -22,24 +15,64 @@ public interface IPersistence {
     public void onEnable();
     public void onDisable();
 
-    // load all your data here.
+    /**
+     * Load all claims from secondary storage
+     *
+     * @return a collection of {@link Claim} objects
+     */
     public Collection<Claim> loadClaimData();
+
+    /**
+     * Load initial players from disk
+     *
+     * This method doesn't need to load all, or even any player data, but should load
+     * recently used players and return them.
+     * @return
+     */
     public Collection<PlayerData> loadPlayerData();
 
-    // load a single player from persistence if it exists, otherwise
-    // create a new playerdata for them and save it
+    /**
+     * load a single player from persistence if it exists
+     * otherwise create it
+     */
     public PlayerData loadOrCreatePlayerData(String playerName);
 
     // These methods are called periodically with only unsaved data
     // If possible, a persistence engine should do as little
     // on the main thread and schedule actual disk writes async
+
+    /**
+     * write a collection of players to persistent storage
+     *
+     * implementors should do as much work asynchronously as possible.
+     * @param players {@link PlayerData} objects to be saved
+     */
     public void writePlayerData(PlayerData... players);
+
+    /**
+     * write a collection of claims to persistent storage
+     *
+     * implementors should do as much work asynchronously as possible.
+     * @param claims {@link Claim} objects to be saved
+     */
     public void writeClaimData(Claim... claims);
 
-    // Sync methods always called on plugin disable
-    // lazy persistence engines could call the from the above
-    // 'write' methods as well.
+    /**
+     * Write a collection of players to persistent storage
+     *
+     * Implementors must save the data immedaitely without
+     * using the bukkit scheduler or any other threads
+     * @param players {@link PlayerData} to be saved
+     */
     public void writePlayerDataSync(PlayerData... players);
+
+    /**
+     * Write a collection of claims to persistent storage
+     *
+     * Implementors must save the data immedaitely without
+     * using the bukkit scheduler or any other threads
+     * @param claims claims to be saved
+     */
     public void writeClaimDataSync(Claim... claims);
 
     public void deleteClaim(Claim claim);

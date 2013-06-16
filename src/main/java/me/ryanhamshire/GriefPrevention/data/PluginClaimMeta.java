@@ -35,6 +35,28 @@ public class PluginClaimMeta implements ConfigurationSerializable {
         }
     }
 
+    public Long getLong(String key, Long defaultValue) {
+        if (!data.containsKey(key)) {
+            return defaultValue;
+        }
+        try {
+            return (Long) this.get(key);
+        } catch (ClassCastException ex) {
+            return defaultValue;
+        }
+    }
+
+    public Boolean getBoolean(String key, Boolean defaultValue) {
+        if (!data.containsKey(key)) {
+            return defaultValue;
+        }
+        try {
+            return (Boolean) this.get(key);
+        } catch (ClassCastException ex) {
+            return defaultValue;
+        }
+    }
+
     public String getString(String key, String defaultValue) {
         if (!data.containsKey(key)) {
             return defaultValue;

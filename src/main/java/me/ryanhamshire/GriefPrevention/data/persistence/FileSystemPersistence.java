@@ -124,6 +124,7 @@ public class FileSystemPersistence implements IPersistence {
     @Override
     public void onDisable() {
         saveTask.cancel();
+        saver.run();
     }
 
     @Override
@@ -185,6 +186,11 @@ public class FileSystemPersistence implements IPersistence {
         return claims.values();
     }
 
+    /**
+     * Returns a collection of PlayerData to be loaded when the plugin starts up.
+     *
+     * @return all playerdata instances with logins in the last week
+     */
     @Override
     public Collection<PlayerData> loadPlayerData() {
         PlayerData playerData;
@@ -208,6 +214,13 @@ public class FileSystemPersistence implements IPersistence {
         return results;
     }
 
+    /**
+     * Attempt to retrieve a players data, creating it
+     * if no data is found.
+     *
+     * @param playerName the players name
+     * @return a PlayerData
+     */
     @Override
     public PlayerData loadOrCreatePlayerData(String playerName) {
         plugin.debug("loadOrCreatePlayerData: " + playerName);
@@ -232,6 +245,13 @@ public class FileSystemPersistence implements IPersistence {
         return playerData;
     }
 
+
+    /**
+     * Persist a collection of players
+     *
+     * @param players
+     */
+
     @Override
     public void writePlayerData(PlayerData... players) {
         for (PlayerData p: players) {
@@ -239,6 +259,11 @@ public class FileSystemPersistence implements IPersistence {
         }
     }
 
+    /**
+     * Persist a collection of claims.
+     *
+     * @param claims
+     */
     @Override
     public void writeClaimData(Claim... claims) {
         for (Claim claim: claims) {
@@ -246,6 +271,11 @@ public class FileSystemPersistence implements IPersistence {
         }
     }
 
+    /**
+     * Persist a collection of players
+     *
+     * @param players an array of player data to be saved
+     */
     @Override
     public void writePlayerDataSync(PlayerData... players) {
         File playerFile;
@@ -266,6 +296,11 @@ public class FileSystemPersistence implements IPersistence {
         }
     }
 
+    /**
+     * Persist a collection of claims
+     *
+     * @param claims an array of claims to be saved
+     */
     @Override
     public void writeClaimDataSync(Claim... claims) {
         File claimFile;
