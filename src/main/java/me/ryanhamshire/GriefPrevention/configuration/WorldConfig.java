@@ -109,7 +109,7 @@ public class WorldConfig {
     private MaterialCollection configModsExplodableIds;			// list of block IDs which can be destroyed by explosions, even in claimed areas
     private Material configClaimsInvestigationTool;				// which material will be used to investigate claims with a right click
     private Material configClaimsModificationTool;	  				// which material will be used to create/resize claims with a right click
-    private ArrayList<String> configPVPBlockedCommands;			// list of commands which may not be used during pvp combat
+    private ArrayList<String> configPVPBlockedCommands = new ArrayList<String>();			// list of commands which may not be used during pvp combat
     private MaterialCollection configModsAccessTrustIds;			// list of block IDs which should require /accesstrust for player interaction
     private MaterialCollection configModsContainerTrustIds;		// list of block IDs which should require /containertrust for player interaction
 
