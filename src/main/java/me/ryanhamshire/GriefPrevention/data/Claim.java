@@ -19,6 +19,7 @@
 package me.ryanhamshire.GriefPrevention.data;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.SerializationUtil;
 import me.ryanhamshire.GriefPrevention.configuration.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.configuration.PlayerGroup;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
@@ -1174,8 +1175,8 @@ public class Claim {
     public Map<String, Object> serialize() {
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("modifiedDate", this.getModifiedDate());
-        data.put("minimumPoint", this.getMin());
-        data.put("maximumPoint", this.getMax());
+        data.put("minimumPoint", SerializationUtil.locationToString(this.getMin()));
+        data.put("maximumPoint", SerializationUtil.locationToString(this.getMax()));
         data.put("ownerName", this.getOwnerName());
         data.put("neverDelete", this.isNeverDelete());
         HashMap<String, String> flagMap = new HashMap<String, String>(flags);
