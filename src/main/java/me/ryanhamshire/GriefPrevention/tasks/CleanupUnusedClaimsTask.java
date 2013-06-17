@@ -53,6 +53,9 @@ public class CleanupUnusedClaimsTask implements Runnable {
             return;
         }
         Claim claim = plugin.getDataStore().getClaim(claimIds.pop());
+        if (claim == null) {
+            return;
+        }
         // skip administrative claims
         if (claim.isAdminClaim()) return;
         WorldConfig wc = plugin.getWorldCfg(claim.getMin().getWorld());
