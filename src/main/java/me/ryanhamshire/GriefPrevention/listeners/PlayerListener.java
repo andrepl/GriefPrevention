@@ -65,7 +65,6 @@ public class PlayerListener implements Listener {
 
     // regex pattern for the "how do i claim land?" scanner
     private Pattern howToClaimPattern = null;
-    private static final EnumSet<Material> WOODEN_DOOR_MATERIALS = EnumSet.of(Material.TRAP_DOOR, Material.WOODEN_DOOR, Material.FENCE_GATE);
     private static final EnumSet<Material> ALLOWED_FILL_BLOCKS = EnumSet.of(Material.SAND, Material.ICE, Material.SANDSTONE, Material.STONE, Material.DIRT, Material.GRASS);
     private static final EnumSet<Material> BUTTON_MATERIALS = EnumSet.of(Material.STONE_BUTTON, Material.WOOD_BUTTON, Material.LEVER);
     private static final EnumSet<Material> TWEAKABLE_MATERIALS = EnumSet.of(Material.NOTE_BLOCK, Material.DIODE_BLOCK_ON,
@@ -728,7 +727,7 @@ public class PlayerListener implements Listener {
         }
 
         // apply rule for note blocks and repeaters
-        else if (event.getClickedBlock() != null && clickedBlockType == Material.NOTE_BLOCK || clickedBlockType == Material.DIODE_BLOCK_ON || clickedBlockType == Material.DIODE_BLOCK_OFF) {
+        else if (event.getClickedBlock() != null && TWEAKABLE_MATERIALS.contains(clickedBlockType)) {
             Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
             if (claim != null) {
                 String noBuildReason = claim.allowBuild(player);
