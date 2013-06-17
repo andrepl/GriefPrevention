@@ -23,8 +23,9 @@ public class Flag extends BaseClaimCommand {
 
     @Override
     public boolean onCommand(Player player, Claim claim, Command cmd, String label, LinkedList<String> args) {
-        if (!(claim.isManager(player.getName()) || claim.getOwnerName().equals(player.getName()))) {
-            plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
+        String err = claim.allowEdit(player);
+        if (err != null) {
+            plugin.sendMessage(player, TextMode.ERROR, err);
             return true;
         }
         ChatColor keyColor = plugin.configuration.getColor(TextMode.INSTR);
