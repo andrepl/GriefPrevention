@@ -148,7 +148,8 @@ public class DataStore {
         if (claim.getParent() == null && !claim.getOwnerName().equals("")) {
             // re-add top level claims to their owner's collection
             Player owner = plugin.getServer().getPlayer(claim.getOwnerName());
-            if (owner.isOnline()) {
+
+            if (owner != null && owner.isOnline()) {
                 getPlayerData(owner.getName()).getClaims().add(claim);
             }
         }
