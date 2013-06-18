@@ -23,7 +23,6 @@ import me.ryanhamshire.GriefPrevention.configuration.ClaimBehaviourData;
 import me.ryanhamshire.GriefPrevention.configuration.MaterialInfo;
 import me.ryanhamshire.GriefPrevention.configuration.WorldConfig;
 import me.ryanhamshire.GriefPrevention.data.Claim;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.data.PlayerData;
 import me.ryanhamshire.GriefPrevention.messages.Messages;
 import me.ryanhamshire.GriefPrevention.messages.TextMode;
@@ -458,7 +457,7 @@ public class EntityListener implements Listener {
                                     projectile.remove();
                                 }
                             }
-                            plugin.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                            plugin.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getFriendlyOwnerName());
                         }
                         // cache claim for later
                         if (playerData != null) {
@@ -521,7 +520,7 @@ public class EntityListener implements Listener {
                 String noContainersReason = claim.allowContainers(attacker);
                 if (noContainersReason != null) {
                     event.setCancelled(true);
-                    plugin.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                    plugin.sendMessage(attacker, TextMode.ERROR, Messages.NoDamageClaimedEntity, claim.getFriendlyOwnerName());
                 }
 
                 // cache claim for later

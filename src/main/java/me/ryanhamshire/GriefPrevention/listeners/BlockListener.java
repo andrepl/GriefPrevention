@@ -451,7 +451,7 @@ public class BlockListener implements Listener {
         for (Block block : blocks) {
             // if ANY of the pushed blocks are owned by someone other than the piston owner, cancel the event
             claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
-            if (claim != null && !claim.getOwnerName().equals(pistonClaimOwnerName)) {
+            if (claim != null && claim.getOwnerName() != null && claim.getOwnerName().equals(pistonClaimOwnerName)) {
                 event.setCancelled(true);
                 event.getBlock().getWorld().createExplosion(event.getBlock().getLocation(), 0);
                 event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(event.getBlock().getType()));
@@ -493,7 +493,7 @@ public class BlockListener implements Listener {
                 }
 
                 // if pushing this block will change ownership, cancel the event and take away the piston (for performance reasons)
-                if (!newOwnerName.equals(originalOwnerName)) {
+                if (newOwnerName != null && !newOwnerName.equals(originalOwnerName)) {
                     event.setCancelled(true);
                     event.getBlock().getWorld().createExplosion(event.getBlock().getLocation(), 0);
                     event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(event.getBlock().getType()));
@@ -524,7 +524,7 @@ public class BlockListener implements Listener {
 
         // if there are owners for the blocks, they must be the same player
         // otherwise cancel the event
-        if (!pistonOwnerName.equals(movingBlockOwnerName)) {
+        if ((pistonOwnerName == null && movingBlockOwnerName == null) || !pistonOwnerName.equals(movingBlockOwnerName)) {
             event.setCancelled(true);
         }
     }
@@ -637,7 +637,9 @@ public class BlockListener implements Listener {
         // who owns the spreading block, if anyone?
         OfflinePlayer fromOwner = null;
         if (fromClaim != null) {
-            fromOwner = plugin.getServer().getOfflinePlayer(fromClaim.getOwnerName());
+            if (fromClaim.getOwnerName() != null) {
+                fromOwner = plugin.getServer().getOfflinePlayer(fromClaim.getFriendlyOwnerName());
+            }
         }
 
         // cancel unless the owner of the spreading block is allowed to build in the receiving claim

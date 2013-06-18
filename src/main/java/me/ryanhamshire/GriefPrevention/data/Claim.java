@@ -35,7 +35,6 @@ import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -68,7 +67,7 @@ public class Claim {
 
     /**
      * ownername.  for admin claims, this is the empty string
-     * use getOwnerName() to get a friendly name (will be "an administrator" for admin claims)
+     * use getFriendlyOwnerName() to get a friendly name (will be "an administrator" for admin claims)
      */
     private String ownerName;
 
@@ -364,7 +363,7 @@ public class Claim {
             return this.parent.allowBuild(player);
 
         // error message if all else fails
-        return plugin.getMessageManager().getMessage(Messages.OnlyOwnersModifyClaims, this.getOwnerName());
+        return plugin.getMessageManager().getMessage(Messages.OnlyOwnersModifyClaims, this.getFriendlyOwnerName());
     }
 
     /**
@@ -404,7 +403,7 @@ public class Claim {
             return this.parent.allowBuild(player);
 
         // failure message for all other cases
-        String reason = plugin.getMessageManager().getMessage(Messages.NoBuildPermission, this.getOwnerName());
+        String reason = plugin.getMessageManager().getMessage(Messages.NoBuildPermission, this.getFriendlyOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims"))
             reason += "  " + plugin.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         return reason;
@@ -501,7 +500,7 @@ public class Claim {
         }
 
         // claim owner and admins in ignoreclaims mode have access
-        if (this.ownerName.equals(player.getName()) || plugin.getDataStore().getPlayerData(player.getName()).isIgnoreClaims())
+        if (player.getName().equals(this.ownerName) || plugin.getDataStore().getPlayerData(player.getName()).isIgnoreClaims())
             return null;
 
         // look for explicit individual access, inventory, or build permission
@@ -519,7 +518,7 @@ public class Claim {
             return this.parent.allowAccess(player);
 
         // catch-all error message for all other cases
-        String reason = plugin.getMessageManager().getMessage(Messages.NoAccessPermission, this.getOwnerName());
+        String reason = plugin.getMessageManager().getMessage(Messages.NoAccessPermission, this.getFriendlyOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims"))
             reason += "  " + plugin.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         return reason;
@@ -557,7 +556,7 @@ public class Claim {
             return this.parent.allowContainers(player);
 
         // error message for all other cases
-        String reason = plugin.getMessageManager().getMessage(Messages.NoContainersPermission, this.getOwnerName());
+        String reason = plugin.getMessageManager().getMessage(Messages.NoContainersPermission, this.getFriendlyOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims"))
             reason += "  " + plugin.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         return reason;
@@ -592,7 +591,7 @@ public class Claim {
             return this.parent.allowGrantPermission(player);
 
         // generic error message
-        String reason = plugin.getMessageManager().getMessage(Messages.NoPermissionTrust, this.getOwnerName());
+        String reason = plugin.getMessageManager().getMessage(Messages.NoPermissionTrust, this.getFriendlyOwnerName());
         if (player.hasPermission("griefprevention.ignoreclaims")) {
             reason += "  " + plugin.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
         }
@@ -738,14 +737,18 @@ public class Claim {
         return this.max.clone();
     }
 
+    public String getOwnerName() {
+        return this.ownerName;
+    }
+
     /**
      * Returns a friendly owner name (for admin claims, returns "an administrator" as the owner)
      *
      * @return
      */
-    public String getOwnerName() {
+    public String getFriendlyOwnerName() {
         if (this.parent != null)
-            return this.parent.getOwnerName();
+            return this.parent.getFriendlyOwnerName();
 
         if (this.ownerName.length() == 0)
             return plugin.getMessageManager().getMessage(Messages.OwnerNameForAdminClaims);
@@ -1177,7 +1180,7 @@ public class Claim {
         data.put("modifiedDate", this.getModifiedDate());
         data.put("minimumPoint", SerializationUtil.locationToString(this.getMin()));
         data.put("maximumPoint", SerializationUtil.locationToString(this.getMax()));
-        data.put("ownerName", this.getOwnerName());
+        data.put("ownerName", this.ownerName);
         data.put("neverDelete", this.isNeverDelete());
         HashMap<String, String> flagMap = new HashMap<String, String>(flags);
         data.put("flags", flagMap);

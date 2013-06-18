@@ -34,7 +34,7 @@ public class GiveClaim extends BaseClaimCommand {
             //find the claim at the players location.
             Claim claimToGive = plugin.getDataStore().getClaimAt(source.getLocation(), true, null);
             //if the owner is not the source, they have to have adminclaims permission too.
-            if (!claimToGive.getOwnerName().equalsIgnoreCase(source.getName())) {
+            if (!claimToGive.getFriendlyOwnerName().equalsIgnoreCase(source.getName())) {
                 //if they don't have adminclaims permission, deny it.
                 if (!source.hasPermission("griefprevention.adminclaims")) {
                     plugin.sendMessage(source, TextMode.ERROR, Messages.NoAdminClaimsPermission);
@@ -44,7 +44,7 @@ public class GiveClaim extends BaseClaimCommand {
             //transfer ownership.
             claimToGive.setOwnerName(target.getName());
 
-            String originalOwner = claimToGive.getOwnerName();
+            String originalOwner = claimToGive.getFriendlyOwnerName();
             try {
                 plugin.getDataStore().changeClaimOwner(claimToGive, target.getName());
                 //message both players.

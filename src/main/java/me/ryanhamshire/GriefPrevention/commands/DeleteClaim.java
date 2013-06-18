@@ -41,7 +41,7 @@ public class DeleteClaim extends BaseClaimCommand {
                     plugin.restoreClaim(claim, 0);
                 }
                 plugin.sendMessage(player, TextMode.SUCCESS, Messages.DeleteSuccess);
-                plugin.getLogger().info(player.getName() + " deleted " + claim.getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(claim.getMin()));
+                plugin.getLogger().info(player.getName() + " deleted " + claim.getFriendlyOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(claim.getMin()));
 
                 //revert any current visualization
                 Visualization.Revert(plugin, player);

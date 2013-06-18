@@ -47,7 +47,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -491,7 +490,7 @@ public class PlayerListener implements Listener {
             // if the player doesn't have access in that claim, tell him so and prevent him from sleeping in the bed
             if (claim.allowAccess(player) != null) {
                 bedEvent.setCancelled(true);
-                plugin.sendMessage(player, TextMode.ERROR, Messages.NoBedPermission, claim.getOwnerName());
+                plugin.sendMessage(player, TextMode.ERROR, Messages.NoBedPermission, claim.getFriendlyOwnerName());
             }
         }
     }
@@ -805,7 +804,7 @@ public class PlayerListener implements Listener {
                 // claim case
                 else {
                     playerData.setLastClaim(claim);
-                    plugin.sendMessage(player, TextMode.INFO, Messages.BlockClaimed, claim.getOwnerName());
+                    plugin.sendMessage(player, TextMode.INFO, Messages.BlockClaimed, claim.getFriendlyOwnerName());
 
                     // visualize boundary
                     Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.CLAIM, player.getLocation());
@@ -819,11 +818,13 @@ public class PlayerListener implements Listener {
                     // if deleteclaims permission, tell about the player's offline time
                     if (!claim.isAdminClaim() && player.hasPermission("griefprevention.deleteclaims")) {
                         PlayerData otherPlayerData = plugin.getDataStore().getPlayerData(claim.getOwnerName());
-                        Date lastLogin = otherPlayerData.getLastLogin();
-                        Date now = new Date();
-                        long daysElapsed = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24);
+                        if (otherPlayerData != null) {
+                            Date lastLogin = otherPlayerData.getLastLogin();
+                            Date now = new Date();
+                            long daysElapsed = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24);
 
-                        plugin.sendMessage(player, TextMode.INFO, Messages.PlayerOfflineTime, String.valueOf(daysElapsed));
+                            plugin.sendMessage(player, TextMode.INFO, Messages.PlayerOfflineTime, String.valueOf(daysElapsed));
+                        }
                     }
                 }
                 return;
@@ -846,7 +847,7 @@ public class PlayerListener implements Listener {
                 // if the clicked block is in a claim, visualize that claim and deliver an error message
                 Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
                 if (claim != null) {
-                    plugin.sendMessage(player, TextMode.ERROR, Messages.BlockClaimed, claim.getOwnerName());
+                    plugin.sendMessage(player, TextMode.ERROR, Messages.BlockClaimed, claim.getFriendlyOwnerName());
                     Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.apply(plugin, player, visualization);
                     return;
@@ -1090,8 +1091,8 @@ public class PlayerListener implements Listener {
                     Visualization.apply(plugin, player, visualization);
 
                     // if resizing someone else's claim, make a log entry
-                    if (!playerData.getClaimResizing().getOwnerName().equals(playerName)) {
-                        plugin.getLogger().info(playerName + " resized " + playerData.getClaimResizing().getOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getMin()) + ".");
+                    if (!playerName.equals(playerData.getClaimResizing().getOwnerName())) {
+                        plugin.getLogger().info(playerName + " resized " + playerData.getClaimResizing().getFriendlyOwnerName() + "'s claim at " + GriefPrevention.getfriendlyLocationString(playerData.getClaimResizing().getMin()) + ".");
                     }
 
                     // if in a creative mode world and shrinking an existing claim, restore any unclaimed area
@@ -1192,7 +1193,7 @@ public class PlayerListener implements Listener {
                     }
                 } else { // otherwise tell the player he can't claim here because it's someone else's claim, and show him the claim
 
-                    plugin.sendMessage(player, TextMode.ERROR, Messages.CreateClaimFailOverlapOtherPlayer, claim.getOwnerName());
+                    plugin.sendMessage(player, TextMode.ERROR, Messages.CreateClaimFailOverlapOtherPlayer, claim.getFriendlyOwnerName());
                     Visualization visualization = Visualization.FromClaim(claim, clickedBlock.getY(), VisualizationType.ERROR_CLAIM, player.getLocation());
                     Visualization.apply(plugin, player, visualization);
                 }
@@ -1262,8 +1263,8 @@ public class PlayerListener implements Listener {
                 // if it didn't succeed, tell the player why
                 if (result.succeeded == CreateClaimResult.Result.CLAIM_OVERLAP) {
                     // if the claim it overlaps is owned by the player...
-                    System.out.println("Claim owned by:" + result.claim.getOwnerName());
-                    if (result.claim.getOwnerName().equalsIgnoreCase(playerName)) {
+                    System.out.println("Claim owned by:" + result.claim.getFriendlyOwnerName());
+                    if (playerName.equals(result.claim.getOwnerName())) {
                         // owned by the player. make sure our larger 
                         // claim entirely contains the smaller one.
 

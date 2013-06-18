@@ -22,7 +22,7 @@ public class UnlockClaim extends BaseClaimCommand {
         if (args.size() != 0) {
             return false;
         }
-        if ((player.hasPermission("griefprevention.lock") && claim.getOwnerName().equalsIgnoreCase(player.getName())) || player.hasPermission("griefprevention.adminlock")) {
+        if ((player.hasPermission("griefprevention.lock") && claim.getFriendlyOwnerName().equalsIgnoreCase(player.getName())) || player.hasPermission("griefprevention.adminlock")) {
             claim.setNeverDelete(false);
             plugin.getDataStore().saveClaim(claim);
             plugin.sendMessage(player, TextMode.SUCCESS, Messages.ClaimUnlocked);

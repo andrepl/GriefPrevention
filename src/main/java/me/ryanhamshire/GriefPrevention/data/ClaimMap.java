@@ -28,7 +28,7 @@ public class ClaimMap {
             return;
         }
         byId.put(claim.getId(), claim);
-        if (!claim.getOwnerName().equals("")) {
+        if (!claim.getOwnerName().equals("") && claim.getOwnerName() != null) {
             HashSet<UUID> ownerCollection;
             if (byOwner.containsKey(claim.getOwnerName())) {
                 ownerCollection = byOwner.get(claim.getOwnerName());
@@ -82,8 +82,8 @@ public class ClaimMap {
                     }
                 }
             }
-            if (claim.getOwnerName() != "") {
-                HashSet<UUID> uuids = byOwner.get(claim.getOwnerName());
+            if (claim.getOwnerName() != null && !claim.getOwnerName().equals("")) {
+                HashSet<UUID> uuids = byOwner.get(claim.getFriendlyOwnerName());
                 if (uuids != null) {
                     uuids.remove(claim.getId());
                 }

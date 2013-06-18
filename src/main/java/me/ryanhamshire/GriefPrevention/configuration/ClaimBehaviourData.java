@@ -60,7 +60,7 @@ public class ClaimBehaviourData {
                 case REQUIRE_NONE:
                     return true;
                 case REQUIRE_OWNER:
-                    if (atPosition.getOwnerName().equalsIgnoreCase(testPlayer.getName())) {
+                    if (atPosition.getFriendlyOwnerName().equalsIgnoreCase(testPlayer.getName())) {
                         return true;
                     } else {
                         if (ShowMessages) plugin.sendMessage(testPlayer, TextMode.ERROR, "You need to Own the claim to do that.");

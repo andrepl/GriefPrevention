@@ -398,7 +398,7 @@ public class DataStore {
         //make a list of the player's claims
         ArrayList<Claim> claimsToDelete = new ArrayList<Claim>();
         for (Claim claim: this.claims.getAllTopLevel()) {
-            if(claim.getOwnerName().equals(ownerName) &&
+            if(claim.getOwnerName() != null && claim.getOwnerName().equals(ownerName) &&
                     (deleteCreativeClaims || !plugin.creativeRulesApply(claim.getMin())) &&
                     (!claim.isNeverDelete()|| deleteLockedClaims)) {
                 claimsToDelete.add(claim);

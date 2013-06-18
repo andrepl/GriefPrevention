@@ -46,7 +46,7 @@ public class ClaimInfo extends BaseCommand {
             String lowerBoundary = GriefPrevention.getfriendlyLocationString(claim.getMin());
             String upperBoundary = GriefPrevention.getfriendlyLocationString(claim.getMax());
             String sizeString = "(" + String.valueOf(claim.getWidth()) + ", " + String.valueOf(claim.getHeight()) + ")";
-            String ClaimOwner = claim.getOwnerName();
+            String ClaimOwner = claim.getFriendlyOwnerName();
             plugin.sendMessage(sender, TextMode.INFO, "ID: " + claim.getId());
             plugin.sendMessage(sender, TextMode.INFO, "Position: " + lowerBoundary + "-" + upperBoundary);
             plugin.sendMessage(sender, TextMode.INFO, "Size: " + sizeString);

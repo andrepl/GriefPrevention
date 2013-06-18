@@ -98,7 +98,7 @@ public class Untrust extends BaseCommand {
 
         //otherwise, apply changes to only this claim
         else if (claim.allowGrantPermission(player) != null) {
-            plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
+            plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getFriendlyOwnerName());
         } else {
             //if clearing all
             if (clearPermissions) {
@@ -115,7 +115,7 @@ public class Untrust extends BaseCommand {
                     }
                     plugin.sendMessage(player, TextMode.SUCCESS, Messages.UntrustIndividualSingleClaim, target);
                 } else {
-                    plugin.sendMessage(player, TextMode.SUCCESS, Messages.UntrustOwnerOnly, claim.getOwnerName());
+                    plugin.sendMessage(player, TextMode.SUCCESS, Messages.UntrustOwnerOnly, claim.getFriendlyOwnerName());
                 }
             }
             //save changes

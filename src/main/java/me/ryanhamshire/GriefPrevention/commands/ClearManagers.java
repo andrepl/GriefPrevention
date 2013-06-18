@@ -26,7 +26,7 @@ public class ClearManagers extends BaseClaimCommand {
                 plugin.sendMessage(player, TextMode.ERROR, Messages.ClearManagersNotAdmin);
                 return true;
             }
-            if (pdata.isIgnoreClaims() || claim.getOwnerName().equalsIgnoreCase(player.getName())) {
+            if (pdata.isIgnoreClaims() || claim.getFriendlyOwnerName().equalsIgnoreCase(player.getName())) {
                 for (String currmanager : claim.getManagerList()) {
                     claim.removeManager(currmanager);
                 }

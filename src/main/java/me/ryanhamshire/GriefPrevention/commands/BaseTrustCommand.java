@@ -79,7 +79,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
         } else {
             //check permission here
             if (claim.allowGrantPermission(player) != null) {
-                plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getOwnerName());
+                plugin.sendMessage(player, TextMode.ERROR, Messages.NoPermissionTrust, claim.getFriendlyOwnerName());
                 return true;
             }
 
@@ -90,7 +90,7 @@ public class BaseTrustCommand extends BaseClaimCommand {
             if (permissionLevel == null) {
                 errorMessage = claim.allowEdit(player);
                 if (errorMessage != null) {
-                    errorMessage = "Only " + claim.getOwnerName() + " can grant /PermissionTrust here.";
+                    errorMessage = "Only " + claim.getFriendlyOwnerName() + " can grant /PermissionTrust here.";
                 }
             }
 
