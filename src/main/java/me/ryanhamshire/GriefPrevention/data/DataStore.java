@@ -320,20 +320,24 @@ public class DataStore {
             }
             claimsToCheck = claimResizing.getParent().getChildren();
         }
+        Location oldMin = claimResizing.getMin();
+        Location oldMax = claimResizing.getMax();
+
+        claimResizing.setMax(newGreater);
+        claimResizing.setMin(newLesser);
         for (Claim c: claimsToCheck) {
             plugin.debug("Checking for collision with " + c);
             if (c.getId().equals(claimResizing.getId())) {
                 continue;
             }
-            if (c.contains(newLesser, true, false) || c.contains(newGreater, true, false)) {
+            if (claimResizing.overlaps(c)) {
+                claimResizing.setMax(oldMax);
+                claimResizing.setMin(oldMin);
                 res.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
                 res.claim = c;
                 return res;
             }
         }
-        claimResizing.setMax(newGreater);
-        claimResizing.setMin(newLesser);
-
         saveClaim(claimResizing);
         res.succeeded = CreateClaimResult.Result.SUCCESS;
         res.claim = claimResizing;
