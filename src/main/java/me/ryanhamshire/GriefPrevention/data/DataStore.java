@@ -311,7 +311,7 @@ public class DataStore {
 
         Collection<Claim> claimsToCheck;
         if (claimResizing.getParent() == null) {
-            claimsToCheck = claims.getPossiblyOverlappingClaims(claimResizing);
+             claimsToCheck = claims.getPossiblyOverlappingClaims(claimResizing);
         } else {
             if (!claimResizing.getParent().contains(newx1, newz1, newx2, newz2)) {
                 res.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
@@ -321,10 +321,11 @@ public class DataStore {
             claimsToCheck = claimResizing.getParent().getChildren();
         }
         for (Claim c: claimsToCheck) {
+            plugin.debug("Checking for collision with " + c);
             if (c.getId().equals(claimResizing.getId())) {
                 continue;
             }
-            if (claimResizing.overlaps(c)) {
+            if (c.contains(newLesser, true, false) || c.contains(newGreater, true, false)) {
                 res.succeeded = CreateClaimResult.Result.CLAIM_OVERLAP;
                 res.claim = c;
                 return res;
