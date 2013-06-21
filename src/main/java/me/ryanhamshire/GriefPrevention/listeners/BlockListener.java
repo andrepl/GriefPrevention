@@ -494,6 +494,7 @@ public class BlockListener implements Listener {
 
                 // if pushing this block will change ownership, cancel the event and take away the piston (for performance reasons)
                 if (newOwnerName != null && !newOwnerName.equals(originalOwnerName)) {
+                    plugin.getLogger().info("Removing piston because block would change owner from " + originalOwnerName + "(claim:" + originalClaim.getId() + ") to " + newOwnerName + " (claim:" + newClaim.getId() + ")");
                     event.setCancelled(true);
                     event.getBlock().getWorld().createExplosion(event.getBlock().getLocation(), 0);
                     event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(event.getBlock().getType()));
