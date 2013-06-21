@@ -20,7 +20,6 @@ public class ClaimMap {
     }
 
     public void add(Claim claim) {
-        Bukkit.getLogger().info("Adding Claim " + claim.getId().toString() + " to the store.");
         claim.setInDataStore(true);
         if (claim.getParent() != null) {
             childrenById.put(claim.getId(), claim);
@@ -48,7 +47,6 @@ public class ClaimMap {
 
 
     public void remove(Claim claim) {
-        Bukkit.getLogger().info("Removing Claim " + claim + " from datastore");
         claim.setInDataStore(false);
         if (claim.getParent() == null) {
             // top level claims must their children removed
@@ -211,7 +209,7 @@ public class ClaimMap {
                 worldMap.put(point, aclaims);
             }else {
                 int k = 0;
-                while(k < aclaims.size() && !aclaims.get(k).greaterThan(claim)) k++;
+                while (k < aclaims.size() && !aclaims.get(k).greaterThan(claim)) k++;
                 if (k < aclaims.size()) {
                     aclaims.add(k, claim);
                 } else {
