@@ -339,6 +339,7 @@ public class DataStore {
             }
         }
         saveClaim(claimResizing);
+        claims.updateChunkCache(claimResizing);
         res.succeeded = CreateClaimResult.Result.SUCCESS;
         res.claim = claimResizing;
         return res;

@@ -39,33 +39,13 @@ public class ClaimMap {
             ownerCollection.add(claim.getId());
         }
 
-        Long[] chunkKeys = getChunks(claim);
-        String worldName = claim.getMin().getWorld().getName();
-        if (!byChunk.containsKey(worldName)) {
-            byChunk.put(worldName, new HashMap<Long, ArrayList<Claim>>());
-        }
-        HashMap<Long, ArrayList<Claim>> worldMap = byChunk.get(worldName);
-        for (long point: chunkKeys) {
-            ArrayList<Claim> aclaims = worldMap.get(point);
-            if(aclaims == null) {
-                aclaims = new ArrayList<Claim>();
-                aclaims.add(claim);
-                worldMap.put(point, aclaims);
-            }else {
-                int k = 0;
-                while(k < aclaims.size() && !aclaims.get(k).greaterThan(claim)) k++;
-                if (k < aclaims.size()) {
-                    aclaims.add(k, claim);
-                } else {
-                    aclaims.add(aclaims.size(), claim);
-                }
-            }
-        }
+        updateChunkCache(claim);
         // Add Children
         for (Claim child: claim.getChildren()) {
             childrenById.put(child.getId(), child);
         }
     }
+
 
     public void remove(Claim claim) {
         Bukkit.getLogger().info("Removing Claim " + claim + " from datastore");
@@ -207,4 +187,37 @@ public class ClaimMap {
         return byId.containsKey(id) || childrenById.containsKey(id);
     }
 
+    public void updateChunkCache(Claim claim) {
+        String worldName = claim.getMin().getWorld().getName();
+        if (!byChunk.containsKey(worldName)) {
+            byChunk.put(worldName, new HashMap<Long, ArrayList<Claim>>());
+        }
+        HashMap<Long, ArrayList<Claim>> worldMap = byChunk.get(worldName);
+
+        if (worldMap != null) {
+            for (long point: getChunks(claim)) {
+                if (worldMap.containsKey(point)) {
+                    worldMap.get(point).remove(claim);
+                }
+            }
+        }
+
+        Long[] chunkKeys = getChunks(claim);
+        for (long point: chunkKeys) {
+            ArrayList<Claim> aclaims = worldMap.get(point);
+            if(aclaims == null) {
+                aclaims = new ArrayList<Claim>();
+                aclaims.add(claim);
+                worldMap.put(point, aclaims);
+            }else {
+                int k = 0;
+                while(k < aclaims.size() && !aclaims.get(k).greaterThan(claim)) k++;
+                if (k < aclaims.size()) {
+                    aclaims.add(k, claim);
+                } else {
+                    aclaims.add(aclaims.size(), claim);
+                }
+            }
+        }
+    }
 }
