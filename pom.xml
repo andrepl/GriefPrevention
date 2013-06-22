@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>me.ryanhamshire.GriefPrevention</groupId>
+    <groupId>com.norcode.bukkit.griefprevention</groupId>
     <artifactId>GriefPreventionTNG</artifactId>
-    <version>0.92.3-SNAPSHOT</version>
+    <version>0.92.4-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.authors>metalhedd</project.authors>
-        <project.main>me.ryanhamshire.GriefPrevention.GriefPrevention</project.main>
+        <project.main>com.norcode.bukkit.griefprevention.GriefPreventionTNG</project.main>
         <project.devurl>http://dev.bukkit.org/server-mods/grief-prevention</project.devurl>
         <project.softdepends>[Vault, Multiverse-Core, My Worlds, MystCraft, Transporter]</project.softdepends>
     </properties>
