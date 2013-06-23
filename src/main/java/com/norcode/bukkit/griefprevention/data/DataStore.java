@@ -67,6 +67,17 @@ public class DataStore {
                     player.getClaims().add(claim);
                 }
             }
+            // Check for inverted min/max Y's
+            if (claim.getMin().getBlockY() > claim.getMax().getBlockY()) {
+                plugin.getLogger().info("Found inverted claim, correcting.");
+                int x1, x2, y1, y2, z1, z2;
+                x1 = claim.getMin().getBlockX();x2 = claim.getMax().getBlockX();
+                y1 = claim.getMin().getBlockY();y2 = claim.getMax().getBlockY();
+                z1 = claim.getMin().getBlockZ();z2 = claim.getMax().getBlockZ();
+                claim.setMin(new Location(claim.getMin().getWorld(), Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2)));
+                claim.setMax(new Location(claim.getMax().getWorld(), Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2)));
+                saveClaim(claim);
+            }
             claims.add(claim);
         }
     }
