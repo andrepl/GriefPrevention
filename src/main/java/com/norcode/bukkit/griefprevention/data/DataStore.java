@@ -379,13 +379,13 @@ public class DataStore {
 
         if(newDepth < wc.getClaimsMaxDepth()) newDepth = wc.getClaimsMaxDepth();
 
-        if(claim.getParent() != null){
+        if(claim.getParent() != null) {
             claim = claim.getParent();
         }
-
-        claim.getMin().setY(newDepth);
-        claim.getMax().setY(newDepth);
-
+        Location newMin = new Location(claim.getMin().getWorld(), claim.getMin().getBlockX(), newDepth, claim.getMin().getBlockZ());
+        Location newMax = new Location(claim.getMax().getWorld(), claim.getMax().getBlockX(), newDepth, claim.getMax().getBlockZ());
+        claim.setMin(newMin);
+        claim.setMax(newMax);
         for (Claim child: claim.getChildren()) {
             child.getMin().setY(newDepth);
             child.getMax().setY(newDepth);

@@ -231,11 +231,14 @@ public class BlockListener implements Listener {
         }
         claim = plugin.getDataStore().getClaimAt(block.getLocation(), true, claim);
         // if there's a claim here
+
         if (claim != null) {
+            plugin.debug("There's a claim");
             // if breaking UNDER the claim and the player has permission to build in the claim
             if (block.getY() < claim.getMin().getBlockY() && claim.allowBuild(player) == null) {
+                plugin.debug("We're under a real claim, extend down.");
                 // extend the claim downward beyond the breakage point
-                plugin.getDataStore().extendClaim(claim, claim.getMin().getBlockY() - wc.getClaimsExtendIntoGroundDistance());
+                plugin.getDataStore().extendClaim(claim, block.getY() - wc.getClaimsExtendIntoGroundDistance());
 
             }
         }

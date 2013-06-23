@@ -54,7 +54,7 @@ public class CommandHandler implements TabExecutor {
 
     public CommandHandler(GriefPreventionTNG plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginCommand("com/norcode/bukkit/griefprevention").setExecutor(this);
+        plugin.getServer().getPluginCommand("griefprevention").setExecutor(this);
     }
 
     public void initialize() {
