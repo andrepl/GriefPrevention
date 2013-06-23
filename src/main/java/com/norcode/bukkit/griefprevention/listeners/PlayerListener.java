@@ -1026,23 +1026,23 @@ public class PlayerListener implements Listener {
                     newz2 = playerData.getClaimResizing().getMax().getBlockZ();
                 }
 
-                newy1 = playerData.getClaimResizing().getMin().getBlockY();
-                newy2 = clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance();
+                newy1 = Math.min(playerData.getClaimResizing().getMin().getBlockY(), clickedBlock.getY() - wc.getClaimsExtendIntoGroundDistance());
+                newy2 = Math.max(playerData.getClaimResizing().getMin().getBlockY(),playerData.getClaimResizing().getMax().getBlockY());
 
                 // for top level claims, apply size rules and claim blocks requirement
                 if (playerData.getClaimResizing().getParent() == null) {
                     // measure new claim, apply size rules
                     int newWidth = (Math.abs(newx1 - newx2) + 1);
-                    int newHeight = (Math.abs(newz1 - newz2) + 1);
+                    int newLength = (Math.abs(newz1 - newz2) + 1);
 
-                    if (!playerData.getClaimResizing().isAdminClaim() && (newWidth < wc.getMinClaimSize() || newHeight < wc.getMinClaimSize())) {
+                    if (!playerData.getClaimResizing().isAdminClaim() && (newWidth < wc.getMinClaimSize() || newLength < wc.getMinClaimSize())) {
                         plugin.sendMessage(player, TextMode.ERROR, Messages.ResizeClaimTooSmall, String.valueOf(wc.getMinClaimSize()));
                         return;
                     }
 
                     // make sure player has enough blocks to make up the difference
                     if (!playerData.getClaimResizing().isAdminClaim() && player.getName().equals(playerData.getClaimResizing().getOwnerName())) {
-                        int newArea = newWidth * newHeight;
+                        int newArea = newWidth * newLength;
                         int blocksRemainingAfter = playerData.getRemainingClaimBlocks() + playerData.getClaimResizing().getArea() - newArea;
 
                         if (blocksRemainingAfter < 0) {

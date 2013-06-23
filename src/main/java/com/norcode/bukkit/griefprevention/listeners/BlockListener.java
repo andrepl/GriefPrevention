@@ -420,6 +420,7 @@ public class BlockListener implements Listener {
         // warn players if Explosions are not allowed at the position they place it.
         boolean TNTAllowed = wc.getTntExplosionBehaviour().allowed(block.getLocation(), null).allowed();
 
+
         if (!TNTAllowed && block.getType() == Material.TNT &&
                 block.getWorld().getEnvironment() != Environment.NETHER &&
                 block.getY() > plugin.getWorldCfg(block.getWorld()).getSeaLevelOverride() - 5) {
