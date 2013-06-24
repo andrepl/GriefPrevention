@@ -455,7 +455,7 @@ public class BlockListener implements Listener {
         for (Block block : blocks) {
             // if ANY of the pushed blocks are owned by someone other than the piston owner, cancel the event
             claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
-            if (claim != null && claim.getOwnerName() != null && claim.getOwnerName().equals(pistonClaimOwnerName)) {
+            if (claim != null && claim.getOwnerName() != null && !claim.getOwnerName().equals(pistonClaimOwnerName)) {
                 event.setCancelled(true);
                 event.getBlock().getWorld().createExplosion(event.getBlock().getLocation(), 0);
                 event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(event.getBlock().getType()));
