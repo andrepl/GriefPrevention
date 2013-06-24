@@ -1126,7 +1126,7 @@ public class Claim {
     public void loadClaimMeta(ConfigurationSection cfg) {
         claimMeta.clear();
         for (String key: cfg.getKeys(false)) {
-            PluginClaimMeta meta = PluginClaimMeta.deserialize(cfg.getValues(true));
+            PluginClaimMeta meta = PluginClaimMeta.deserialize(cfg.getConfigurationSection(key).getValues(true));
             meta.pluginName = cfg.getName();
             claimMeta.put(key, meta);
         }

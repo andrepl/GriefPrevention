@@ -157,17 +157,17 @@ public class GriefPreventionTNG extends JavaPlugin {
         }
 
         // if economy is enabled
-        if (this.configuration.getClaimBlocksPurchaseCost() > 0 || this.configuration.getClaimBlocksSellValue() > 0) {
-            // try to load Vault
-            RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
-            getLogger().info("Vault loaded successfully!");
-            // ask Vault to hook into an economy plugin
-            if (economyProvider != null) {
-                economy = economyProvider.getProvider();
-            } else {
-                getLogger().info("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
-            }
+
+        // try to load Vault
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
+        getLogger().info("Vault loaded successfully!");
+        // ask Vault to hook into an economy plugin
+        if (economyProvider != null) {
+            economy = economyProvider.getProvider();
+        } else {
+            getLogger().info("ERROR: Vault was unable to find a supported economy plugin.  Either install a Vault-compatible economy plugin, or set both of the economy config variables to zero.");
         }
+
         try {
             new File(getDataFolder(), "config.yml").delete();
             outConfig.save(new File(getDataFolder(), "config.yml").getAbsolutePath());
