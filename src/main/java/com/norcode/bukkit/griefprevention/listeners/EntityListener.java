@@ -43,13 +43,16 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.List;
 
 // handles events related to entities
 public class EntityListener implements Listener {
     // convenience reference for the singleton datastore
     GriefPreventionTNG plugin;
-    
+    private EnumSet<EntityType> FARM_ANIMALS = EnumSet.of(EntityType.PIG, EntityType.CHICKEN, EntityType.COW,
+            EntityType.SHEEP, EntityType.VILLAGER, EntityType.MUSHROOM_COW, EntityType.WOLF, EntityType.OCELOT);
+
     public EntityListener(GriefPreventionTNG griefPreventionTNG) {
         this.plugin = griefPreventionTNG;
     }
@@ -207,12 +210,30 @@ public class EntityListener implements Listener {
                 return;
             }
         } else if (reason == SpawnReason.BUILD_IRONGOLEM) {
-
             if (wc.getIronGolemSpawnBehaviour().allowed(entity.getLocation(), null).denied()) {
                 event.setCancelled(true);
                 return;
             }
+        } else if (reason == SpawnReason.BREEDING || reason == SpawnReason.EGG || reason == SpawnReason.SPAWNER_EGG) {
+            if (FARM_ANIMALS.contains(entity.getType())) {
+                if (wc.getAnimalBreedingRules().allowed(entity.getLocation(), null).denied()) {
+                    event.setCancelled(true);
+                    return;
+                }
+                int count = 0;
+                for (Entity e: entity.getNearbyEntities(10, 16, 10)) {
+                    if (e.getType() == entity.getType()) {
+                        count++;
+                    }
+                }
+                if (count > wc.getAnimalCrowdingLimit()) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+            }
         }
+
         if (!plugin.creativeRulesApply(entity.getLocation())) return;
 
         // otherwise, just apply the limit on total entities per claim

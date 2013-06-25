@@ -47,6 +47,7 @@ public class WorldConfig {
     private ClaimBehaviourData sheepDyeing;
     private ClaimBehaviourData bonemealGrass;
     private ClaimBehaviourData playerTrampleRules;
+    private ClaimBehaviourData animalBreedingRules;
 
     private boolean claimsEnabled;
     private boolean configClaimsCreativeRules;
@@ -102,7 +103,8 @@ public class WorldConfig {
     private int configClaimsWildernessBlocksDelay;                   	// the number of non-trash blocks that can be placed before warning.  0 disables the display entirely.
     private int configClaimsPerPlayerClaimLimit;                        // maximum number of claims a user can have.
     private double configClaimsAbandonReturnRatio;                // return ratio when abandoning a claim- .80 will result in players getting 80% of the used claim blocks back.
-    
+    private int configAnimalCrowdingLimit = 8;
+
     private String WorldName;
     private EnumSet<Material> configTrashBlocks = null;
     private List<String> configModsIgnoreClaimsAccounts;			// list of player names which ALWAYS ignore claims
@@ -132,6 +134,7 @@ public class WorldConfig {
 	public ClaimBehaviourData getSheepDyeingRules() { return sheepDyeing; }
 	public ClaimBehaviourData getBonemealGrassRules() { return bonemealGrass; }
 	public ClaimBehaviourData getPlayerTrampleRules() { return playerTrampleRules; }
+    public ClaimBehaviourData getAnimalBreedingRules() { return animalBreedingRules; }
 
 	/**
 	 * returns whether Claims are enabled. Most configuration Options, while still present and readable, become redundant when this is false.
@@ -162,7 +165,8 @@ public class WorldConfig {
     public boolean getClaimsLockFenceGates() { return configClaimsLockFenceGates; }
 	public float getClaimBlocksAccruedPerHour() { return configClaimsBlocksAccruedPerHour; }
 	public int getClaimsMaxDepth() { return configClaimsMaxDepth; }
-	public int getClaimsExpirationDays() { return configClaimsExpirationDays; }
+	public int getAnimalCrowdingLimit() { return configAnimalCrowdingLimit; }
+    public int getClaimsExpirationDays() { return configClaimsExpirationDays; }
 	public int getAutomaticClaimsForNewPlayerRadius() { return configClaimsAutomaticClaimsForNewPlayersRadius; }
 	public boolean getCreateClaimRequiresPermission() { return configClaimsCreationRequiresPermission; }
 	public int getClaimsExtendIntoGroundDistance() { return configClaimsClaimsExtendIntoGroundDistance; }
@@ -291,6 +295,8 @@ public class WorldConfig {
 		this.playerTrampleRules = new ClaimBehaviourData(plugin, "Crop Trampling",config,outConfig,"GriefPrevention.PlayerCropTrample",
 				ClaimBehaviourData.getInsideClaims(plugin, "Crop Trampling"));
 
+        this.animalBreedingRules = new ClaimBehaviourData(plugin, "Animal Breeding", config, outConfig, "GriefPrevention.AnimalBreeding",
+                ClaimBehaviourData.getInsideClaims(plugin, "Animal Breeding"));
 		// read trash blocks.
 		// Cobblestone,Torch,Dirt,Sapling,Gravel,Sand,TNT,Workbench
 		this.configTrashBlocks = EnumSet.of(Material.COBBLESTONE, Material.TORCH, Material.DIRT, Material.SAPLING,
@@ -602,4 +608,5 @@ public class WorldConfig {
 	public WorldConfig(GriefPreventionTNG plugin, World world) {
 		this(plugin, world.getName());
 	}
+
 }

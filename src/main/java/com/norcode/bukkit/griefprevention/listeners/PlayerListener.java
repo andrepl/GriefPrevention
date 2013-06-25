@@ -745,7 +745,7 @@ public class PlayerListener implements Listener {
             Material materialInHand = player.getItemInHand().getType();
 
             // if it's bonemeal, check for build permission (ink sac == bone meal, must be a Bukkit bug?)
-            if (materialInHand == Material.INK_SACK) {
+            if (materialInHand == Material.INK_SACK && event.getClickedBlock() != null) {
                 if (wc.getBonemealGrassRules().allowed(event.getClickedBlock().getLocation(), event.getPlayer()).denied()) {
                     event.setCancelled(true);
                 }

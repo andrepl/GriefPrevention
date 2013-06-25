@@ -237,7 +237,7 @@ public class ClaimBehaviourData {
     }
 
     public static ClaimBehaviourData getInsideClaims(GriefPreventionTNG plugin, String pName) {
-        return new ClaimBehaviourData(plugin, pName, PlacementRules.NEITHER, PlacementRules.NEITHER, ClaimBehaviourMode.REQUIRE_NONE);
+        return new ClaimBehaviourData(plugin, pName, PlacementRules.NEITHER, PlacementRules.BOTH, ClaimBehaviourMode.REQUIRE_NONE);
     }
 
     public static ClaimBehaviourData getAboveSeaLevel(GriefPreventionTNG plugin, String pName) {
