@@ -76,17 +76,6 @@ public class ClaimMap {
             childrenById.remove(claim.getId());
             claim.getParent().getChildren().remove(claim);
         }
-        this.printContents();
-    }
-
-    private void printContents() {
-        Bukkit.getLogger().info("Contents of Claims map");
-        String byids = "";
-        for (UUID id: byId.keySet()) { byids += id.toString() + ","; }
-        Bukkit.getLogger().info("ById: " + byids);
-        byids = "";
-        for (UUID id: childrenById.keySet()) { byids += id.toString() + ","; }
-        Bukkit.getLogger().info("ChildrenById: " + byids);
     }
 
     public int size() {
