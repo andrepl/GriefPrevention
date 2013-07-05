@@ -470,10 +470,6 @@ public class Claim {
         return false;
     }
 
-    public String allowBreak(Player player, Location l) {
-        return allowBreak(player, l.getBlock());
-    }
-
     /**
      * Break permission check
      *

@@ -98,7 +98,7 @@ public class EntityListener implements Listener {
                 Player shooter = (Player) arrow.getShooter();
                 Claim claim = plugin.getDataStore().getClaimAt(event.getBlock().getLocation(), false, null);
                 if (claim != null) {
-                    String noAccessReason = claim.allowAccess(shooter);
+                    String noAccessReason = plugin.getPlayerListener().allowAccess(shooter, claim, event);
                     if (noAccessReason != null) {
                         plugin.sendMessage(shooter, TextMode.ERROR, noAccessReason);
                         event.setCancelled(true);
@@ -303,7 +303,7 @@ public class EntityListener implements Listener {
 
         // if the player doesn't have build permission, don't allow the breakage
         Player playerRemover = (Player) entityEvent.getRemover();
-        String noBuildReason = plugin.getBlockListener().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(playerRemover.getName()), null);
+        String noBuildReason = plugin.getBlockListener().allowBuild(playerRemover, event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(playerRemover.getName()), null, event);
         if (noBuildReason != null) {
             event.setCancelled(true);
             plugin.sendMessage(playerRemover, TextMode.ERROR, noBuildReason);
@@ -316,7 +316,7 @@ public class EntityListener implements Listener {
         // FEATURE: similar to above, placing a painting requires build permission in the claim
 
         // if the player doesn't have permission, don't allow the placement
-        String noBuildReason = plugin.getBlockListener().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(event.getPlayer().getName()), null);
+        String noBuildReason = plugin.getBlockListener().allowBuild(event.getPlayer(), event.getEntity().getLocation(), plugin.getDataStore().getPlayerData(event.getPlayer().getName()), null, event);
         if (noBuildReason != null) {
             event.setCancelled(true);
             plugin.sendMessage(event.getPlayer(), TextMode.ERROR, noBuildReason);

@@ -23,6 +23,7 @@ import com.norcode.bukkit.griefprevention.GriefPreventionTNG;
 import com.norcode.bukkit.griefprevention.configuration.WorldConfig;
 import com.norcode.bukkit.griefprevention.data.Claim;
 import com.norcode.bukkit.griefprevention.data.PlayerData;
+import com.norcode.bukkit.griefprevention.events.AllowPlayerActionEvent;
 import com.norcode.bukkit.griefprevention.messages.Messages;
 import com.norcode.bukkit.griefprevention.messages.TextMode;
 import com.norcode.bukkit.griefprevention.tasks.TreeCleanupTask;
@@ -34,7 +35,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -68,7 +71,7 @@ public class BlockListener implements Listener {
         this.plugin = plugin;
     }
 
-    public String allowBreak(Player player, Location location, PlayerData playerData, Claim claim) {
+    public String allowBreak(Player player, Location location, PlayerData playerData, Claim claim, Event event) {
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         // exception: administrators in ignore claims mode, and special player accounts created by server mods
         if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
@@ -94,12 +97,15 @@ public class BlockListener implements Listener {
             playerData.setLastClaim(claim);
 
             // if not in the wilderness, then apply claim rules (permissions, etc)
-            return claim.allowBreak(player, location.getBlock());
+            String denyMsg = claim.allowBreak(player, location.getBlock());
+            AllowPlayerActionEvent allowEvent = new AllowPlayerActionEvent(player, claim, event, denyMsg);
+            plugin.getServer().getPluginManager().callEvent(allowEvent);
+            return allowEvent.getDenyMessage();
         }
     }
 
 
-    public String allowBuild(Player player, Location location, PlayerData playerData, Claim claim) {
+    public String allowBuild(Player player, Location location, PlayerData playerData, Claim claim, Event event) {
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
         // exception: administrators in ignore claims mode and special player accounts created by server mods
         if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
@@ -132,7 +138,10 @@ public class BlockListener implements Listener {
         else {
             // cache the claim for later reference
             playerData.setLastClaim(claim);
-            return claim.allowBuild(player);
+            String denyMsg = claim.allowBuild(player);
+            AllowPlayerActionEvent allowEvent = new AllowPlayerActionEvent(player, claim, event, denyMsg);
+            plugin.getServer().getPluginManager().callEvent(allowEvent);
+            return allowEvent.getDenyMessage();
         }
     }
 
@@ -223,7 +232,7 @@ public class BlockListener implements Listener {
         PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         Claim claim = plugin.getDataStore().getClaimAt(breakEvent.getBlock().getLocation(), false, playerData.getLastClaim());
 
-        String noBuildReason = allowBreak(player, block.getLocation(), playerData, claim);
+        String noBuildReason = allowBreak(player, block.getLocation(), playerData, claim, breakEvent);
         if (noBuildReason != null) {
             plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
             breakEvent.setCancelled(true);
@@ -248,38 +257,6 @@ public class BlockListener implements Listener {
         if (block.getType() == Material.LOG && wc.getRemoveFloatingTreetops()) {
             // run the specialized code for treetop removal (see below)
             handleLogBroken(block);
-        }
-    }
-
-    // when a player places a sign...
-    @EventHandler(ignoreCancelled = true)
-    public void onSignChanged(SignChangeEvent event) {
-        Player player = event.getPlayer();
-        if (player == null) return;
-        WorldConfig wc = plugin.getWorldCfg(event.getPlayer().getWorld());
-        StringBuilder lines = new StringBuilder();
-        boolean notEmpty = false;
-        for (String iterateLine : event.getLines()) {
-            if (iterateLine.length() != 0) notEmpty = true;
-            lines.append(iterateLine).append(";");
-        }
-
-        String signMessage = lines.toString();
-
-        // if not empty and wasn't the same as the last sign, log it and remember it for later
-        PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
-        if (notEmpty && playerData.getLastMessage() != null && !playerData.getLastMessage().equals(signMessage)) {
-            plugin.getLogger().info("[Sign Placement] <" + player.getName() + "> " + lines.toString() + " @ " + GriefPreventionTNG.getfriendlyLocationString(event.getBlock().getLocation()));
-            playerData.setLastMessage(signMessage);
-
-            if (!player.hasPermission("griefprevention.eavesdrop") && wc.getSignEavesdrop()) {
-                Player[] players = plugin.getServer().getOnlinePlayers();
-                for (Player otherPlayer : players) {
-                    if (otherPlayer.hasPermission("griefprevention.eavesdrop")) {
-                        otherPlayer.sendMessage(ChatColor.GRAY + player.getName() + "(sign): " + signMessage);
-                    }
-                }
-            }
         }
     }
 
@@ -317,7 +294,7 @@ public class BlockListener implements Listener {
         PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, playerData.getLastClaim());
         // make sure the player is allowed to build at the location
-        String noBuildReason = allowBuild(player, block.getLocation(), playerData, claim);
+        String noBuildReason = allowBuild(player, block.getLocation(), playerData, claim, placeEvent);
         if (noBuildReason != null) {
             plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
             placeEvent.setCancelled(true);
@@ -341,7 +318,7 @@ public class BlockListener implements Listener {
 
             // reset the counter for warning the player when he places outside his claims
             playerData.setUnclaimedBlockPlacementsUntilWarning(1);
-        } else if (block.getType() == Material.CHEST &&                     // otherwise if there's no claim, the player is placing a chest, and new player automatic claims are enabled
+        } else if (block.getType() == Material.CHEST && // otherwise if there's no claim, the player is placing a chest, and new player automatic claims are enabled
                 wc.getAutomaticClaimsForNewPlayerRadius() > -1 &&
                 plugin.claimsEnabledForWorld(block.getWorld())) {
             // FEATURE: automatically create a claim when a player who has no claims places a chest

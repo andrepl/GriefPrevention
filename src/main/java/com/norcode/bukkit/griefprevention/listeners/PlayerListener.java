@@ -26,6 +26,7 @@ import com.norcode.bukkit.griefprevention.configuration.MaterialInfo;
 import com.norcode.bukkit.griefprevention.configuration.WorldConfig;
 import com.norcode.bukkit.griefprevention.data.Claim;
 import com.norcode.bukkit.griefprevention.data.PlayerData;
+import com.norcode.bukkit.griefprevention.events.AllowPlayerActionEvent;
 import com.norcode.bukkit.griefprevention.events.PlayerChangeClaimEvent;
 import com.norcode.bukkit.griefprevention.messages.Messages;
 import com.norcode.bukkit.griefprevention.messages.TextMode;
@@ -43,6 +44,7 @@ import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.HopperMinecart;
 import org.bukkit.entity.minecart.PoweredMinecart;
 import org.bukkit.entity.minecart.StorageMinecart;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -201,6 +203,13 @@ public class PlayerListener implements Listener {
         }
     }
 
+    public String allowAccess(Player player, Claim claim, Event event) {
+        String denyMsg = claim.allowAccess(player);
+        AllowPlayerActionEvent allowEvent = new AllowPlayerActionEvent(player, claim, event, denyMsg);
+        plugin.getServer().getPluginManager().callEvent(allowEvent);
+        return allowEvent.getDenyMessage();
+    }
+
     // when a player dies...
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerDeath(PlayerDeathEvent event) {
@@ -295,7 +304,7 @@ public class PlayerListener implements Listener {
             Claim toClaim = plugin.getDataStore().getClaimAt(player.getLocation(), false, playerData.getLastClaim());
             if (toClaim != null) {
                 playerData.setLastClaim(toClaim);
-                String noAccessReason = toClaim.allowAccess(player);
+                String noAccessReason = allowAccess(player, toClaim, event);
                 if (noAccessReason != null) {
                     plugin.sendMessage(player, TextMode.ERROR, noAccessReason);
                     event.setCancelled(true);
@@ -326,7 +335,7 @@ public class PlayerListener implements Listener {
         PlayerData playerData = plugin.getDataStore().getPlayerData(player.getName());
         // don't allow interaction with item frames in claimed areas without build permission
         if (entity instanceof Hanging) {
-            String noBuildReason = plugin.getBlockListener().allowBuild(player, entity.getLocation(), playerData, playerData.getLastClaim());
+            String noBuildReason = plugin.getBlockListener().allowBuild(player, entity.getLocation(), playerData, playerData.getLastClaim(), event);
             if (noBuildReason != null) {
                 plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
                 event.setCancelled(true);
@@ -372,7 +381,7 @@ public class PlayerListener implements Listener {
 
                 // for boats, apply access rules
                 else if (entity instanceof Boat) {
-                    String noAccessReason = claim.allowAccess(player);
+                    String noAccessReason = allowAccess(player, claim, event);
                     if (noAccessReason != null) {
                         player.sendMessage(noAccessReason);
                         event.setCancelled(true);
@@ -488,7 +497,7 @@ public class PlayerListener implements Listener {
         Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, null);
         if (claim != null) {
             // if the player doesn't have access in that claim, tell him so and prevent him from sleeping in the bed
-            if (claim.allowAccess(player) != null) {
+            if (allowAccess(player, claim, bedEvent) != null) {
                 bedEvent.setCancelled(true);
                 plugin.sendMessage(player, TextMode.ERROR, Messages.NoBedPermission, claim.getFriendlyOwnerName());
             }
@@ -524,7 +533,7 @@ public class PlayerListener implements Listener {
         Claim claim = plugin.getDataStore().getClaimAt(block.getLocation(), false, playerData.getLastClaim());
 
         // make sure the player is allowed to build at the location
-        String noBuildReason = plugin.getBlockListener().allowBuild(player, block.getLocation(), playerData, claim);
+        String noBuildReason = plugin.getBlockListener().allowBuild(player, block.getLocation(), playerData, claim, bucketEvent);
         if (noBuildReason != null) {
             plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
             bucketEvent.setCancelled(true);
@@ -692,7 +701,7 @@ public class PlayerListener implements Listener {
             if (claim != null) {
                 playerData.setLastClaim(claim);
 
-                String noAccessReason = claim.allowAccess(player);
+                String noAccessReason = allowAccess(player, claim, event);
                 if (noAccessReason != null) {
 
                     event.setCancelled(true);
@@ -707,7 +716,7 @@ public class PlayerListener implements Listener {
             if (claim != null) {
                 playerData.setLastClaim(claim);
 
-                String noAccessReason = claim.allowAccess(player);
+                String noAccessReason = allowAccess(player, claim, event);
                 if (noAccessReason != null) {
                     event.setCancelled(true);
                     plugin.sendMessage(player, TextMode.ERROR, noAccessReason);
@@ -753,7 +762,7 @@ public class PlayerListener implements Listener {
             } else if (materialInHand == Material.BOAT) {
                 Claim claim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), false, playerData.getLastClaim());
                 if (claim != null) {
-                    String noAccessReason = claim.allowAccess(player);
+                    String noAccessReason = allowAccess(player, claim, event);
                     if (noAccessReason != null) {
                         plugin.sendMessage(player, TextMode.ERROR, noAccessReason);
                         event.setCancelled(true);
@@ -764,7 +773,7 @@ public class PlayerListener implements Listener {
                     || materialInHand == Material.HOPPER_MINECART || materialInHand == Material.EXPLOSIVE_MINECART || materialInHand == Material.BOAT) && plugin.creativeRulesApply(clickedBlock.getLocation())) {
                 // if it's a spawn egg, minecart, or boat, and this is a creative world, apply special rules
                 // player needs build permission at this location
-                String noBuildReason = plugin.getBlockListener().allowBuild(player, clickedBlock.getLocation(), playerData, null);
+                String noBuildReason = plugin.getBlockListener().allowBuild(player, clickedBlock.getLocation(), playerData, null, event);
                 if (noBuildReason != null) {
                     plugin.sendMessage(player, TextMode.ERROR, noBuildReason);
                     System.out.println("CANCELLING Container Access.");

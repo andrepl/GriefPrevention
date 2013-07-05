@@ -443,4 +443,8 @@ public class GriefPreventionTNG extends JavaPlugin {
     public void setCleanupTask(CleanupUnusedClaimsTask cleanupTask) {
         this.cleanupTask = cleanupTask;
     }
+
+    public PlayerListener getPlayerListener() {
+        return playerListener;
+    }
 }

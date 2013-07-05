@@ -6,13 +6,6 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andre
- * Date: 6/9/13
- * Time: 1:49 PM
- * To change this template use File | Settings | File Templates.
- */
 public class PlayerChangeClaimEvent extends PlayerEvent implements Cancellable {
 
     Claim oldClaim;
