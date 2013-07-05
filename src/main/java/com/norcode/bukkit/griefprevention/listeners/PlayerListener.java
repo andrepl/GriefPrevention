@@ -977,24 +977,24 @@ public class PlayerListener implements Listener {
                 return;
             }
             plugin.debug("We are creating/resizing " + playerData.getClaimResizing());
-            // TODO Claim Create / Resize Starts Here.
-            if (playerData.getClaimResizing() == null) {
-                // see if the player has clicked inside one of their claims.
-                Claim checkclaim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), true, null);
-                // is there even a claim here?
-                if (checkclaim != null) {
-                    // there is a claim; make sure it belongs to this player.
-                    String cannotedit = checkclaim.allowEdit(player);
-                    if (cannotedit == null) {
-                        // it DOES belong to them.
-                        // automatically switch to advanced claims mode, and show a message.
-                        playerData.setClaimSubdividing(checkclaim);
-                        playerData.setShovelMode(ShovelMode.SUBDIVIDE);
-                        // TODO: Raise StartClaimSubdivideEvent
-                        plugin.sendMessage(player, TextMode.INFO, "Entering Claim subdivide mode.");
-                    }
-                }
-            }
+//            // TODO Claim Create / Resize Starts Here.
+//            if (playerData.getClaimResizing() == null) {
+//                // see if the player has clicked inside one of their claims.
+//                Claim checkclaim = plugin.getDataStore().getClaimAt(clickedBlock.getLocation(), true, null);
+//                // is there even a claim here?
+//                if (checkclaim != null) {
+//                    // there is a claim; make sure it belongs to this player.
+//                    String cannotedit = checkclaim.allowEdit(player);
+//                    if (cannotedit == null) {
+//                        // it DOES belong to them.
+//                        // automatically switch to advanced claims mode, and show a message.
+//                        playerData.setClaimSubdividing(checkclaim);
+//                        playerData.setShovelMode(ShovelMode.SUBDIVIDE);
+//                        // TODO: Raise StartClaimSubdivideEvent
+//                        plugin.sendMessage(player, TextMode.INFO, "Entering Claim subdivide mode.");
+//                    }
+//                }
+//            }
 
             // if he's resizing a claim and that claim hasn't been deleted since he started resizing it
             if (playerData.getClaimResizing() != null && playerData.getClaimResizing().isInDataStore()) {
@@ -1114,8 +1114,6 @@ public class PlayerListener implements Listener {
                     Visualization.apply(plugin, player, visualization);
                 }
                 return;
-            } else {
-                plugin.getLogger().info("Player is resizing but... ClaimResizing: " + playerData.getClaimResizing());
             }
 
             // otherwise, since not currently resizing a claim, must be starting a resize, creating a new claim, or creating a subdivision

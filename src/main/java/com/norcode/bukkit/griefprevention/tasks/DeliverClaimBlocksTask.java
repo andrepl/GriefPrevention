@@ -72,10 +72,7 @@ public class DeliverClaimBlocksTask implements Runnable {
                     if (playerData.getAccruedClaimBlocks() > plugin.configuration.getMaxAccruedBlocks()) {
                         playerData.setAccruedClaimBlocks(plugin.configuration.getMaxAccruedBlocks());
                     }
-
-                    //intentionally NOT saving data here to reduce overall secondary storage access frequency
-                    //many other operations will cause this players data to save, including his eventual logout
-                    //dataStore.writePlayerToStorage(player.getName(), playerData);
+                    dataStore.savePlayerData(player.getName(), playerData);
                 }
             } catch (Exception e) {
                 plugin.debug(e.getMessage());
