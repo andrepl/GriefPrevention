@@ -73,33 +73,43 @@ public class BlockListener implements Listener {
 
     public String allowBreak(Player player, Location location, PlayerData playerData, Claim claim, Event event) {
         WorldConfig wc = plugin.getWorldCfg(player.getWorld());
+        plugin.debug("AllowBreak?");
         // exception: administrators in ignore claims mode, and special player accounts created by server mods
         if (playerData.isIgnoreClaims() || wc.getModsIgnoreClaimsAccounts().contains(player.getName())) return null;
-
+        plugin.debug("AllowBreak?");
         // wilderness rules
         if (claim == null) {
+            plugin.debug("AllowBreak - NoClaim");
             // no building in the wilderness in creative mode
             if (plugin.creativeRulesApply(location)) {
                 String reason = plugin.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + plugin.getMessageManager().getMessage(Messages.CreativeBasicsDemoAdvertisement);
-                if (player.hasPermission("griefprevention.ignoreclaims"))
+                if (player.hasPermission("griefprevention.ignoreclaims")) {
                     reason += "  " + plugin.getMessageManager().getMessage(Messages.IgnoreClaimsAdvertisement);
+                }
+                plugin.debug("AllowBreak - No - " + reason);
                 return reason;
             } else if (wc.getApplyTrashBlockRules() && wc.getClaimsEnabled()) {
+                plugin.debug("AllowBreak. No.");
                 return plugin.getMessageManager().getMessage(Messages.NoBuildOutsideClaims) + "  " + plugin.getMessageManager().getMessage(Messages.SurvivalBasicsDemoAdvertisement);
             }
 
             // but it's fine in survival mode
             else {
+                plugin.debug("AllowBreak. sure.");
                 return null;
             }
         } else {
+            plugin.debug("AllowBreak. In a claim.");
             // cache the claim for later reference
             playerData.setLastClaim(claim);
 
             // if not in the wilderness, then apply claim rules (permissions, etc)
             String denyMsg = claim.allowBreak(player, location.getBlock());
+            plugin.debug("AllowBreak  PRE:" + denyMsg);
             AllowPlayerActionEvent allowEvent = new AllowPlayerActionEvent(player, claim, event, denyMsg);
             plugin.getServer().getPluginManager().callEvent(allowEvent);
+            denyMsg = allowEvent.getDenyMessage();
+            plugin.debug("AllowBreak POST:" + denyMsg);
             return allowEvent.getDenyMessage();
         }
     }
@@ -139,8 +149,10 @@ public class BlockListener implements Listener {
             // cache the claim for later reference
             playerData.setLastClaim(claim);
             String denyMsg = claim.allowBuild(player);
+            plugin.debug("AllowBuild  PRE:" + denyMsg);
             AllowPlayerActionEvent allowEvent = new AllowPlayerActionEvent(player, claim, event, denyMsg);
             plugin.getServer().getPluginManager().callEvent(allowEvent);
+            plugin.debug("AllowBuild POST:" + denyMsg);
             return allowEvent.getDenyMessage();
         }
     }

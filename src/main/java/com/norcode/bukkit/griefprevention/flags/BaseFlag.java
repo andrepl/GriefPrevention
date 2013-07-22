@@ -196,6 +196,21 @@ public abstract class BaseFlag {
     }
 
     /**
+     * check if the specified value is valid.
+     *
+     * @param value
+     * @return true if the value is valid. false otherwise.
+     */
+    public boolean isValidOption(String value) {
+        for (String o: this.validOptions) {
+            if (o.equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * set the required permission node for changing this flag.
      *
      * @param requiredPermission the permission node required.

@@ -204,6 +204,9 @@ public class PlayerListener implements Listener {
     }
 
     public String allowAccess(Player player, Claim claim, Event event) {
+        if (claim == null) {
+            return null;
+        }
         String denyMsg = claim.allowAccess(player);
         AllowPlayerActionEvent allowEvent = new AllowPlayerActionEvent(player, claim, event, denyMsg);
         plugin.getServer().getPluginManager().callEvent(allowEvent);

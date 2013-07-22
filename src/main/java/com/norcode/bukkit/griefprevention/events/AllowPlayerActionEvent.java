@@ -20,6 +20,7 @@ public class AllowPlayerActionEvent extends PlayerEvent implements Cancellable {
         super(who);
         this.claim = claim;
         this.originalEvent = event;
+        this.denyMessage = denyMessage;
     }
 
     public Claim getClaim() {
@@ -54,7 +55,7 @@ public class AllowPlayerActionEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return null;
+        return handlers;
     }
 
 

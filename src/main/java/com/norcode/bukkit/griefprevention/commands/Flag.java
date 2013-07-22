@@ -2,6 +2,7 @@ package com.norcode.bukkit.griefprevention.commands;
 
 import com.norcode.bukkit.griefprevention.GriefPreventionTNG;
 import com.norcode.bukkit.griefprevention.data.Claim;
+import com.norcode.bukkit.griefprevention.events.FlagSetEvent;
 import com.norcode.bukkit.griefprevention.exceptions.InvalidFlagValueException;
 import com.norcode.bukkit.griefprevention.flags.BaseFlag;
 import com.norcode.bukkit.griefprevention.messages.Messages;
@@ -66,15 +67,25 @@ public class Flag extends BaseClaimCommand {
                     return true;
                 }
                 String value = args.pop();
-                try {
-                    claim.setFlag(flag, value);
-                } catch (InvalidFlagValueException ex) {
+                if (flag.isValidOption(value)) {
+                    FlagSetEvent fse = new FlagSetEvent(player, claim, flag, value);
+                    plugin.getServer().getPluginManager().callEvent(fse);
+                    if (!fse.isCancelled()) {
+                        flag = fse.getFlag();
+                        value = fse.getValue();
+                        try {
+                            claim.setFlag(flag, value);
+                        } catch (InvalidFlagValueException ex) {
+                            plugin.sendMessage(player, TextMode.ERROR, Messages.InvalidFlagValue, value);
+                            return true;
+                        }
+                        plugin.sendMessage(player, TextMode.SUCCESS, Messages.FlagSet, flag.getDisplayName(), claim.getFlag(flag));
+                        plugin.getDataStore().saveClaim(claim);
+                        return true;
+                    }
+                } else {
                     plugin.sendMessage(player, TextMode.ERROR, Messages.InvalidFlagValue, value);
-                    return true;
                 }
-                plugin.sendMessage(player, TextMode.SUCCESS, Messages.FlagSet, flag.getDisplayName(), claim.getFlag(flag));
-                flag.onSet(player, claim, value);
-                plugin.getDataStore().saveClaim(claim);
                 return true;
             }
             return false;

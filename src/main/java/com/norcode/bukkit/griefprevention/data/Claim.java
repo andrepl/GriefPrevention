@@ -1160,7 +1160,6 @@ public class Claim {
 
     public String toString() {
         return String.format("<Claim: %s, p1:%s, p2:%s>", this.id == null ? "null" : this.id.toString(), this.min == null ? "null" : this.min.toVector(), this.max == null ? "null" : max.toVector());
-
     }
 
     public void setMin(Location min) {
