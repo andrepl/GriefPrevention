@@ -103,7 +103,7 @@ public class WorldConfig {
     private int configClaimsWildernessBlocksDelay;                   	// the number of non-trash blocks that can be placed before warning.  0 disables the display entirely.
     private int configClaimsPerPlayerClaimLimit;                        // maximum number of claims a user can have.
     private double configClaimsAbandonReturnRatio;                // return ratio when abandoning a claim- .80 will result in players getting 80% of the used claim blocks back.
-    private int configAnimalCrowdingLimit = 8;
+    private int configAnimalCrowdingLimit = 16;
 
     private String WorldName;
     private EnumSet<Material> configTrashBlocks = null;
@@ -393,6 +393,9 @@ public class WorldConfig {
 
 		this.configClaimsMaxDepth = config.getInt("GriefPrevention.Claims.MaximumDepth", 0);
         outConfig.set("GriefPrevention.Claims.MaximumDepth", this.configClaimsMaxDepth);
+
+        this.configAnimalCrowdingLimit = config.getInt("GriefPrevention.AnimalCrowdingLimit", 16);
+        outConfig.set("GriefPrevention.AnimalCrowdingLimit", 16);
 
 		this.configClaimsTrappedCooldownHours = config.getInt("GriefPrevention.Claims.TrappedCommandCooldownHours", 8);
         outConfig.set("GriefPrevention.Claims.TrappedCommandCooldownHours", this.configClaimsTrappedCooldownHours);

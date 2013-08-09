@@ -112,7 +112,14 @@ public class DataStore {
     }
 
     public Claim getClaimAt(Location location, boolean ignoreHeight, Claim cachedClaim) {
-        if (cachedClaim != null && cachedClaim.isInDataStore() && cachedClaim.contains(location, ignoreHeight, true)) {
+        if (cachedClaim != null && cachedClaim.isInDataStore() && cachedClaim.contains(location, ignoreHeight, false)) {
+            if (cachedClaim.getChildren() != null && cachedClaim.getChildren().size() > 0) {
+                for (Claim cc: cachedClaim.getChildren()) {
+                    if (cc.contains(location, true, true)) {
+                        return cc;
+                    }
+                }
+            }
             return cachedClaim;
         }
 

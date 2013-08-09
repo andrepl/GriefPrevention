@@ -221,7 +221,7 @@ public class EntityListener implements Listener {
                     return;
                 }
                 int count = 0;
-                for (Entity e: entity.getNearbyEntities(10, 16, 10)) {
+                for (Entity e: entity.getNearbyEntities(8, 8, 8)) {
                     if (e.getType() == entity.getType()) {
                         count++;
                     }
